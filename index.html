@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Aura Foods</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script>
@@ -25,24 +25,47 @@
   --green-safe: #27ae60;
   --gold: #f0c040;
   --gold2: #e0a800;
+
+  /* iOS safe area shortcuts */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
 body {
   font-family: 'Nunito', sans-serif;
+  /* gradient esteso anche nella safe area */
   background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
+  background-attachment: fixed;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   display: flex;
   justify-content: center;
+  /* fill anche lo status bar area */
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
 }
+
+/* Garantisce che il colore dietro la Dynamic Island sia il verde del gradiente */
+html {
+  background: #c5eebc;
+}
+
 .app-shell {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
 }
+
 .screen { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn .3s ease; }
 .screen.active { display: flex; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
@@ -52,59 +75,61 @@ body {
   background: rgba(200,238,205,0.72);
   backdrop-filter: blur(14px);
   border-radius: 0 0 26px 26px;
-  padding: 14px 20px;
+  padding: 12px 16px;
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 4px 16px rgba(30,90,55,0.12);
   flex-shrink: 0; z-index: 10;
 }
 .nav-btn {
   background: rgba(255,255,255,0.55);
-  border: none; border-radius: 20px;
-  padding: 8px 18px;
-  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px;
+  border: none; border-radius: 16px;
+  padding: 7px 14px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px;
   color: var(--text-dark); cursor: pointer;
   transition: background .2s, transform .1s;
 }
 .nav-btn:active { transform: scale(.95); }
 .nav-btn:hover { background: rgba(255,255,255,0.85); }
 .nav-logo { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-.nav-logo img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; }
+.nav-logo img { width: 36px; height: 36px; border-radius: 9px; object-fit: cover; }
 
 /* CARD */
-.card { background: var(--green-card); backdrop-filter: blur(10px); border-radius: 26px; padding: 24px; box-shadow: 0 6px 24px rgba(30,90,55,0.10); }
+.card { background: var(--green-card); backdrop-filter: blur(10px); border-radius: 26px; padding: 20px; box-shadow: 0 6px 24px rgba(30,90,55,0.10); }
 
 /* BUTTONS */
 .btn {
   background: var(--green-btn); color: #fff; border: none; border-radius: 50px;
-  padding: 15px 32px; font-family: 'Fredoka One', cursive; font-size: 17px; letter-spacing: .5px;
+  padding: 13px 24px; font-family: 'Fredoka One', cursive; font-size: 15px; letter-spacing: .4px;
   cursor: pointer; transition: background .2s, transform .12s, box-shadow .2s;
-  box-shadow: 0 5px 18px rgba(30,90,55,0.28); width: 100%;
+  box-shadow: 0 4px 14px rgba(30,90,55,0.28); width: 100%;
 }
-.btn:hover { background: var(--green-btn-hover); box-shadow: 0 8px 22px rgba(30,90,55,0.35); }
+.btn:hover { background: var(--green-btn-hover); box-shadow: 0 6px 18px rgba(30,90,55,0.35); }
 .btn:active { transform: scale(.97); }
 .btn-outline {
-  background: transparent; color: var(--green-btn); border: 2.5px solid var(--green-btn);
-  border-radius: 50px; padding: 12px 28px; font-family:'Fredoka One',cursive; font-size:15px;
+  background: transparent; color: var(--green-btn); border: 2px solid var(--green-btn);
+  border-radius: 50px; padding: 10px 20px; font-family:'Fredoka One',cursive; font-size:13px;
   cursor: pointer; transition: all .2s; width: 100%;
 }
 .btn-outline:hover { background: rgba(45,106,79,.1); }
-.btn-sm { padding: 10px 22px; font-size: 14px; width: auto; }
+.btn-sm { padding: 9px 18px; font-size: 13px; width: auto; }
 .btn-logout {
   background: #e53e3e !important;
   color: #fff !important;
-  box-shadow: 0 5px 18px rgba(229,62,62,0.35) !important;
-  margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(229,62,62,0.35) !important;
+  margin-top: 6px;
 }
 .btn-logout:hover { background: #c53030 !important; }
 
 /* INPUTS */
-.form-group { margin-bottom: 18px; }
-.form-label { display:block; font-weight:800; font-size:14px; color:var(--text-dark); margin-bottom:8px; }
+.form-group { margin-bottom: 14px; }
+.form-label { display:block; font-weight:800; font-size:13px; color:var(--text-dark); margin-bottom:6px; }
 .form-input, .form-select {
   width: 100%; background: rgba(255,255,255,0.8); border: 2px solid transparent;
-  border-radius: 14px; padding: 13px 16px; font-family:'Nunito',sans-serif;
+  border-radius: 12px; padding: 11px 14px; font-family:'Nunito',sans-serif;
   font-size: 15px; font-weight: 600; color: var(--text-dark); outline: none;
   transition: border-color .2s, box-shadow .2s; appearance: none;
+  /* prevent iOS zoom on focus (font-size >= 16px) */
+  font-size: 16px;
 }
 .form-input::placeholder { color: #9cb9a8; font-weight:400; }
 .form-input:focus, .form-select:focus {
@@ -114,32 +139,32 @@ body {
 .select-wrapper { position: relative; }
 .select-wrapper::after { content:'▾'; position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--green-btn); font-size:18px; pointer-events:none; }
 
-.footer { margin-top: auto; padding: 10px 16px; text-align: center; font-size:11px; color: rgba(13,51,32,.5); font-weight:700; }
+.footer { margin-top: auto; padding: 8px 16px; text-align: center; font-size:11px; color: rgba(13,51,32,.5); font-weight:700; }
 
 /* ═══ AUTH ═══ */
-#screen-auth { justify-content: center; padding: 40px 24px 30px; gap: 22px; }
+#screen-auth { justify-content: center; padding: 28px 20px 24px; gap: 18px; }
 
 .auth-logo-container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 20px 0 10px;
+  padding: 12px 0 8px;
 }
 .auth-logo-container img {
-  width: 160px;
-  height: 160px;
+  width: 130px;
+  height: 130px;
   object-fit: contain;
-  border-radius: 36px;
-  box-shadow: 0 12px 36px rgba(30,90,55,0.22);
+  border-radius: 30px;
+  box-shadow: 0 10px 32px rgba(30,90,55,0.22);
 }
 
-.auth-tabs { display:flex; background:rgba(255,255,255,0.35); border-radius:16px; padding:4px; gap:4px; margin-bottom:20px; }
-.auth-tab { flex:1; padding:10px; border:none; border-radius:12px; font-family:'Fredoka One',cursive; font-size:15px; cursor:pointer; background:transparent; color:var(--text-mid); transition:all .2s; }
+.auth-tabs { display:flex; background:rgba(255,255,255,0.35); border-radius:14px; padding:3px; gap:3px; margin-bottom:16px; }
+.auth-tab { flex:1; padding:9px; border:none; border-radius:11px; font-family:'Fredoka One',cursive; font-size:14px; cursor:pointer; background:transparent; color:var(--text-mid); transition:all .2s; }
 .auth-tab.active { background:var(--green-btn); color:#fff; box-shadow:0 2px 10px rgba(30,90,55,0.25); }
 
 /* ═══ HOME ═══ */
-#screen-home { padding:0 0 24px; position:relative; overflow:hidden; }
+#screen-home { padding:0 0 20px; position:relative; overflow:hidden; }
 .home-bg-orbs { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
 .orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:.35; animation: orbFloat 8s ease-in-out infinite; }
 .orb1 { width:220px; height:220px; background:radial-gradient(circle,#a8e6b0,#5cb87a); top:-60px; right:-40px; animation-delay:0s; }
@@ -147,160 +172,160 @@ body {
 .orb3 { width:140px; height:140px; background:radial-gradient(circle,#e0f9d8,#7ccf7a); top:40%; right:10px; animation-delay:-5s; }
 @keyframes orbFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-20px) scale(1.05)} }
 
-.home-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; padding:28px 20px 0; gap:26px; }
+.home-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; padding:20px 16px 0; gap:18px; }
 
 .home-logo-card {
   background: linear-gradient(145deg, rgba(235,255,230,0.85), rgba(200,242,200,0.75));
   backdrop-filter: blur(16px);
-  border-radius: 32px; padding: 28px 20px;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  border-radius: 28px; padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
   width: 100%; box-shadow: 0 8px 32px rgba(30,90,55,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
   border: 1px solid rgba(255,255,255,0.4);
   animation: cardFloat 5s ease-in-out infinite;
 }
 @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 .home-logo-card img {
-  width: 85%;
-  max-width: 260px;
+  width: 80%;
+  max-width: 240px;
   height: auto;
   object-fit: contain;
-  border-radius: 28px;
+  border-radius: 22px;
 }
 
-.home-actions { display:flex; gap:14px; width:100%; }
-.home-actions .btn { flex:1; padding:16px 10px; font-size:17px; }
+.home-actions { display:flex; gap:10px; width:100%; }
+.home-actions .btn { flex:1; padding:13px 8px; font-size:15px; }
 .btn-shelf { background: linear-gradient(135deg,#2d8653,#1a5c3a); }
 .btn-add { background: linear-gradient(135deg,#3da865,#2d6a4f); }
 
 .home-social-card {
   background: rgba(210,240,210,0.52); backdrop-filter: blur(10px);
-  border-radius: 24px; width: 100%; padding: 18px 24px;
-  display: flex; align-items: center; justify-content: center; gap: 24px;
+  border-radius: 20px; width: 100%; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
   border: 1px solid rgba(255,255,255,0.35);
 }
 .social-link {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 10px 16px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px; border-radius: 13px;
   background: rgba(255,255,255,0.55); transition: transform .2s, background .2s;
   cursor: pointer; text-decoration: none;
 }
 .social-link:hover { transform: scale(1.08) translateY(-2px); background: rgba(255,255,255,0.85); }
-.social-link svg { width: 20px; height: 20px; }
-.social-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-dark); }
+.social-link svg { width: 18px; height: 18px; }
+.social-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-dark); }
 
 /* ═══ ADD ═══ */
-#screen-add { padding:0 0 20px; }
-.add-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:24px; }
+#screen-add { padding:0 0 16px; }
+.add-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:18px; }
 .scan-card {
-  background: var(--green-card); border-radius: 28px;
-  width: 100%; max-width: 280px; aspect-ratio: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  background: var(--green-card); border-radius: 24px;
+  width: 100%; max-width: 240px; aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   cursor: pointer; transition: transform .2s, box-shadow .2s;
   box-shadow: 0 4px 20px rgba(30,90,55,0.12); border: 1px solid rgba(255,255,255,0.4);
 }
 .scan-card:hover { transform:scale(1.03); box-shadow:0 8px 28px rgba(30,90,55,0.2); }
-.scan-frame { width:120px; height:100px; position:relative; }
-.scan-frame::before,.scan-frame::after,.scan-frame .sf-bl,.scan-frame .sf-br { content:''; position:absolute; width:26px; height:26px; border-color:var(--text-dark); border-style:solid; }
+.scan-frame { width:100px; height:84px; position:relative; }
+.scan-frame::before,.scan-frame::after,.scan-frame .sf-bl,.scan-frame .sf-br { content:''; position:absolute; width:22px; height:22px; border-color:var(--text-dark); border-style:solid; }
 .scan-frame::before { top:0; left:0; border-width:3px 0 0 3px; border-radius:4px 0 0 0; }
 .scan-frame::after { top:0; right:0; border-width:3px 3px 0 0; border-radius:0 4px 0 0; }
 .scan-frame .sf-bl { bottom:0; left:0; border-width:0 0 3px 3px; border-radius:0 0 0 4px; }
 .scan-frame .sf-br { bottom:0; right:0; border-width:0 3px 3px 0; border-radius:0 0 4px 0; }
 .scan-line { position:absolute; top:50%; left:8px; right:8px; height:3px; background:var(--green-btn); border-radius:2px; animation:scanAnim 1.8s ease-in-out infinite; }
 @keyframes scanAnim { 0%,100%{top:15%} 50%{top:80%} }
-.add-or { font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-mid); font-size:15px; }
+.add-or { font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-mid); font-size:14px; }
 
 /* ═══ BACK HEADER ═══ */
-.back-header { background:rgba(200,238,205,0.72); backdrop-filter:blur(14px); border-radius:0 0 26px 26px; padding:16px 20px; display:flex; align-items:center; gap:14px; flex-shrink:0; box-shadow:0 4px 16px rgba(30,90,55,0.10); }
-.back-btn { background:none; border:none; font-size:26px; color:var(--text-dark); cursor:pointer; padding:2px 6px; line-height:1; }
-.back-title { font-family:'Fredoka One',cursive; font-size:22px; color:var(--text-mid); }
-.form-content { flex:1; padding:28px 20px 20px; display:flex; flex-direction:column; overflow-y:auto; }
+.back-header { background:rgba(200,238,205,0.72); backdrop-filter:blur(14px); border-radius:0 0 24px 24px; padding:14px 18px; display:flex; align-items:center; gap:12px; flex-shrink:0; box-shadow:0 4px 16px rgba(30,90,55,0.10); }
+.back-btn { background:none; border:none; font-size:24px; color:var(--text-dark); cursor:pointer; padding:2px 6px; line-height:1; }
+.back-title { font-family:'Fredoka One',cursive; font-size:20px; color:var(--text-mid); }
+.form-content { flex:1; padding:22px 16px 16px; display:flex; flex-direction:column; overflow-y:auto; }
 
 /* ═══ SHELF ═══ */
-#screen-shelf { padding:0 0 20px; }
-.shelf-content { flex:1; padding:20px 20px; display:flex; flex-direction:column; gap:14px; }
-.shelf-title { font-family:'Fredoka One',cursive; font-size:28px; color:#fff; text-align:center; text-shadow:0 2px 10px rgba(30,90,55,0.25); margin-bottom:4px; }
-.shelf-empty { background:var(--green-card); border-radius:24px; padding:40px 24px; text-align:center; font-family:'Fredoka One',cursive; font-size:17px; color:var(--text-mid); line-height:1.6; }
+#screen-shelf { padding:0 0 16px; }
+.shelf-content { flex:1; padding:16px; display:flex; flex-direction:column; gap:10px; }
+.shelf-title { font-family:'Fredoka One',cursive; font-size:24px; color:#fff; text-align:center; text-shadow:0 2px 10px rgba(30,90,55,0.25); margin-bottom:2px; }
+.shelf-empty { background:var(--green-card); border-radius:20px; padding:32px 20px; text-align:center; font-family:'Fredoka One',cursive; font-size:15px; color:var(--text-mid); line-height:1.6; }
 .product-card {
-  background: var(--green-card); border-radius: 20px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 14px;
+  background: var(--green-card); border-radius: 18px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
   cursor: pointer; transition: transform .15s, box-shadow .15s;
   box-shadow: 0 2px 12px rgba(30,90,55,0.08); border: 1px solid rgba(255,255,255,0.35);
 }
 .product-card:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(30,90,55,0.16); }
-.product-emoji { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,0.65); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.product-emoji { width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.65); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
 .product-info { flex:1; }
-.product-name { font-family:'Fredoka One',cursive; font-size:16px; color:var(--text-dark); }
-.product-qty { font-size:13px; font-weight:700; color:var(--text-mid); }
-.product-date { font-size:13px; font-weight:800; color:var(--text-dark); margin-top:1px; }
+.product-name { font-family:'Fredoka One',cursive; font-size:15px; color:var(--text-dark); }
+.product-qty { font-size:12px; font-weight:700; color:var(--text-mid); }
+.product-date { font-size:12px; font-weight:800; color:var(--text-dark); margin-top:1px; }
 .product-date.expiring { color:var(--red-expiry); }
 
 /* ═══ SUCCESS ═══ */
-#screen-success { padding:0 0 20px; }
-.success-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:24px; }
-.success-card { background:var(--green-card); border-radius:28px; padding:44px 32px; display:flex; flex-direction:column; align-items:center; gap:18px; width:100%; max-width:280px; }
-.success-check { width:80px; height:80px; background:var(--green-btn); border-radius:50%; display:flex; align-items:center; justify-content:center; animation:popIn .4s cubic-bezier(.34,1.56,.64,1); }
+#screen-success { padding:0 0 16px; }
+.success-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:20px; }
+.success-card { background:var(--green-card); border-radius:24px; padding:36px 28px; display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; max-width:260px; }
+.success-check { width:70px; height:70px; background:var(--green-btn); border-radius:50%; display:flex; align-items:center; justify-content:center; animation:popIn .4s cubic-bezier(.34,1.56,.64,1); }
 @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-.success-check svg { width:44px; height:44px; color:#fff; }
-.success-text { font-family:'Fredoka One',cursive; font-size:19px; color:var(--text-dark); text-align:center; line-height:1.4; }
-.coins-earned { background:linear-gradient(135deg,#f0c040,#e0a800); border-radius:16px; padding:12px 22px; display:flex; align-items:center; gap:10px; font-family:'Fredoka One',cursive; font-size:18px; color:#5a3500; box-shadow:0 4px 16px rgba(224,168,0,0.35); animation:popIn .5s .2s both cubic-bezier(.34,1.56,.64,1); }
+.success-check svg { width:38px; height:38px; color:#fff; }
+.success-text { font-family:'Fredoka One',cursive; font-size:17px; color:var(--text-dark); text-align:center; line-height:1.4; }
+.coins-earned { background:linear-gradient(135deg,#f0c040,#e0a800); border-radius:14px; padding:10px 18px; display:flex; align-items:center; gap:8px; font-family:'Fredoka One',cursive; font-size:16px; color:#5a3500; box-shadow:0 4px 16px rgba(224,168,0,0.35); animation:popIn .5s .2s both cubic-bezier(.34,1.56,.64,1); }
 
 /* ═══ DETAIL ═══ */
-#screen-detail { padding:0 0 20px; }
-.detail-content { flex:1; padding:24px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; }
-.detail-title { font-family:'Fredoka One',cursive; font-size:30px; color:#fff; text-shadow:0 2px 10px rgba(30,90,55,0.25); text-align:center; }
-.detail-card { background:var(--green-card); border-radius:24px; padding:24px; width:100%; display:flex; gap:18px; align-items:flex-start; }
-.detail-emoji { width:64px; height:64px; border-radius:16px; background:rgba(255,255,255,0.65); display:flex; align-items:center; justify-content:center; font-size:36px; flex-shrink:0; }
+#screen-detail { padding:0 0 16px; }
+.detail-content { flex:1; padding:20px 16px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.detail-title { font-family:'Fredoka One',cursive; font-size:26px; color:#fff; text-shadow:0 2px 10px rgba(30,90,55,0.25); text-align:center; }
+.detail-card { background:var(--green-card); border-radius:20px; padding:20px; width:100%; display:flex; gap:14px; align-items:flex-start; }
+.detail-emoji { width:56px; height:56px; border-radius:14px; background:rgba(255,255,255,0.65); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
 .detail-info { flex:1; }
-.detail-info p { font-family:'Fredoka One',cursive; font-size:15px; color:var(--text-dark); margin-bottom:6px; }
+.detail-info p { font-family:'Fredoka One',cursive; font-size:14px; color:var(--text-dark); margin-bottom:5px; }
 .detail-info .d-expiry { color:var(--red-expiry); }
 .detail-info .d-safe { color:var(--green-safe); }
-.detail-actions { display:flex; gap:12px; width:100%; }
-.detail-actions .btn-outline { flex:1; font-size:14px; }
-.btn-danger-outline { flex:1; background:transparent; color:var(--red-expiry); border:2px solid var(--red-expiry); border-radius:50px; padding:12px 10px; font-family:'Fredoka One',cursive; font-size:14px; cursor:pointer; transition:all .2s; }
+.detail-actions { display:flex; gap:10px; width:100%; }
+.detail-actions .btn-outline { flex:1; font-size:13px; }
+.btn-danger-outline { flex:1; background:transparent; color:var(--red-expiry); border:2px solid var(--red-expiry); border-radius:50px; padding:9px 8px; font-family:'Fredoka One',cursive; font-size:13px; cursor:pointer; transition:all .2s; }
 .btn-danger-outline:hover { background:rgba(192,57,43,.08); }
 
 /* ═══ PROFILE ═══ */
-#screen-profile { padding:0 0 20px; }
-.profile-content { flex:1; padding:24px 20px; display:flex; flex-direction:column; gap:20px; overflow-y:auto; }
+#screen-profile { padding:0 0 16px; }
+.profile-content { flex:1; padding:20px 16px; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
 .profile-hero {
   background: linear-gradient(145deg, rgba(235,255,230,0.85), rgba(200,242,200,0.75));
-  border-radius: 28px; padding: 28px 20px;
-  display: flex; flex-direction:column; align-items:center; gap:14px;
+  border-radius: 24px; padding: 22px 16px;
+  display: flex; flex-direction:column; align-items:center; gap:10px;
   border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 6px 24px rgba(30,90,55,0.12);
 }
 .avatar-wrap { position:relative; cursor:pointer; }
 .avatar-img {
-  width: 90px; height: 90px; border-radius: 50%;
-  object-fit: cover; border: 4px solid rgba(255,255,255,0.8);
+  width: 80px; height: 80px; border-radius: 50%;
+  object-fit: cover; border: 3px solid rgba(255,255,255,0.8);
   box-shadow: 0 6px 20px rgba(30,90,55,0.18);
   background: rgba(255,255,255,0.5);
-  display: flex; align-items:center; justify-content:center; font-size:44px;
+  display: flex; align-items:center; justify-content:center; font-size:38px;
   overflow: hidden;
 }
 .avatar-edit-badge {
   position:absolute; bottom:2px; right:2px;
-  width:26px; height:26px; border-radius:50%;
+  width:22px; height:22px; border-radius:50%;
   background:var(--green-btn); color:#fff;
   display:flex; align-items:center; justify-content:center;
-  font-size:13px; box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  font-size:11px; box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
-.profile-name { font-family:'Fredoka One',cursive; font-size:22px; color:var(--text-dark); }
-.profile-email { font-size:13px; font-weight:700; color:var(--text-mid); }
+.profile-name { font-family:'Fredoka One',cursive; font-size:20px; color:var(--text-dark); }
+.profile-email { font-size:12px; font-weight:700; color:var(--text-mid); }
 
 .coins-card {
   background: linear-gradient(135deg,#ffe87a,#f5c300,#e0a800);
-  border-radius: 24px; padding: 20px 24px;
+  border-radius: 20px; padding: 16px 20px;
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 6px 24px rgba(224,168,0,0.35);
   border: 1px solid rgba(255,255,255,0.4);
 }
-.coins-label { font-family:'Fredoka One',cursive; font-size:15px; color:#5a3500; }
-.coins-value { font-family:'Fredoka One',cursive; font-size:36px; color:#3a2000; display:flex; align-items:center; gap:8px; }
-.coins-desc { font-size:12px; font-weight:700; color:#7a4a00; margin-top:2px; }
-.profile-section-title { font-family:'Fredoka One',cursive; font-size:16px; color:var(--text-dark); padding:0 4px; }
+.coins-label { font-family:'Fredoka One',cursive; font-size:14px; color:#5a3500; }
+.coins-value { font-family:'Fredoka One',cursive; font-size:32px; color:#3a2000; display:flex; align-items:center; gap:6px; }
+.coins-desc { font-size:11px; font-weight:700; color:#7a4a00; margin-top:2px; }
+.profile-section-title { font-family:'Fredoka One',cursive; font-size:15px; color:var(--text-dark); padding:0 4px; }
 
 /* TOAST */
-.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--text-dark); color:#fff; padding:12px 24px; border-radius:50px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events:none; white-space:nowrap; }
+.toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--text-dark); color:#fff; padding:10px 20px; border-radius:50px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events:none; white-space:nowrap; }
 .toast.show { transform:translateX(-50%) translateY(0); }
 ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:rgba(30,90,55,.25); border-radius:4px; }
 </style>
@@ -371,7 +396,7 @@ body {
         <span class="social-label">Ig</span>
       </a>
       <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank">
-        <svg viewBox="0 0 24 24" fill="#1a5c3a" width="20" height="20"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+        <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
         <span class="social-label">OnlyFans</span>
       </a>
       <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank">
@@ -400,10 +425,10 @@ body {
   <div class="add-content">
     <div class="scan-card" onclick="simulateScan()">
       <div class="scan-frame"><div class="sf-bl"></div><div class="sf-br"></div><div class="scan-line"></div></div>
-      <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:15px;">Simula Scan 📷</span>
+      <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Simula Scan 📷</span>
     </div>
     <span class="add-or">oppure</span>
-    <button class="btn" style="max-width:270px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
+    <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
   </div>
   <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 </div>
@@ -415,7 +440,7 @@ body {
     <span class="back-title">Inserimento manuale</span>
   </div>
   <div class="form-content">
-    <div class="card" style="margin-bottom:20px">
+    <div class="card" style="margin-bottom:16px">
       <div class="form-group"><label class="form-label">Nome prodotto:</label><input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name"></div>
       <div class="form-group"><label class="form-label">Quantità:</label><input type="text" class="form-input" placeholder="es. 3" id="prod-qty"></div>
       <div class="form-group"><label class="form-label">Tipo di scadenza:</label>
@@ -443,7 +468,7 @@ body {
       <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
     </div>
     <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
-    <button class="btn" style="max-width:280px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
+    <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
   </div>
   <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 </div>
@@ -460,7 +485,7 @@ body {
   <div class="shelf-content">
     <div class="shelf-title">La tua Shelf 📦</div>
     <div id="shelf-list"></div>
-    <button class="btn" style="margin-top:6px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
+    <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
   </div>
   <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 </div>
@@ -484,7 +509,7 @@ body {
       <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
       <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
     </div>
-    <button class="btn" onclick="goTo('screen-shelf')" style="max-width:280px">Torna indietro</button>
+    <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
   </div>
   <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 </div>
@@ -531,7 +556,7 @@ body {
 
 <script>
 // ══════════════════════════════════════════
-//  LOGO — tutti i tag <img> del logo usano LOGO_PATH
+//  LOGO
 // ══════════════════════════════════════════
 (function applyLogos() {
   const ids = ['auth-logo','home-logo','nav-logo-add','nav-logo-success','nav-logo-shelf','nav-logo-detail'];
@@ -582,10 +607,7 @@ function getEmoji(name) {
 }
 
 // ══════════════════════════════════════════
-//  STORAGE — multi-account
-//  Struttura localStorage:
-//    aura_users  → { [email]: { name, email, password, avatar, coins, products[] } }
-//    aura_session → email utente loggato
+//  STORAGE
 // ══════════════════════════════════════════
 function getAllUsers() {
   try { return JSON.parse(localStorage.getItem('aura_users') || '{}'); }
@@ -603,15 +625,12 @@ function setSession(email) {
 function clearSession() {
   localStorage.removeItem('aura_session');
 }
-
-// Ritorna i dati dell'utente corrente (oggetto live)
 function getCurrentUser() {
   const email = getSession();
   if (!email) return null;
   const users = getAllUsers();
   return users[email] || null;
 }
-// Salva modifiche all'utente corrente
 function saveCurrentUser(updatedData) {
   const email = getSession();
   if (!email) return;
@@ -619,8 +638,6 @@ function saveCurrentUser(updatedData) {
   users[email] = { ...users[email], ...updatedData };
   saveAllUsers(users);
 }
-
-// Helpers per products e coins
 function getProducts() {
   return getCurrentUser()?.products || [];
 }
@@ -659,11 +676,9 @@ function doLogin() {
   const email = (document.getElementById('login-email').value || '').trim().toLowerCase();
   const pass  = document.getElementById('login-pass').value || '';
   if (!email || !pass) { showToast('Inserisci email e password 🌿'); return; }
-
   const users = getAllUsers();
   if (!users[email]) { showToast('Account non trovato ❌'); return; }
   if (users[email].password !== pass) { showToast('Password errata ❌'); return; }
-
   setSession(email);
   showToast('Bentornato, ' + users[email].name + '! 🥑');
   setTimeout(() => goTo('screen-home'), 400);
@@ -674,10 +689,8 @@ function doRegister() {
   const email = (document.getElementById('reg-email').value || '').trim().toLowerCase();
   const pass  = document.getElementById('reg-pass').value   || '';
   if (!name || !email || !pass) { showToast('Compila tutti i campi 🌿'); return; }
-
   const users = getAllUsers();
   if (users[email]) { showToast('Email già registrata ❌'); return; }
-
   users[email] = { name, email, password: pass, avatar: null, coins: 0, products: [] };
   saveAllUsers(users);
   showToast('Account creato! Ora accedi 🌿');
@@ -718,7 +731,6 @@ function addProduct() {
   goTo('screen-success');
 }
 
-// Logica condivisa: se esiste stesso nome+data → aggiorna qty, altrimenti crea
 function mergeOrAddProduct(name, qty, type, date, giveCoins) {
   const products = getProducts();
   const qtyNum = parseFloat(qty) || 1;
@@ -734,15 +746,13 @@ function mergeOrAddProduct(name, qty, type, date, giveCoins) {
     saveProducts(products);
     showToast(name + ' aggiunto! +5 🪙');
   }
-    if (giveCoins) addCoins(5);
-    
+  if (giveCoins) addCoins(5);
 }
 
 // ══════════════════════════════════════════
 //  DATE HELPERS
 // ══════════════════════════════════════════
 function formatDate(raw) {
-  // Normalizza separatori e padding
   const parts = raw.replace(/[.\-]/g, '/').split('/');
   if (parts.length !== 3) return raw;
   let [d, m, y] = parts;
@@ -775,7 +785,6 @@ function renderShelf() {
     c.innerHTML = '<div class="shelf-empty">Nessun alimento nella tua shelf 📦<br>Aggiungi qualcosa! 🥑</div>';
     return;
   }
-  // Ordina per scadenza (più vicina in cima); prodotti senza data in fondo
   products = [...products].sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
@@ -793,7 +802,7 @@ function renderShelf() {
             Scade il: ${p.date}${exp ? ' ⚠️' : ''}
           </div>
         </div>
-        <span style="color:var(--text-mid);font-size:24px">›</span>
+        <span style="color:var(--text-mid);font-size:22px">›</span>
       </div>`;
   }).join('');
 }
@@ -853,7 +862,6 @@ function loadProfile() {
   document.getElementById('edit-name').value  = u.name  || '';
   document.getElementById('edit-email').value = u.email || '';
   document.getElementById('edit-pass').value  = '';
-  // Avatar
   const av = document.getElementById('avatar-display');
   if (u.avatar) {
     av.style.cssText = `background-image:url(${u.avatar});background-size:cover;background-position:center;font-size:0`;
@@ -869,16 +877,11 @@ function saveProfile() {
   const e  = (document.getElementById('edit-email').value || '').trim().toLowerCase();
   const pw = document.getElementById('edit-pass').value || '';
   if (!n || !e) { showToast('Nome e email obbligatori'); return; }
-
   const users    = getAllUsers();
   const oldEmail = getSession();
-
   if (!users[oldEmail]) { showToast('Sessione non valida'); return; }
-
   const updatedUser = { ...users[oldEmail], name: n, email: e };
   if (pw) updatedUser.password = pw;
-
-  // Se l'email cambia, sposta la chiave
   if (oldEmail !== e) {
     if (users[e]) { showToast('Email già in uso ❌'); return; }
     delete users[oldEmail];
@@ -889,7 +892,6 @@ function saveProfile() {
     users[e] = updatedUser;
     saveAllUsers(users);
   }
-
   document.getElementById('profile-name-display').textContent  = n;
   document.getElementById('profile-email-display').textContent = e;
   document.getElementById('edit-pass').value = '';
@@ -920,7 +922,7 @@ function showToast(msg) {
 }
 
 // ══════════════════════════════════════════
-//  DATE AUTO-FORMAT nel form manuale
+//  DATE AUTO-FORMAT
 // ══════════════════════════════════════════
 document.getElementById('prod-date').addEventListener('input', function() {
   let v = this.value.replace(/\D/g, '');
@@ -930,7 +932,7 @@ document.getElementById('prod-date').addEventListener('input', function() {
 });
 
 // ══════════════════════════════════════════
-//  INIT — controlla sessione al caricamento
+//  INIT
 // ══════════════════════════════════════════
 (function init() {
   const email = getSession();
