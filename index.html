@@ -6,6 +6,7 @@
 <title>Aura Foods</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
   // ── LOGO PATH — cambia questo con il percorso del tuo PNG ──
   const LOGO_PATH = "img/image.png";
@@ -120,7 +121,7 @@
           <div class="sf-br"></div>
           <div class="scan-line"></div>
         </div>
-        <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Simula Scan 📷</span>
+        <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
       </div>
       <span class="add-or">oppure</span>
       <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
@@ -273,7 +274,18 @@
     </div>
     <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
   </div>
-
+  <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
+  <div id="scanner-modal" class="scanner-modal">
+    <div class="scanner-inner">
+      <div class="scanner-header">
+        <span class="scanner-title">📷 Scannerizza</span>
+        <button class="scanner-close" onclick="closeScanner()">✕</button>
+      </div>
+      <div id="scanner-container"></div>
+      <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
+      <div class="scanner-status" id="scanner-status"></div>
+    </div>
+  </div>
 </div><!-- /app-shell -->
 <div class="toast" id="toast"></div>
 

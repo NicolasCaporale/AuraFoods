@@ -6,8 +6,6 @@
 
 /* ──────────────────────────────────────────
    LOGO
-   Applica LOGO_PATH (definito in index.html)
-   a tutti gli elementi <img> della navbar.
    ────────────────────────────────────────── */
 (function applyLogos() {
   const ids = [
@@ -36,8 +34,10 @@ function goTo(screenId) {
   if (screenId === 'screen-shelf')   renderShelf();
   if (screenId === 'screen-profile') loadProfile();
 
-  // reset del form manuale ogni volta che viene aperto
   if (screenId === 'screen-manual') {
+    // ripristina visibilità campo nome (potrebbe essere stato nascosto dallo scanner)
+    const nameGroup = document.getElementById('prod-name')?.closest('.form-group');
+    if (nameGroup) nameGroup.style.display = '';
     ['prod-name', 'prod-qty', 'prod-date'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
@@ -75,9 +75,6 @@ function getEmoji(name) {
 
 /* ──────────────────────────────────────────
    STORAGE
-   Multi-utente: ogni email ha il proprio
-   record in aura_users. La sessione attiva
-   è salvata in aura_session.
    ────────────────────────────────────────── */
 function getAllUsers() {
   try { return JSON.parse(localStorage.getItem('aura_users') || '{}'); }
@@ -170,18 +167,10 @@ function logout() {
 }
 
 /* ──────────────────────────────────────────
-   SCAN (simulato)
+   SCAN
    ────────────────────────────────────────── */
 function simulateScan() {
-  const fake = [
-    { name: 'Cracker Mulino',   qty: '2', type: 'preferibilmente', date: '15/06/26' },
-    { name: 'Latte Intero',     qty: '1', type: 'consumarsi',       date: '14/04/26' },
-    { name: 'Yogurt Greco',     qty: '3', type: 'consumarsi',       date: '21/04/26' },
-    { name: 'Prosciutto Cotto', qty: '1', type: 'consumarsi',       date: '30/04/26' },
-  ];
-  const p = fake[Math.floor(Math.random() * fake.length)];
-  mergeOrAddProduct(p.name, p.qty, p.type, formatDate(p.date), true);
-  setTimeout(() => goTo('screen-success'), 600);
+  openScanner();
 }
 
 /* ──────────────────────────────────────────
@@ -195,15 +184,12 @@ function addProduct() {
 
   if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); return; }
 
-  mergeOrAddProduct(name, qty, type, formatDate(dateR), true);
+  mergeOrAddProduct(name, qty, type, formatDate(dateR), true, pendingProductImage);
+  pendingProductImage = null;
   goTo('screen-success');
 }
 
-/**
- * Se esiste già un prodotto con stesso nome + stessa data,
- * incrementa la quantità; altrimenti crea una nuova entry.
- */
-function mergeOrAddProduct(name, qty, type, date, giveCoins) {
+function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   const products = getProducts();
   const qtyNum   = parseFloat(qty) || 1;
   const idx      = products.findIndex(p =>
@@ -215,7 +201,15 @@ function mergeOrAddProduct(name, qty, type, date, giveCoins) {
     saveProducts(products);
     showToast('Quantità aggiornata! 📈');
   } else {
-    products.push({ id: Date.now(), name, qty: String(qtyNum), type, date, emoji: getEmoji(name) });
+    products.push({
+      id: Date.now(),
+      name,
+      qty: String(qtyNum),
+      type,
+      date,
+      emoji: getEmoji(name),
+      imageUrl: imageUrl || null,
+    });
     saveProducts(products);
     showToast(name + ' aggiunto! +5 🪙');
   }
@@ -226,8 +220,6 @@ function mergeOrAddProduct(name, qty, type, date, giveCoins) {
 /* ──────────────────────────────────────────
    DATE HELPERS
    ────────────────────────────────────────── */
-
-/** Normalizza GG/MM/AA → GG/MM/AAAA */
 function formatDate(raw) {
   const parts = raw.replace(/[.\-]/g, '/').split('/');
   if (parts.length !== 3) return raw;
@@ -238,7 +230,6 @@ function formatDate(raw) {
   return `${d}/${m}/${y}`;
 }
 
-/** Converte GG/MM/AAAA → Date */
 function parseDate(s) {
   const p = (s || '').split('/');
   if (p.length !== 3) return null;
@@ -247,7 +238,6 @@ function parseDate(s) {
   return new Date(+y, +m - 1, +d);
 }
 
-/** true se mancano ≤ 3 giorni alla scadenza */
 function isExpiringSoon(s) {
   const d = parseDate(s);
   if (!d) return false;
@@ -268,7 +258,6 @@ function renderShelf() {
     return;
   }
 
-  // ordina per data di scadenza crescente
   products = [...products].sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
@@ -277,9 +266,13 @@ function renderShelf() {
 
   c.innerHTML = products.map(p => {
     const exp = isExpiringSoon(p.date);
+    // usa imageUrl come thumbnail se disponibile, altrimenti emoji
+    const thumb = p.imageUrl
+      ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;">`
+      : p.emoji || '🥑';
     return `
       <div class="product-card" onclick="openDetail(${p.id})">
-        <div class="product-emoji">${p.emoji || '🥑'}</div>
+        <div class="product-emoji">${thumb}</div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
           <div class="product-qty">Quantità: ${p.qty}</div>
@@ -303,7 +296,14 @@ function openDetail(id) {
   currentProductId = id;
 
   document.getElementById('detail-product-name').textContent = p.name;
-  document.getElementById('detail-emoji').textContent        = p.emoji || '🥑';
+
+  // emoji o immagine reale nel dettaglio
+  const emojiEl = document.getElementById('detail-emoji');
+  if (p.imageUrl) {
+    emojiEl.innerHTML = `<img src="${p.imageUrl}" alt="${p.name}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;">`;
+  } else {
+    emojiEl.textContent = p.emoji || '🥑';
+  }
 
   const label = p.type === 'preferibilmente' ? 'Preferibilmente entro:' : 'Da consumarsi entro:';
   const exp   = isExpiringSoon(p.date);
@@ -381,7 +381,6 @@ function saveProfile() {
   const updatedUser = { ...users[oldEmail], name: n, email: e };
   if (pw) updatedUser.password = pw;
 
-  // gestisce cambio email
   if (oldEmail !== e) {
     if (users[e]) { showToast('Email già in uso ❌'); return; }
     delete users[oldEmail];
@@ -431,6 +430,7 @@ document.getElementById('prod-date').addEventListener('input', function () {
   if (v.length > 5) v = v.slice(0, 5) + '/' + v.slice(5);
   this.value = v.slice(0, 8);
 });
+
 /* ──────────────────────────────────────────
    PARTICELLE CIBO — sfondo home
    ────────────────────────────────────────── */
@@ -439,7 +439,6 @@ const FOOD_PARTICLES = ['🥑','🍓','🧀','🥕','🍋','🍌','🍇','🥦',
 function spawnParticles() {
   const orbs = document.querySelector('.home-bg-orbs');
   if (!orbs) return;
-  // rimuove le vecchie
   orbs.querySelectorAll('.food-particle').forEach(el => el.remove());
 
   FOOD_PARTICLES.forEach((emoji, i) => {
@@ -454,18 +453,183 @@ function spawnParticles() {
     orbs.appendChild(el);
   });
 }
+
 /* ──────────────────────────────────────────
-   INIT — controlla la sessione all'avvio
+   SCANNER REALE
+   ────────────────────────────────────────── */
+let html5QrCode      = null;
+let scannerBusy      = false;
+let pendingProductImage = null;   // immagine recuperata da OpenFoodFacts
+
+function openScanner() {
+  scannerBusy = false;
+  pendingProductImage = null;
+  document.getElementById('scanner-modal').classList.add('open');
+  setStatus('', '');
+  document.getElementById('scanner-container').innerHTML = '';
+
+  html5QrCode = new Html5Qrcode('scanner-container');
+
+  Html5Qrcode.getCameras()
+    .then(cameras => {
+      if (!cameras || cameras.length === 0) {
+        setStatus('Nessuna fotocamera trovata ❌', 'error'); return;
+      }
+      html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 260, height: 120 },
+          videoConstraints: {
+            facingMode: 'environment',
+            focusMode: 'manual',
+            exposureMode: 'manual',
+          },
+        },
+        onBarcodeDetected,
+        () => {}
+      ).catch(err => {
+        console.error(err);
+        setStatus('Errore avvio fotocamera ❌', 'error');
+      });
+    })
+    .catch(() => setStatus('Permesso fotocamera negato ❌', 'error'));
+}
+
+function closeScanner() {
+  const modal = document.getElementById('scanner-modal');
+
+  const doClose = () => {
+    modal.classList.remove('open');
+    document.getElementById('scanner-container').innerHTML = '';
+    html5QrCode = null;
+    scannerBusy = false;
+  };
+
+  if (html5QrCode) {
+    const running = html5QrCode.getState &&
+                    html5QrCode.getState() === Html5QrcodeScannerState.SCANNING;
+    if (running) {
+      html5QrCode.stop().then(doClose).catch(doClose);
+    } else {
+      try { html5QrCode.clear(); } catch(_) {}
+      doClose();
+    }
+  } else {
+    doClose();
+  }
+}
+
+async function onBarcodeDetected(barcode) {
+  if (scannerBusy) return;
+  scannerBusy = true;
+
+  setStatus('Codice: ' + barcode + ' — cerco…', '');
+
+  try {
+    if (html5QrCode) await html5QrCode.stop();
+  } catch(_) {}
+
+  try {
+    const res  = await fetch(
+      'https://world.openfoodfacts.org/api/v0/product/' + barcode + '.json'
+    );
+    const data = await res.json();
+
+    let name     = '';
+    let imageUrl = null;
+
+    if (data.status === 1 && data.product) {
+      const p  = data.product;
+      name     = p.product_name_it || p.product_name || p.generic_name || '';
+      imageUrl = p.image_front_small_url || p.image_url || null;
+    }
+
+    if (name) {
+      setStatus('✅ ' + name, 'found');
+    } else {
+      setStatus('Prodotto non trovato, inserisci il nome ✏️', 'error');
+    }
+
+    setTimeout(() => {
+      closeScanner();
+      setTimeout(() => prefillManualForm(name, imageUrl), 150);
+    }, 1000);
+
+  } catch(_) {
+    setStatus('Errore di rete — inserisci manualmente', 'error');
+    setTimeout(() => {
+      closeScanner();
+      setTimeout(() => prefillManualForm('', null), 150);
+    }, 1200);
+  }
+}
+
+function prefillManualForm(name, imageUrl) {
+  pendingProductImage = imageUrl || null;
+
+  const nameEl = document.getElementById('prod-name');
+  const qtyEl  = document.getElementById('prod-qty');
+  const dateEl = document.getElementById('prod-date');
+
+  if (nameEl) nameEl.value = name || '';
+  if (qtyEl)  qtyEl.value  = '';
+  if (dateEl) dateEl.value  = '';
+
+  // se il nome è già stato trovato, nasconde il campo nome
+  const nameGroup = nameEl?.closest('.form-group');
+  if (nameGroup) nameGroup.style.display = name ? 'none' : '';
+
+  // se c'è un'immagine, mostra anteprima sopra il form
+  const existingPreview = document.getElementById('scan-product-preview');
+  if (existingPreview) existingPreview.remove();
+
+  if (name && imageUrl) {
+    const preview = document.createElement('div');
+    preview.id = 'scan-product-preview';
+    preview.style.cssText = `
+      display:flex; align-items:center; gap:12px;
+      background:rgba(255,255,255,0.6); border-radius:16px;
+      padding:12px 14px; margin-bottom:4px;
+    `;
+    preview.innerHTML = `
+      <img src="${imageUrl}" alt="${name}"
+        style="width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0;">
+      <div>
+        <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#0d3320;">${name}</div>
+        <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
+      </div>
+    `;
+    const formContent = document.querySelector('.form-content');
+    const card = formContent?.querySelector('.card');
+    if (card) formContent.insertBefore(preview, card);
+  }
+
+  goTo('screen-manual');
+
+  setTimeout(() => {
+    if (qtyEl) qtyEl.focus();
+  }, 400);
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('scanner-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'scanner-status' + (type ? ' ' + type : '');
+}
+
+/* ──────────────────────────────────────────
+   INIT
    ────────────────────────────────────────── */
 (function init() {
   const email = getSession();
   if (email) {
     const users = getAllUsers();
     if (users[email]) {
-      goTo('screen-home');   // sessione valida → home
+      goTo('screen-home');
     } else {
-      clearSession();        // sessione orfana → pulisce
+      clearSession();
     }
   }
-  // altrimenti rimane sulla schermata di auth (default)
 })();

@@ -748,3 +748,80 @@ body {
   from { transform: translateY(-16px); opacity: 0; }
   to   { transform: translateY(0);     opacity: 1; }
 }
+
+/* ══════════════════════════════════════════
+   SCANNER MODAL
+   ══════════════════════════════════════════ */
+.scanner-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .25s ease;
+}
+.scanner-modal.open { display: flex; }
+
+.scanner-inner {
+  background: linear-gradient(145deg, rgba(210,240,210,0.97), rgba(180,225,185,0.97));
+  border-radius: 28px;
+  padding: 20px;
+  width: calc(100% - 32px);
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.scanner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scanner-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  color: var(--text-dark);
+}
+.scanner-close {
+  background: rgba(0,0,0,0.12);
+  border: none;
+  border-radius: 50%;
+  width: 32px; height: 32px;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text-dark);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.scanner-close:hover { background: rgba(0,0,0,0.22); }
+
+/* override stili interni di html5-qrcode */
+#scanner-container {
+  border-radius: 18px;
+  overflow: hidden;
+  width: 100%;
+}
+#scanner-container video { border-radius: 18px; width: 100% !important; }
+#scanner-container img   { display: none; }  /* nasconde icone di default */
+
+.scanner-hint {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-mid);
+  text-align: center;
+}
+
+.scanner-status {
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  color: var(--text-dark);
+  text-align: center;
+  min-height: 22px;
+}
+.scanner-status.found { color: var(--green-safe); }
+.scanner-status.error { color: var(--red-expiry); }
