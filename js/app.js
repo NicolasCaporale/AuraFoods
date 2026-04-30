@@ -604,10 +604,9 @@ function openScanner() {
       html5QrCode.start(
         { facingMode: 'environment' },
         {
-          fps: 30,                              // era 15
-          qrbox: { width: 280, height: 160 },  // era height: 100
+          fps: 30,
           aspectRatio: 1.7,
-          experimentalFeatures: { useBarCodeDetectorIfSupported: true }, // NUOVO
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true },
           formatsToSupport: [
             Html5QrcodeSupportedFormats.EAN_13,
             Html5QrcodeSupportedFormats.EAN_8,
@@ -615,7 +614,7 @@ function openScanner() {
             Html5QrcodeSupportedFormats.UPC_E,
             Html5QrcodeSupportedFormats.CODE_128,
             Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.ITF,    // NUOVO
+            Html5QrcodeSupportedFormats.ITF,
           ],
         },
         onBarcodeDetected,
@@ -627,6 +626,7 @@ function openScanner() {
     })
     .catch(() => setStatus('Permesso fotocamera negato ❌', 'error'));
 }
+
 function closeScanner() {
   const modal   = document.getElementById('scanner-modal');
   const doClose = () => {
