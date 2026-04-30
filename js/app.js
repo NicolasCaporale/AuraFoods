@@ -460,7 +460,7 @@ async function saveProfile() {
       showToast('Controlla la nuova email 📧');
     } else if (passwordChanged) {
       showToast('Profilo aggiornato ✓ 🔐');
-    }else{
+    }else if(!emailChanged && !passwordChanged){
       showToast('Profilo aggiornato ✓ 🌿');
   }
 
