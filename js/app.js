@@ -596,57 +596,36 @@ function openScanner() {
 
   html5QrCode = new Html5Qrcode('scanner-container');
 
-  const config = {
-    fps: 30,
-    qrbox: { width: 280, height: 160 },
-    aspectRatio: 1.7778,
-    experimentalFeatures: {
-      useBarCodeDetectorIfSupported: true
-    },
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.ITF,
-    ],
-  };
-
-  // Prova prima con fotocamera posteriore, poi frontale come fallback
-  html5QrCode.start(
-    { facingMode: 'environment' },
-    config,
-    onBarcodeDetected,
-    () => {}
-  ).catch(() => {
-    // fallback 1: prova senza vincoli facingMode
-    html5QrCode.start(
-      { facingMode: 'user' },
-      config,
-      onBarcodeDetected,
-      () => {}
-    ).catch(() => {
-      // fallback 2: nessun vincolo, qualsiasi camera disponibile
-      Html5Qrcode.getCameras().then(cameras => {
-        if (!cameras || cameras.length === 0) {
-          setStatus('Nessuna fotocamera trovata ❌', 'error');
-          return;
-        }
-        html5QrCode.start(
-          cameras[0].id,
-          config,
-          onBarcodeDetected,
-          () => {}
-        ).catch(() => {
-          setStatus('Errore avvio fotocamera ❌', 'error');
-        });
-      }).catch(() => {
-        setStatus('Permesso fotocamera negato ❌', 'error');
+  Html5Qrcode.getCameras()
+    .then(cameras => {
+      if (!cameras || cameras.length === 0) {
+        setStatus('Nessuna fotocamera trovata ❌', 'error'); return;
+      }
+      html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+          fps: 30,                              // era 15
+          qrbox: { width: 280, height: 160 },  // era height: 100
+          aspectRatio: 1.7,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true }, // NUOVO
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.ITF,    // NUOVO
+          ],
+        },
+        onBarcodeDetected,
+        () => {}
+      ).catch(err => {
+        console.error(err);
+        setStatus('Errore avvio fotocamera ❌', 'error');
       });
-    });
-  });
+    })
+    .catch(() => setStatus('Permesso fotocamera negato ❌', 'error'));
 }
 function closeScanner() {
   const modal   = document.getElementById('scanner-modal');
