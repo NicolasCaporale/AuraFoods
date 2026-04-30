@@ -444,7 +444,11 @@ async function saveProfile() {
   // ── UPDATE AUTH (Email/Password) ──
   if (emailChanged || passwordChanged) {
     const updates = {};
-    if (emailChanged) updates.email = e;
+    if (emailChanged) {
+     updates.email = e;
+     updates.options = {
+       emailRedirectTo: 'https://aura-foods.it/conferma-email'
+     };
     if (passwordChanged) updates.password = pw;
 
     const { error } = await _supabase.auth.updateUser(updates);
