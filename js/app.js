@@ -425,43 +425,33 @@ async function loadProfile() {
 }
 
 async function saveProfile() {
-  const n = (document.getElementById('edit-name').value || '').trim();
-  const e = (document.getElementById('edit-email').value || '').trim().toLowerCase();
-  const pw = document.getElementById('edit-pass').value || '';
+  const n  = (document.getElementById('edit-name').value  || '').trim();
+  const e  = (document.getElementById('edit-email').value || '').trim().toLowerCase();
+  const pw =  document.getElementById('edit-pass').value  || '';
 
-  if (!n || !e) {
-    showToast('Nome e email obbligatori');
-    return;
-  }
+  if (!n || !e) { showToast('Nome e email obbligatori'); return; }
 
   const { data: { user } } = await _supabase.auth.getUser();
   if (!user) return;
 
-  const emailChanged = e !== user.email;
+  const emailChanged    = e !== user.email;
   const passwordChanged = !!pw;
 
   if (emailChanged || passwordChanged) {
-    const updates = {};
-    if (emailChanged) {
-      updates.email = e;
-      updates.options = { emailRedirectTo: 'https://aura-foods.it/conferma-email' };
-    }
-    if (passwordChanged) updates.password = pw;
+    const attrs = {};
+    if (emailChanged)    attrs.email    = e;
+    if (passwordChanged) attrs.password = pw;
 
-    const { error } = await _supabase.auth.updateUser(updates);
+    const { error } = await _supabase.auth.updateUser(
+      attrs,
+      emailChanged ? { emailRedirectTo: 'https://aura-foods.it/conferma-email' } : {}
+    );
+
     if (error) {
       showToast('Errore aggiornamento ❌');
       console.error(error);
       return;
     }
-  }
-
-  if (emailChanged) {
-    showToast('Controlla la nuova email 📧');
-  } else if (passwordChanged) {
-    showToast('Profilo aggiornato ✓ 🔐');
-  } else {
-    showToast('Profilo aggiornato ✓ 🌿');
   }
 
   const { error: dbError } = await _supabase
@@ -475,10 +465,18 @@ async function saveProfile() {
     return;
   }
 
+  if (emailChanged) {
+    showToast('Controlla la nuova email 📧');
+  } else if (passwordChanged) {
+    showToast('Profilo aggiornato ✓ 🔐');
+  } else {
+    showToast('Profilo aggiornato ✓ 🌿');
+  }
+
   _currentUser = null;
   const fresh = await ensureCurrentUser();
-  document.getElementById('profile-name-display').textContent = fresh?.name || 'Utente';
-  document.getElementById('profile-email-display').textContent = user.email || 'email@esempio.com';
+  document.getElementById('profile-name-display').textContent  = fresh?.name  || 'Utente';
+  document.getElementById('profile-email-display').textContent = user.email   || 'email@esempio.com';
   document.getElementById('edit-pass').value = '';
 }
 
