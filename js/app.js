@@ -123,10 +123,13 @@ async function doRegister() {
   if (pass.length < 6) { showToast('Password di almeno 6 caratteri 🔐'); return; }
 
   const { data, error } = await _supabase.auth.signUp({ 
-    email, 
-    password: pass,
-    options: { data: { name } }
-  });
+     email, 
+     password: pass,
+     options: { 
+       data: { name },
+       emailRedirectTo: 'https://aura-foods.it/conferma-email'
+     }
+   });
 
   if (error) { showToast('Email già registrata ❌'); console.error(error); return; }
 
