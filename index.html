@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Aura Foods</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ── LOGO PATH — cambia questo con il percorso del tuo PNG ──
+  const LOGO_PATH = "img/image.png";
+</script>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══════════════ AUTH ═══════════════ -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-logo-container">
+      <img id="auth-logo" src="" alt="Aura Foods Logo">
+    </div>
+    <div class="card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
+      </div>
+
+      <div id="auth-login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••" id="login-pass">
+        </div>
+        <button class="btn" onclick="doLogin()">Entra 🥑</button>
+      </div>
+
+      <div id="auth-register-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••" id="reg-pass">
+        </div>
+        <button class="btn" onclick="doRegister()">Crea account 🌿</button>
+      </div>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ HOME ═══════════════ -->
+  <div id="screen-home" class="screen">
+    <div class="home-bg-orbs">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
+    <div class="home-content">
+      <div class="home-logo-card">
+        <img id="home-logo" src="" alt="Aura Foods Logo">
+      </div>
+      <div class="home-actions">
+        <button class="btn btn-shelf" onclick="goTo('screen-shelf')">📦 Shelf</button>
+        <button class="btn btn-add" onclick="goTo('screen-add')">＋ Aggiungi</button>
+      </div>
+      <div class="home-social-card">
+        <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          <span class="social-label">Ig</span>
+        </a>
+        <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank">
+          <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+          </svg>
+          <span class="social-label">OnlyFans</span>
+        </a>
+        <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          <span class="social-label">Linkedln</span>
+        </a>
+      </div>
+      <div style="width:100%">
+        <button class="btn btn-outline" onclick="goTo('screen-profile')" style="background:rgba(255,255,255,0.4);border-color:rgba(45,106,79,0.5)">
+          👤 Il mio profilo &amp; Aura Coins
+        </button>
+      </div>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ ADD ═══════════════ -->
+  <div id="screen-add" class="screen">
+    <div class="navbar">
+      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+      <div class="nav-logo" onclick="goTo('screen-home')">
+        <img id="nav-logo-add" src="" alt="Logo">
+      </div>
+      <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+    </div>
+    <div class="add-content">
+      <div class="scan-card" onclick="simulateScan()">
+        <div class="scan-frame">
+          <div class="sf-bl"></div>
+          <div class="sf-br"></div>
+          <div class="scan-line"></div>
+        </div>
+        <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
+      </div>
+      <span class="add-or">oppure</span>
+      <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ MANUAL FORM ═══════════════ -->
+  <div id="screen-manual" class="screen">
+    <div class="back-header">
+      <button class="back-btn" onclick="goTo('screen-add')">‹</button>
+      <span class="back-title">Inserimento manuale</span>
+    </div>
+    <div class="form-content">
+      <div class="card" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Nome prodotto:</label>
+          <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantità:</label>
+          <input type="text" class="form-input" placeholder="es. 3" id="prod-qty">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo di scadenza:</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="prod-type">
+              <option value="preferibilmente">Preferibilmente entro</option>
+              <option value="consumarsi">Da consumarsi entro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Data scadenza (GG/MM/AA):</label>
+          <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8" inputmode="numeric">
+        </div>
+      </div>
+      <button class="btn" onclick="addProduct()">Conferma ✓</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ SUCCESS ═══════════════ -->
+  <div id="screen-success" class="screen">
+    <div class="navbar">
+      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+      <div class="nav-logo" onclick="goTo('screen-home')">
+        <img id="nav-logo-success" src="" alt="Logo">
+      </div>
+      <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+    </div>
+    <div class="success-content">
+      <div class="success-card">
+        <div class="success-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
+      </div>
+      <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
+      <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ SHELF ═══════════════ -->
+  <div id="screen-shelf" class="screen">
+    <div class="navbar">
+      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+      <div class="nav-logo" onclick="goTo('screen-home')">
+        <img id="nav-logo-shelf" src="" alt="Logo">
+      </div>
+      <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+    </div>
+    <div class="shelf-content">
+      <div class="shelf-title">La tua Shelf 📦</div>
+      <div id="shelf-list"></div>
+      <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ DETAIL ═══════════════ -->
+  <div id="screen-detail" class="screen">
+    <div class="navbar">
+      <button class="nav-btn" onclick="goTo('screen-shelf')">← Shelf</button>
+      <div class="nav-logo" onclick="goTo('screen-home')">
+        <img id="nav-logo-detail" src="" alt="Logo">
+      </div>
+      <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+    </div>
+    <div class="detail-content">
+      <div class="detail-title" id="detail-product-name">Prodotto</div>
+      <div class="detail-card">
+        <div class="detail-emoji" id="detail-emoji">🥑</div>
+        <div class="detail-info" id="detail-info"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
+        <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
+      </div>
+      <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════════ PROFILE ═══════════════ -->
+  <div id="screen-profile" class="screen">
+    <div class="back-header">
+      <button class="back-btn" onclick="goTo('screen-home')">‹</button>
+      <span class="back-title">Il mio profilo</span>
+    </div>
+    <div class="profile-content">
+      <div class="profile-hero">
+        <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+          <div class="avatar-img" id="avatar-display">🧑</div>
+          <div class="avatar-edit-badge">✏️</div>
+        </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+        <div class="profile-name" id="profile-name-display">Utente</div>
+        <div class="profile-email" id="profile-email-display">email@esempio.com</div>
+      </div>
+
+      <div class="coins-card">
+        <div>
+          <div class="coins-label">🪙 I tuoi Aura Coins</div>
+          <div class="coins-desc">+5 monete per ogni alimento aggiunto</div>
+        </div>
+        <div class="coins-value"><span>🪙</span><span id="coins-display">0</span></div>
+      </div>
+
+      <div class="profile-section-title">✏️ Modifica profilo</div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Nuova password</label>
+          <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare">
+        </div>
+      </div>
+      <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
+      <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+  <!-- ═══════════════ QR FORM ═══════════════ -->
+  <div id="screen-qr" class="screen">
+    <div class="back-header">
+      <button class="back-btn" onclick="goTo('screen-add')">‹</button>
+      <span class="back-title">Prodotto scansionato</span>
+    </div>
+    <div class="form-content">
+      <div id="qr-product-preview" style="
+        display:flex; align-items:center; gap:12px;
+        background:rgba(255,255,255,0.6); border-radius:16px;
+        padding:12px 14px; margin-bottom:12px;
+      ">
+        <div id="qr-preview-img" style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">🥑</div>
+        <div>
+          <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
+          <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Quantità:</label>
+          <input type="text" class="form-input" placeholder="es. 3" id="qr-qty">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo di scadenza:</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="qr-type">
+              <option value="preferibilmente">Preferibilmente entro</option>
+              <option value="consumarsi">Da consumarsi entro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Data scadenza (GG/MM/AA):</label>
+          <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8" inputmode="numeric">
+        </div>
+      </div>
+      <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+  <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
+  <div id="scanner-modal" class="scanner-modal">
+    <div class="scanner-inner">
+      <div class="scanner-header">
+        <span class="scanner-title">📷 Scannerizza</span>
+        <button class="scanner-close" onclick="closeScanner()">✕</button>
+      </div>
+      <div id="scanner-container"></div>
+      <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
+      <div class="scanner-status" id="scanner-status"></div>
+    </div>
+  </div>
+</div><!-- /app-shell -->
+<div class="toast" id="toast"></div>
+
+<!-- JS caricato per ultimo così il DOM è pronto -->
+<script src="js/app.js"></script>
+</body>
+</html>
