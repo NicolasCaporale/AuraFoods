@@ -602,11 +602,7 @@ function openScanner() {
         setStatus('Nessuna fotocamera trovata ❌', 'error'); return;
       }
       html5QrCode.start(
-        {
-          facingMode: 'environment',
-          width:  { min: 640, ideal: 1920, max: 2560 },
-          height: { min: 480, ideal: 1080, max: 1440 },
-        },
+        { facingMode: 'environment' },
         {
           fps: 30,
           aspectRatio: 1.7,
