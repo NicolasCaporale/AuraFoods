@@ -457,10 +457,11 @@ async function saveProfile() {
 
     // 🔥 PRIORITÀ: EMAIL > PASSWORD
     if (emailChanged) {
-      toastMessage = 'Controlla la nuova email 📧';
+      showToast('Controlla la nuova email 📧');
     } else if (passwordChanged) {
-      toastMessage = 'Profilo aggiornato ✓ 🔐';
-    }
+      showToast('Profilo aggiornato ✓ 🔐');
+    }else{
+      showToast('Profilo aggiornato ✓ 🌿');
   }
 
   // ── UPDATE NAME (Tabella users) ──
@@ -486,14 +487,6 @@ async function saveProfile() {
     user.email || 'email@esempio.com';
 
   document.getElementById('edit-pass').value = '';
-
-  // ── TOAST FINALE ──
-  if (toastMessage) {
-    showToast(toastMessage);
-  } else {
-    // Caso in cui viene cambiato solo il nome
-    showToast('Profilo aggiornato ✓ 🌿');
-  }
 }
 
 
