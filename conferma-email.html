@@ -4,19 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conferma Email — Aura Foods</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f0f7f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 28px;
+      padding: 48px 36px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(13,51,32,0.10);
+    }
+    .emoji { font-size: 64px; margin-bottom: 20px; }
+    .title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 26px;
+      color: #0d3320;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: #4a6358;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a5c3a, #2d8653);
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 50px;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .88; }
+    .badge {
+      display: inline-block;
+      background: #e8f5ee;
+      color: #1a5c3a;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      padding: 4px 14px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
-
 <body>
-  <div>
+  <div class="card">
     <div id="stato">
-      <div>⏳</div>
-      <div>Conferma in corso...</div>
+      <div class="emoji">⏳</div>
+      <div class="title">Verifica in corso…</div>
     </div>
   </div>
 
@@ -24,51 +80,48 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     (async function () {
+      // Supabase mette i parametri nel fragment (#) oppure nella query string (?),
+      // a seconda della versione e del tipo di link. Li leggiamo da entrambi.
+      const fromHash  = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const fromQuery = new URLSearchParams(window.location.search);
 
-      const hash = new URLSearchParams(window.location.hash.replace('#', '?'));
-      const type = hash.get('type');
-      const error = hash.get('error_description');
-
+      const type  = fromHash.get('type')  || fromQuery.get('type');
+      const token = fromHash.get('token') || fromQuery.get('token');
       const stato = document.getElementById('stato');
 
-      if (error) {
-        stato.innerHTML = `
-          <div>❌</div>
-          <div>Link non valido o scaduto</div>
-          <a href="https://aura-foods.it">Torna all'app</a>
-        `;
-        return;
-      }
-
+      // ── SIGNUP ──────────────────────────────────────────────────────
       if (type === 'signup') {
         await _supabase.auth.signOut();
-
         stato.innerHTML = `
-          <div>🥑</div>
-          <div>Email confermata!</div>
-          <div>Ora puoi accedere al tuo account</div>
-          <a href="https://aura-foods.it">Accedi</a>
+          <div class="emoji">🥑</div>
+          <div class="badge">Account confermato</div>
+          <div class="title">Benvenuto su Aura Foods!</div>
+          <div class="subtitle">Il tuo account è attivo.<br>Accedi per iniziare a usare l'app.</div>
+          <a class="btn" href="https://aura-foods.it">Accedi ora →</a>
         `;
-        return;
-      }
 
-      if (type === 'email_change') {
+      // ── EMAIL CHANGE ─────────────────────────────────────────────────
+      } else if (type === 'email_change') {
+        // Supabase v2: il cambio email si completa automaticamente al click sul link.
+        // Forziamo comunque il logout per obbligare il re-login con la nuova email.
+        await _supabase.auth.signOut();
         stato.innerHTML = `
-          <div>📧</div>
-          <div>Email confermata!</div>
-          <div>Assicurati di confermare entrambe le email per accedere con la nuova!</div>
-          <a href="https://aura-foods.it">Vai al login</a>
+          <div class="emoji">✉️</div>
+          <div class="badge">Email aggiornata</div>
+          <div class="title">Indirizzo email modificato</div>
+          <div class="subtitle">La tua nuova email è stata confermata con successo.<br>Accedi di nuovo con il nuovo indirizzo.</div>
+          <a class="btn" href="https://aura-foods.it">Accedi con la nuova email →</a>
         `;
-        return;
+
+      // ── FALLBACK (link non valido / scaduto) ──────────────────────────
+      } else {
+        stato.innerHTML = `
+          <div class="emoji">❌</div>
+          <div class="title">Link non valido</div>
+          <div class="subtitle">Il link è scaduto o è già stato usato.<br>Riprova dall'app.</div>
+          <a class="btn" href="https://aura-foods.it" style="margin-top:8px;">Torna all'app →</a>
+        `;
       }
-
-      // fallback
-      stato.innerHTML = `
-        <div>❌</div>
-        <div>Link non valido</div>
-        <a href="https://aura-foods.it">Torna all'app</a>
-      `;
-
     })();
   </script>
 </body>
