@@ -110,13 +110,14 @@ async function doRegister() {
   const email = (document.getElementById('reg-email').value || '').trim().toLowerCase();
   const pass  =  document.getElementById('reg-pass').value  || '';
   if (!name || !email || !pass) { showToast('Compila tutti i campi 🌿'); return; }
+  if (pass.length < 6) { showToast('Password di almeno 6 caratteri 🌿'); return; }
 
   const { data, error } = await _supabase.auth.signUp({ email, password: pass });
   if (error || !data.user) { showToast('Errore registrazione ❌'); console.error(error); return; }
 
   const { error: profileError } = await _supabase
     .from('users')
-    .insert({ id: data.user.id, name, email, coins: 0 });
+    .upsert({ id: data.user.id, name, email, coins: 0 });
 
   if (profileError) { showToast('Errore creazione profilo ❌'); console.error(profileError); return; }
 
