@@ -97,7 +97,17 @@ async function doLogin() {
   if (!email || !pass) { showToast('Inserisci email e password 🌿'); return; }
 
   const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
-  if (error || !data.user) { showToast('Credenziali non valide ❌'); return; }
+  if (error) {
+     if (error.message.includes('Email not confirmed')) {
+       showToast('Conferma prima la tua email 📧');
+     } else if (error.message.includes('Invalid login')) {
+       showToast('Email o password errati ❌');
+     } else {
+       showToast('Errore di accesso ❌');
+     }
+     return;
+   }
+   if (!data.user) { showToast('Account non trovato ❌'); return; }
 
   const { data: profile } = await _supabase.from('users').select('*').eq('id', data.user.id).single();
   _currentUser = profile;
@@ -121,7 +131,7 @@ async function doRegister() {
 
   if (profileError) { showToast('Errore creazione profilo ❌'); console.error(profileError); return; }
 
-  showToast('Account creato! Ora accedi 🌿');
+  showToast('Controlla la tua email per confermare l\'account 📧');
   switchAuthTab('login');
 }
 
