@@ -434,60 +434,63 @@ async function saveProfile() {
     return;
   }
 
-  const u = await ensureCurrentUser();
-  if (!u) return;
+  const { data: { user } } = await _supabase.auth.getUser();
+  if (!user) return;
 
-  // ── UPDATE AUTH (email / password) ──
-  if (e !== u.email || pw) {
-    const authUpdates = {};
-    if (e !== u.email) {
-      authUpdates.email = e;
-    }
+  const emailChanged = e !== user.email;
+  const passwordChanged = !!pw;
 
-    if (pw) {
-      authUpdates.password = pw;
-    }
+  // ── UPDATE AUTH (Email e Password) ──
+  if (emailChanged || passwordChanged) {
+    const updates = {};
+    if (emailChanged) updates.email = e;
+    if (passwordChanged) updates.password = pw;
 
-    const { error: authError } = await _supabase.auth.updateUser(authUpdates);
+    const { error } = await _supabase.auth.updateUser(updates);
 
-    if (authError) {
+    if (error) {
       showToast('Errore aggiornamento ❌');
-      console.error(authError);
+      console.error(error);
       return;
     }
 
-    if (e !== u.email) {
-      showToast('Conferma la nuova email 📧 (controlla la posta)');
+    if (emailChanged) {
+      showToast('Conferma la nuova email 📧');
     }
 
-    if (pw) {
+    if (passwordChanged) {
       showToast('Password aggiornata 🔐');
     }
   }
 
-  // ── UPDATE SOLO DATI NON AUTH ──
-  const { error } = await _supabase
+  // ── UPDATE NAME (Tabella users nel database) ──
+  const { error: dbError } = await _supabase
     .from('users')
     .update({ name: n })
-    .eq('id', u.id);
+    .eq('id', user.id);
 
-  if (error) {
+  if (dbError) {
     showToast('Errore salvataggio ❌');
-    console.error(error);
+    console.error(dbError);
     return;
   }
 
-  // ── REFRESH DATI UTENTE ──
+  // ── REFRESH UI ──
   _currentUser = null;
   const fresh = await ensureCurrentUser();
 
   document.getElementById('profile-name-display').textContent =
     fresh?.name || 'Utente';
+    
   document.getElementById('profile-email-display').textContent =
-    fresh?.email || 'email@esempio.com';
-  
+    user.email || 'email@esempio.com';
+
   document.getElementById('edit-pass').value = '';
-  showToast('Profilo aggiornato ✓ 🌿');
+
+  // ✅ QUI FIX IMPORTANTE
+  if (!emailChanged) {
+    showToast('Profilo aggiornato ✓ 🌿');
+  }
 }
 
 function handleAvatar(input) {
