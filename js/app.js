@@ -639,6 +639,7 @@ function spawnParticles() {
 
 /* ── INIT ── */
 (async function init() {
+  if (window.location.pathname.includes('conferma-email')) return;
   const { data: { user } } = await _supabase.auth.getUser();
   if (user) {
     const u = await ensureCurrentUser();
