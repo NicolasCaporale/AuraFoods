@@ -1,21 +1,15 @@
 /* ══════════════════════════════════════════
-   AURA FOODS — app.js  (Supabase edition)
+   AURA FOODS — app.js  (Supabase Auth edition)
    ══════════════════════════════════════════ */
-
 'use strict';
 
-/* ──────────────────────────────────────────
-   SUPABASE CLIENT
-   ────────────────────────────────────────── */
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ──────────────────────────────────────────
-   LOGO
-   ────────────────────────────────────────── */
+/* ── LOGO ── */
 (function applyLogos() {
   const ids = [
-    'auth-logo', 'home-logo', 'nav-logo-add',
-    'nav-logo-success', 'nav-logo-shelf', 'nav-logo-detail',
+    'auth-logo','home-logo','nav-logo-add',
+    'nav-logo-success','nav-logo-shelf','nav-logo-detail',
   ];
   ids.forEach(id => {
     const el = document.getElementById(id);
@@ -23,18 +17,19 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   });
 })();
 
-/* ──────────────────────────────────────────
-   SESSION (solo l'id utente in localStorage)
-   ────────────────────────────────────────── */
-let _currentUser = null; // { id, email, name, avatar, coins }
+/* ── SESSION ── */
+let _currentUser = null;
 
-function getSession()         { return localStorage.getItem('aura_uid') || null; }
-function setSession(uid)      { localStorage.setItem('aura_uid', uid); }
-function clearSession()       { localStorage.removeItem('aura_uid'); _currentUser = null; }
+async function ensureCurrentUser() {
+  if (_currentUser) return _currentUser;
+  const { data: { user } } = await _supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await _supabase.from('users').select('*').eq('id', user.id).single();
+  _currentUser = data;
+  return data;
+}
 
-/* ──────────────────────────────────────────
-   NAVIGATION
-   ────────────────────────────────────────── */
+/* ── NAVIGATION ── */
 function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(screenId);
@@ -47,7 +42,7 @@ function goTo(screenId) {
   if (screenId === 'screen-manual') {
     const nameGroup = document.getElementById('prod-name')?.closest('.form-group');
     if (nameGroup) nameGroup.style.display = '';
-    ['prod-name', 'prod-qty', 'prod-date'].forEach(id => {
+    ['prod-name','prod-qty','prod-date'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -57,24 +52,22 @@ function goTo(screenId) {
   }
 }
 
-/* ──────────────────────────────────────────
-   EMOJI MAP
-   ────────────────────────────────────────── */
+/* ── EMOJI MAP ── */
 const emojiMap = {
-  crackers:'🍘', cracker:'🍘', biscotti:'🍪', biscotto:'🍪',
-  latte:'🥛', pane:'🍞', pasta:'🍝', riso:'🍚', pizza:'🍕',
-  pollo:'🍗', carne:'🥩', pesce:'🐟', salmone:'🐟',
-  fragole:'🍓', fragola:'🍓', mela:'🍎', mele:'🍎',
-  banana:'🍌', banane:'🍌', uva:'🍇', arancia:'🍊', arance:'🍊',
-  limone:'🍋', limoni:'🍋', carota:'🥕', carote:'🥕',
-  pomodoro:'🍅', pomodori:'🍅', insalata:'🥗', yogurt:'🍦',
-  formaggio:'🧀', uova:'🥚', uovo:'🥚', burro:'🧈',
-  succo:'🧃', acqua:'💧', birra:'🍺', vino:'🍷',
-  caffè:'☕', caffe:'☕', cioccolato:'🍫', gelato:'🍨',
-  torta:'🎂', olio:'🫙', sale:'🧂', zucchero:'🍬',
-  tonno:'🐟', prosciutto:'🥓', salame:'🌭', mozzarella:'🧀',
-  verdure:'🥬', spinaci:'🥬', mais:'🌽', piselli:'🫛',
-  fagioli:'🫘', patate:'🥔', cetrioli:'🥒', peperoni:'🫑',
+  crackers:'🍘',cracker:'🍘',biscotti:'🍪',biscotto:'🍪',
+  latte:'🥛',pane:'🍞',pasta:'🍝',riso:'🍚',pizza:'🍕',
+  pollo:'🍗',carne:'🥩',pesce:'🐟',salmone:'🐟',
+  fragole:'🍓',fragola:'🍓',mela:'🍎',mele:'🍎',
+  banana:'🍌',banane:'🍌',uva:'🍇',arancia:'🍊',arance:'🍊',
+  limone:'🍋',limoni:'🍋',carota:'🥕',carote:'🥕',
+  pomodoro:'🍅',pomodori:'🍅',insalata:'🥗',yogurt:'🍦',
+  formaggio:'🧀',uova:'🥚',uovo:'🥚',burro:'🧈',
+  succo:'🧃',acqua:'💧',birra:'🍺',vino:'🍷',
+  caffè:'☕',caffe:'☕',cioccolato:'🍫',gelato:'🍨',
+  torta:'🎂',olio:'🫙',sale:'🧂',zucchero:'🍬',
+  tonno:'🐟',prosciutto:'🥓',salame:'🌭',mozzarella:'🧀',
+  verdure:'🥬',spinaci:'🥬',mais:'🌽',piselli:'🫛',
+  fagioli:'🫘',patate:'🥔',cetrioli:'🥒',peperoni:'🫑',
 };
 function getEmoji(name) {
   const l = (name || '').toLowerCase();
@@ -84,9 +77,7 @@ function getEmoji(name) {
   return '🥑';
 }
 
-/* ──────────────────────────────────────────
-   AUTH
-   ────────────────────────────────────────── */
+/* ── AUTH ── */
 function switchAuthTab(tab) {
   const tabs      = document.querySelectorAll('.auth-tab');
   const loginForm = document.getElementById('auth-login-form');
@@ -105,18 +96,12 @@ async function doLogin() {
   const pass  =  document.getElementById('login-pass').value  || '';
   if (!email || !pass) { showToast('Inserisci email e password 🌿'); return; }
 
-  const { data, error } = await _supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .eq('password', pass)
-    .single();
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+  if (error || !data.user) { showToast('Credenziali non valide ❌'); return; }
 
-  if (error || !data) { showToast('Credenziali non valide ❌'); return; }
-
-  _currentUser = data;
-  setSession(data.id);
-  showToast('Bentornato, ' + data.name + '! 🥑');
+  const { data: profile } = await _supabase.from('users').select('*').eq('id', data.user.id).single();
+  _currentUser = profile;
+  showToast('Bentornato, ' + profile.name + '! 🥑');
   setTimeout(() => goTo('screen-home'), 400);
 }
 
@@ -126,16 +111,14 @@ async function doRegister() {
   const pass  =  document.getElementById('reg-pass').value  || '';
   if (!name || !email || !pass) { showToast('Compila tutti i campi 🌿'); return; }
 
-  // controlla duplicato
-  const { data: existing } = await _supabase
-    .from('users').select('id').eq('email', email).single();
-  if (existing) { showToast('Email già registrata ❌'); return; }
+  const { data, error } = await _supabase.auth.signUp({ email, password: pass });
+  if (error || !data.user) { showToast('Errore registrazione ❌'); console.error(error); return; }
 
-  const { error } = await _supabase
+  const { error: profileError } = await _supabase
     .from('users')
-    .insert({ name, email, password: pass, coins: 0 });
+    .insert({ id: data.user.id, name, email, coins: 0 });
 
-  if (error) { showToast('Errore registrazione ❌'); console.error(error); return; }
+  if (profileError) { showToast('Errore creazione profilo ❌'); console.error(profileError); return; }
 
   showToast('Account creato! Ora accedi 🌿');
   switchAuthTab('login');
@@ -143,22 +126,12 @@ async function doRegister() {
 
 async function logout() {
   if (!confirm("Vuoi uscire dall'account?")) return;
-  clearSession();
+  await _supabase.auth.signOut();
+  _currentUser = null;
   location.reload();
 }
 
-/* ──────────────────────────────────────────
-   CURRENT USER helpers
-   ────────────────────────────────────────── */
-async function ensureCurrentUser() {
-  if (_currentUser) return _currentUser;
-  const uid = getSession();
-  if (!uid) return null;
-  const { data } = await _supabase.from('users').select('*').eq('id', uid).single();
-  _currentUser = data;
-  return data;
-}
-
+/* ── COINS ── */
 async function getCoins() {
   const u = await ensureCurrentUser();
   return u?.coins || 0;
@@ -178,9 +151,7 @@ function updateCoinsDisplay() {
   if (el) el.textContent = _currentUser?.coins ?? 0;
 }
 
-/* ──────────────────────────────────────────
-   PRODUCTS helpers
-   ────────────────────────────────────────── */
+/* ── PRODUCTS ── */
 async function getProducts() {
   const u = await ensureCurrentUser();
   if (!u) return [];
@@ -192,9 +163,7 @@ async function getProducts() {
   return data || [];
 }
 
-/* ──────────────────────────────────────────
-   ADD PRODUCT
-   ────────────────────────────────────────── */
+/* ── ADD PRODUCT ── */
 function simulateScan() { openScanner(); }
 
 async function addProduct() {
@@ -212,17 +181,11 @@ async function addProduct() {
 async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   const u = await ensureCurrentUser();
   if (!u) return;
-
   const qtyNum = parseFloat(qty) || 1;
 
-  // cerca prodotto esistente stesso nome+data
   const { data: existing } = await _supabase
-    .from('products')
-    .select('*')
-    .eq('user_id', u.id)
-    .ilike('name', name)
-    .eq('date', date)
-    .single();
+    .from('products').select('*')
+    .eq('user_id', u.id).ilike('name', name).eq('date', date).single();
 
   if (existing) {
     const newQty = String(parseFloat(existing.qty || 1) + qtyNum);
@@ -230,29 +193,23 @@ async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
     showToast('Quantità aggiornata! 📈');
   } else {
     await _supabase.from('products').insert({
-      user_id:   u.id,
-      name,
-      qty:       String(qtyNum),
-      type,
-      date,
-      emoji:     getEmoji(name),
+      user_id: u.id, name,
+      qty: String(qtyNum), type, date,
+      emoji: getEmoji(name),
       image_url: imageUrl || null,
       ai_safety: null,
     });
     showToast(name + ' aggiunto! +5 🪙');
   }
-
   if (giveCoins) await addCoins(5);
 }
 
-/* ──────────────────────────────────────────
-   DATE HELPERS
-   ────────────────────────────────────────── */
+/* ── DATE HELPERS ── */
 function formatDate(raw) {
   const parts = raw.replace(/[.\-]/g, '/').split('/');
   if (parts.length !== 3) return raw;
   let [d, m, y] = parts;
-  d = d.padStart(2, '0'); m = m.padStart(2, '0');
+  d = d.padStart(2,'0'); m = m.padStart(2,'0');
   if (y.length === 2) y = '20' + y;
   return `${d}/${m}/${y}`;
 }
@@ -270,9 +227,7 @@ function isExpiringSoon(s) {
   return (d - now) / 86400000 <= 3;
 }
 
-/* ──────────────────────────────────────────
-   AI
-   ────────────────────────────────────────── */
+/* ── AI SAFETY ── */
 async function getAISafety(productName, imageUrl) {
   const contentParts = [];
   if (imageUrl) {
@@ -287,15 +242,15 @@ async function getAISafety(productName, imageUrl) {
     } catch (_) {}
   }
   contentParts.push({
-    type: 'text',
-    text: `Sei un esperto di sicurezza alimentare. Il prodotto è: "${productName}".
+    type:'text',
+    text:`Sei un esperto di sicurezza alimentare. Il prodotto è: "${productName}".
 Rispondi SOLO con un oggetto JSON (nessun testo extra, nessun markdown) con questa struttura:
 {"extraDays":<intero>,"storage":"dispensa"|"frigo"|"freezer","risk":"low"|"medium"|"high","tips":"<max 1 frase>","matchedName":"<nome>"}
 Se non riesci a stimare, usa extraDays: 0.`
   });
   const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
     body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{ role:'user', content:contentParts }] })
   });
   const data = await response.json();
@@ -305,26 +260,20 @@ Se non riesci a stimare, usa extraDays: 0.`
   return parsed;
 }
 
-/* ──────────────────────────────────────────
-   SHELF
-   ────────────────────────────────────────── */
+/* ── SHELF ── */
 async function renderShelf() {
   const c = document.getElementById('shelf-list');
   c.innerHTML = '<div class="shelf-empty">Caricamento... ⏳</div>';
-
   let products = await getProducts();
-
   if (!products.length) {
     c.innerHTML = '<div class="shelf-empty">Nessun alimento nella tua shelf 📦<br>Aggiungi qualcosa! 🥑</div>';
     return;
   }
-
   products = [...products].sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
     return da - db;
   });
-
   c.innerHTML = products.map(p => {
     const exp   = isExpiringSoon(p.date);
     const thumb = p.image_url
@@ -345,9 +294,7 @@ async function renderShelf() {
   }).join('');
 }
 
-/* ──────────────────────────────────────────
-   DETAIL
-   ────────────────────────────────────────── */
+/* ── DETAIL ── */
 let currentProductId = null;
 
 async function openDetail(id) {
@@ -355,7 +302,6 @@ async function openDetail(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentProductId = id;
-
   document.getElementById('detail-product-name').textContent = p.name;
   const emojiEl = document.getElementById('detail-emoji');
   if (p.image_url) {
@@ -363,30 +309,23 @@ async function openDetail(id) {
   } else {
     emojiEl.textContent = p.emoji || '🥑';
   }
-
   const label = p.type === 'preferibilmente' ? 'Preferibilmente entro:' : 'Da consumarsi entro:';
   const exp   = isExpiringSoon(p.date);
-
   let safetyBlock = '';
   if (p.type === 'preferibilmente') {
-    if (p.ai_safety) {
-      safetyBlock = buildSafetyBlock(p.ai_safety, p.date);
-    } else {
-      safetyBlock = `<div id="ai-safety-block" class="ai-safety-block ai-loading">
-        <span class="ai-spinner"></span>
-        <span style="font-size:13px;color:var(--text-mid);">Analisi AI in corso…</span>
-      </div>`;
-    }
+    safetyBlock = p.ai_safety
+      ? buildSafetyBlock(p.ai_safety, p.date)
+      : `<div id="ai-safety-block" class="ai-safety-block ai-loading">
+           <span class="ai-spinner"></span>
+           <span style="font-size:13px;color:var(--text-mid);">Analisi AI in corso…</span>
+         </div>`;
   }
-
   document.getElementById('detail-info').innerHTML = `
     <p>Quantità: ${p.qty}</p>
     <p>${label}</p>
     <p class="${exp ? 'd-expiry' : ''}">${p.date}${exp ? ' ⚠️' : ''}</p>
     ${safetyBlock}`;
-
   goTo('screen-detail');
-
   if (p.type === 'preferibilmente' && !p.ai_safety) {
     const result = await getAISafety(p.name, p.image_url);
     const block  = document.getElementById('ai-safety-block');
@@ -412,14 +351,12 @@ function buildSafetyBlock(safety, expiryDate) {
   const riskLabel = { low:'Basso rischio', medium:'Rischio medio', high:'Alto rischio' };
   const riskEmoji = { low:'✅', medium:'⚠️', high:'🚫' };
   const color = riskColor[safety.risk] || '#2d8653';
-  const label = riskLabel[safety.risk] || '';
-  const emoji = riskEmoji[safety.risk] || '📋';
   const src   = safety.matchedName ? `AI · ${safety.matchedName}` : 'Stima AI';
   return `
     <div class="ai-safety-block" style="border-left:3px solid ${color};">
       <div class="ai-safety-header">
         <span style="font-size:14px;">🤖 Analisi AI</span>
-        <span class="ai-risk-badge" style="background:${color};">${emoji} ${label}</span>
+        <span class="ai-risk-badge" style="background:${color};">${riskEmoji[safety.risk] || '📋'} ${riskLabel[safety.risk] || ''}</span>
       </div>
       <div class="ai-safety-safe">
         Consumabile indicativamente fino al: <strong>${safeUntil}</strong>
@@ -455,9 +392,7 @@ async function removeAll() {
   goTo('screen-shelf');
 }
 
-/* ──────────────────────────────────────────
-   PROFILE
-   ────────────────────────────────────────── */
+/* ── PROFILE ── */
 async function loadProfile() {
   const u = await ensureCurrentUser();
   if (!u) return;
@@ -485,13 +420,20 @@ async function saveProfile() {
   const u = await ensureCurrentUser();
   if (!u) return;
 
-  const updates = { name: n, email: e };
-  if (pw) updates.password = pw;
+  // Aggiorna email/password su Supabase Auth se cambiate
+  if (e !== u.email || pw) {
+    const authUpdates = {};
+    if (e !== u.email) authUpdates.email = e;
+    if (pw) authUpdates.password = pw;
+    const { error: authError } = await _supabase.auth.updateUser(authUpdates);
+    if (authError) { showToast('Errore aggiornamento auth ❌'); console.error(authError); return; }
+  }
 
-  const { error } = await _supabase.from('users').update(updates).eq('id', u.id);
+  // Aggiorna profilo nella tabella users
+  const { error } = await _supabase.from('users').update({ name: n, email: e }).eq('id', u.id);
   if (error) { showToast('Errore salvataggio ❌'); console.error(error); return; }
 
-  _currentUser = { ..._currentUser, ...updates };
+  _currentUser = { ..._currentUser, name: n, email: e };
   document.getElementById('profile-name-display').textContent  = n;
   document.getElementById('profile-email-display').textContent = e;
   document.getElementById('edit-pass').value = '';
@@ -513,9 +455,7 @@ function handleAvatar(input) {
   reader.readAsDataURL(file);
 }
 
-/* ──────────────────────────────────────────
-   TOAST
-   ────────────────────────────────────────── */
+/* ── TOAST ── */
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -524,16 +464,13 @@ function showToast(msg) {
   t._t = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-/* ──────────────────────────────────────────
-   DATE AUTO-FORMAT
-   ────────────────────────────────────────── */
+/* ── DATE AUTO-FORMAT ── */
 document.getElementById('prod-date').addEventListener('input', function () {
   let v = this.value.replace(/\D/g, '');
   if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
   if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
   this.value = v.slice(0,8);
 });
-
 document.getElementById('qr-date').addEventListener('input', function () {
   let v = this.value.replace(/\D/g, '');
   if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
@@ -541,9 +478,7 @@ document.getElementById('qr-date').addEventListener('input', function () {
   this.value = v.slice(0,8);
 });
 
-/* ──────────────────────────────────────────
-   SCANNER
-   ────────────────────────────────────────── */
+/* ── SCANNER ── */
 let html5QrCode         = null;
 let scannerBusy         = false;
 let pendingProductImage = null;
@@ -612,9 +547,7 @@ async function onBarcodeDetected(barcode) {
   }
 }
 
-/* ──────────────────────────────────────────
-   QR PRODUCT FORM
-   ────────────────────────────────────────── */
+/* ── QR FORM ── */
 let pendingQRProduct = null;
 
 function openQRForm(name, imageUrl) {
@@ -675,9 +608,7 @@ function setStatus(msg, type) {
   el.className   = 'scanner-status' + (type ? ' ' + type : '');
 }
 
-/* ──────────────────────────────────────────
-   PARTICELLE CIBO
-   ────────────────────────────────────────── */
+/* ── PARTICELLE ── */
 const FOOD_PARTICLES = ['🥑','🍓','🧀','🥕','🍋','🍌','🍇','🥦','🍅','🫐'];
 function spawnParticles() {
   const orbs = document.querySelector('.home-bg-orbs');
@@ -696,17 +627,11 @@ function spawnParticles() {
   });
 }
 
-/* ──────────────────────────────────────────
-   INIT
-   ────────────────────────────────────────── */
+/* ── INIT ── */
 (async function init() {
-  const uid = getSession();
-  if (uid) {
+  const { data: { user } } = await _supabase.auth.getUser();
+  if (user) {
     const u = await ensureCurrentUser();
-    if (u) {
-      goTo('screen-home');
-    } else {
-      clearSession();
-    }
+    if (u) goTo('screen-home');
   }
 })();
