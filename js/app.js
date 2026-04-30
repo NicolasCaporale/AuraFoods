@@ -602,11 +602,18 @@ function openScanner() {
         setStatus('Nessuna fotocamera trovata ❌', 'error'); return;
       }
       html5QrCode.start(
-        { facingMode: 'environment' },
         {
-          fps: 15,
-          qrbox: { width: 280, height: 100 },
-          aspectRatio: 1.7,
+          facingMode: 'environment',
+          width:  { ideal: 1920 },   // alta risoluzione → barcode piccoli leggibili
+          height: { ideal: 1080 },
+        },
+        {
+          fps: 30,                   // più tentativi al secondo
+          qrbox: { width: 280, height: 160 }, // rettangolare → meglio per barcode lineari
+          aspectRatio: 1.7778,
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true  // usa API nativa del browser se disponibile
+          },
           formatsToSupport: [
             Html5QrcodeSupportedFormats.EAN_13,
             Html5QrcodeSupportedFormats.EAN_8,
@@ -614,10 +621,11 @@ function openScanner() {
             Html5QrcodeSupportedFormats.UPC_E,
             Html5QrcodeSupportedFormats.CODE_128,
             Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.ITF,
           ],
         },
         onBarcodeDetected,
-        () => {}
+        () => {}   // errori frame silenziosi: non fare nulla
       ).catch(err => {
         console.error(err);
         setStatus('Errore avvio fotocamera ❌', 'error');
