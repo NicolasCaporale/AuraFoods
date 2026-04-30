@@ -435,12 +435,16 @@ async function saveProfile() {
 
   // Aggiorna email/password su Supabase Auth se cambiate
   if (e !== u.email || pw) {
-    const authUpdates = {};
-    if (e !== u.email) authUpdates.email = e;
-    if (pw) authUpdates.password = pw;
-    const { error: authError } = await _supabase.auth.updateUser(authUpdates);
-    if (authError) { showToast('Errore aggiornamento auth ❌'); console.error(authError); return; }
-  }
+     const authUpdates = {};
+     if (e !== u.email) authUpdates.email = e;
+     if (pw) authUpdates.password = pw;
+     const { error: authError } = await _supabase.auth.updateUser(authUpdates);
+     if (authError) { showToast('Errore aggiornamento ❌'); console.error(authError); return; }
+     if (e !== u.email) {
+       showToast('Controlla la tua nuova email per confermare il cambio 📧');
+       return;
+     }
+   }
 
   // Aggiorna profilo nella tabella users
   const { error } = await _supabase.from('users').update({ name: n, email: e }).eq('id', u.id);
