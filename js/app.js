@@ -586,120 +586,15 @@ function spawnParticles() {
 let html5QrCode         = null;
 let scannerBusy         = false;
 let pendingProductImage = null;
-let nativeScanLoop      = null;
-let nativeStream        = null;
 
 function openScanner() {
-  scannerBusy  = false;
-  nativeScanLoop = null;
-  nativeStream   = null;
+  scannerBusy = false;
   document.getElementById('scanner-modal').classList.add('open');
   setStatus('', '');
   document.getElementById('scanner-container').innerHTML = '';
 
-  if (typeof BarcodeDetector !== 'undefined') {
-    BarcodeDetector.getSupportedFormats().then(formats => {
-      const needed = ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'];
-      const supported = needed.filter(f => formats.includes(f));
-      if (supported.length > 0) {
-        startNativeScanner(supported);
-      } else {
-        startFallbackScanner();
-      }
-    }).catch(() => startFallbackScanner());
-  } else {
-    startFallbackScanner();
-  }
-}
-
-/* ── SCANNER NATIVO — usa la stessa API di Yuka/fotocamera OS ── */
-async function startNativeScanner(formats) {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-    nativeStream = stream;
-
-    const container = document.getElementById('scanner-container');
-
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'position:relative;width:100%;';
-
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.setAttribute('playsinline', true);
-    video.autoplay  = true;
-    video.muted     = true;
-    video.style.cssText = 'width:100%;border-radius:12px;display:block;';
-    wrapper.appendChild(video);
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position:absolute;top:50%;left:50%;
-      transform:translate(-50%,-50%);
-      width:75%;height:35%;
-      border:2px solid rgba(45,200,100,0.8);
-      border-radius:12px;
-      box-shadow:0 0 0 9999px rgba(0,0,0,0.35);
-      pointer-events:none;
-    `;
-    overlay.innerHTML = `
-      <div style="position:absolute;top:-2px;left:-2px;width:20px;height:20px;border-top:3px solid #2dc864;border-left:3px solid #2dc864;border-radius:4px 0 0 0;"></div>
-      <div style="position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-top:3px solid #2dc864;border-right:3px solid #2dc864;border-radius:0 4px 0 0;"></div>
-      <div style="position:absolute;bottom:-2px;left:-2px;width:20px;height:20px;border-bottom:3px solid #2dc864;border-left:3px solid #2dc864;border-radius:0 0 0 4px;"></div>
-      <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-bottom:3px solid #2dc864;border-right:3px solid #2dc864;border-radius:0 0 4px 0;"></div>
-    `;
-    wrapper.appendChild(overlay);
-    container.appendChild(wrapper);
-
-    let detector;
-    try {
-      detector = new BarcodeDetector({ formats });
-      // test immediato per verificare che funzioni davvero
-      await detector.detect(video);
-    } catch(_) {
-      // BarcodeDetector esiste ma non funziona su questo browser/OS
-      // libera la camera prima di passare al fallback
-      stream.getTracks().forEach(t => t.stop());
-      nativeStream = null;
-      document.getElementById('scanner-container').innerHTML = '';
-      startFallbackScanner();
-      return;
-    }
-
-    async function tick() {
-      if (scannerBusy) return;
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        try {
-          const barcodes = await detector.detect(video);
-          if (barcodes.length > 0) {
-            onBarcodeDetected(barcodes[0].rawValue);
-            return;
-          }
-        } catch (_) {}
-      }
-      nativeScanLoop = requestAnimationFrame(tick);
-    }
-
-    video.addEventListener('playing', () => {
-      nativeScanLoop = requestAnimationFrame(tick);
-    });
-
-  } catch (err) {
-    console.error('Native scanner error:', err);
-    // libera tutto prima del fallback
-    if (nativeStream) {
-      nativeStream.getTracks().forEach(t => t.stop());
-      nativeStream = null;
-    }
-    document.getElementById('scanner-container').innerHTML = '';
-    startFallbackScanner();
-  }
-}
-
-/* ── FALLBACK html5-qrcode ── */
-function startFallbackScanner() {
   html5QrCode = new Html5Qrcode('scanner-container');
+
   Html5Qrcode.getCameras()
     .then(cameras => {
       if (!cameras || cameras.length === 0) {
@@ -732,35 +627,28 @@ function startFallbackScanner() {
 }
 
 function closeScanner() {
-  const modal = document.getElementById('scanner-modal');
+  const modal   = document.getElementById('scanner-modal');
+  const doClose = () => {
+    modal.classList.remove('open');
+    document.getElementById('scanner-container').innerHTML = '';
+    html5QrCode = null;
+    scannerBusy = false;
+  };
 
-  // ferma native
-  if (nativeScanLoop) {
-    cancelAnimationFrame(nativeScanLoop);
-    nativeScanLoop = null;
-  }
-  if (nativeStream) {
-    nativeStream.getTracks().forEach(t => t.stop());
-    nativeStream = null;
-  }
-
-  // ferma fallback
   if (html5QrCode) {
     try {
       const running = html5QrCode.getState &&
                       html5QrCode.getState() === Html5QrcodeScannerState.SCANNING;
       if (running) {
-        html5QrCode.stop().catch(() => {});
+        html5QrCode.stop().then(doClose).catch(doClose);
       } else {
         html5QrCode.clear();
+        doClose();
       }
-    } catch(_) {}
-    html5QrCode = null;
+    } catch(_) { doClose(); }
+  } else {
+    doClose();
   }
-
-  modal.classList.remove('open');
-  document.getElementById('scanner-container').innerHTML = '';
-  scannerBusy = false;
 }
 
 /* ──────────────────────────────────────────
