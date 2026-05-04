@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   AURA FOODS — app.js  (Supabase Auth edition)
+   AURA FOODS — app.js  (Performance Edition)
    ══════════════════════════════════════════ */
 'use strict';
 
@@ -17,8 +17,9 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   });
 })();
 
-/* ── SESSION ── */
-let _currentUser = null;
+/* ── SESSION + PRODUCT CACHE ── */
+let _currentUser   = null;
+let _productsCache = null; // { userId, items } — invalidato da invalidateCache()
 
 async function ensureCurrentUser() {
   if (_currentUser) return _currentUser;
@@ -98,16 +99,16 @@ async function doLogin() {
 
   const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
   if (error) {
-     if (error.message.includes('Email not confirmed')) {
-       showToast('Conferma prima la tua email 📧');
-     } else if (error.message.includes('Invalid login')) {
-       showToast('Email o password errati ❌');
-     } else {
-       showToast('Errore di accesso ❌');
-     }
-     return;
-   }
-   if (!data.user) { showToast('Account non trovato ❌'); return; }
+    if (error.message.includes('Email not confirmed')) {
+      showToast('Conferma prima la tua email 📧');
+    } else if (error.message.includes('Invalid login')) {
+      showToast('Email o password errati ❌');
+    } else {
+      showToast('Errore di accesso ❌');
+    }
+    return;
+  }
+  if (!data.user) { showToast('Account non trovato ❌'); return; }
 
   const { data: profile } = await _supabase.from('users').select('*').eq('id', data.user.id).single();
   _currentUser = profile;
@@ -122,14 +123,14 @@ async function doRegister() {
   if (!name || !email || !pass) { showToast('Compila tutti i campi 🌿'); return; }
   if (pass.length < 6) { showToast('Password di almeno 6 caratteri 🔐'); return; }
 
-  const { data, error } = await _supabase.auth.signUp({ 
-     email, 
-     password: pass,
-     options: { 
-       data: { name },
-       emailRedirectTo: 'https://aura-foods.it/conferma-email'
-     }
-   });
+  const { data, error } = await _supabase.auth.signUp({
+    email,
+    password: pass,
+    options: {
+      data: { name },
+      emailRedirectTo: 'https://aura-foods.it/conferma-email'
+    }
+  });
 
   if (error) { showToast('Email già registrata ❌'); console.error(error); return; }
 
@@ -140,7 +141,8 @@ async function doRegister() {
 async function logout() {
   if (!confirm("Vuoi uscire dall'account?")) return;
   await _supabase.auth.signOut();
-  _currentUser = null;
+  _currentUser    = null;
+  _productsCache  = null;  // pulisce la cache al logout
   location.reload();
 }
 
@@ -164,16 +166,29 @@ function updateCoinsDisplay() {
   if (el) el.textContent = _currentUser?.coins ?? 0;
 }
 
-/* ── PRODUCTS ── */
-async function getProducts() {
+/* ── PRODUCTS (con cache in-memory) ── */
+async function getProducts(forceRefresh = false) {
   const u = await ensureCurrentUser();
   if (!u) return [];
+
+  // Usa cache se valida e non forzato refresh
+  if (!forceRefresh && _productsCache?.userId === u.id && _productsCache.items) {
+    return _productsCache.items;
+  }
+
   const { data } = await _supabase
     .from('products')
     .select('*')
     .eq('user_id', u.id)
     .order('created_at', { ascending: true });
-  return data || [];
+
+  _productsCache = { userId: u.id, items: data || [] };
+  return _productsCache.items;
+}
+
+// Invalida la cache dopo ogni scrittura
+function invalidateCache() {
+  if (_productsCache) _productsCache.items = null;
 }
 
 /* ── ADD PRODUCT ── */
@@ -196,9 +211,19 @@ async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   if (!u) return;
   const qtyNum = parseFloat(qty) || 1;
 
-  const { data: existing } = await _supabase
-    .from('products').select('*')
-    .eq('user_id', u.id).ilike('name', name).eq('date', date).single();
+  // Cerca prima nella cache locale per evitare query inutili
+  const cached = _productsCache?.items;
+  let existing = null;
+  if (cached) {
+    existing = cached.find(p =>
+      p.name.toLowerCase() === name.toLowerCase() && p.date === date
+    ) || null;
+  } else {
+    const { data } = await _supabase
+      .from('products').select('*')
+      .eq('user_id', u.id).ilike('name', name).eq('date', date).single();
+    existing = data;
+  }
 
   if (existing) {
     const newQty = String(parseFloat(existing.qty || 1) + qtyNum);
@@ -214,6 +239,8 @@ async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
     });
     showToast(name + ' aggiunto! +5 🪙');
   }
+
+  invalidateCache(); // invalida dopo ogni scrittura
   if (giveCoins) await addCoins(5);
 }
 
@@ -277,20 +304,26 @@ Se non riesci a stimare, usa extraDays: 0.`
 async function renderShelf() {
   const c = document.getElementById('shelf-list');
   c.innerHTML = '<div class="shelf-empty">Caricamento... ⏳</div>';
+
+  // getProducts() usa la cache: 0 query se già caricati
   let products = await getProducts();
+
   if (!products.length) {
     c.innerHTML = '<div class="shelf-empty">Nessun alimento nella tua shelf 📦<br>Aggiungi qualcosa! 🥑</div>';
     return;
   }
-  products = [...products].sort((a, b) => {
+
+  // sort senza spread (slice crea shallow copy, non riallochiamo due array)
+  products = products.slice().sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
     return da - db;
   });
+
   c.innerHTML = products.map(p => {
     const exp   = isExpiringSoon(p.date);
     const thumb = p.image_url
-      ? `<img src="${p.image_url}" alt="${p.name}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;">`
+      ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" style="width:46px;height:46px;border-radius:12px;object-fit:cover;">`
       : p.emoji || '🥑';
     return `
       <div class="product-card" onclick="openDetail(${p.id})">
@@ -311,6 +344,7 @@ async function renderShelf() {
 let currentProductId = null;
 
 async function openDetail(id) {
+  // Usa cache — 0 query aggiuntive
   const products = await getProducts();
   const p = products.find(x => x.id === id);
   if (!p) return;
@@ -344,6 +378,11 @@ async function openDetail(id) {
     const block  = document.getElementById('ai-safety-block');
     if (result) {
       await _supabase.from('products').update({ ai_safety: result }).eq('id', id);
+      // Aggiorna anche la cache locale
+      if (_productsCache?.items) {
+        const cached = _productsCache.items.find(x => x.id === id);
+        if (cached) cached.ai_safety = result;
+      }
       if (block) block.outerHTML = buildSafetyBlock(result, p.date);
     } else {
       if (block) block.outerHTML = `<div class="ai-safety-block ai-error">⚠️ Analisi non disponibile per questo prodotto</div>`;
@@ -390,10 +429,12 @@ async function removeOne() {
   const q = parseFloat(p.qty);
   if (!isNaN(q) && q > 1) {
     await _supabase.from('products').update({ qty: String(q - 1) }).eq('id', currentProductId);
+    invalidateCache();
     showToast('Quantità: ' + (q - 1));
     openDetail(currentProductId);
   } else {
     await _supabase.from('products').delete().eq('id', currentProductId);
+    invalidateCache();
     showToast('Prodotto rimosso ✓');
     goTo('screen-shelf');
   }
@@ -401,6 +442,7 @@ async function removeOne() {
 
 async function removeAll() {
   await _supabase.from('products').delete().eq('id', currentProductId);
+  invalidateCache();
   showToast('Prodotto rimosso ✓');
   goTo('screen-shelf');
 }
@@ -518,12 +560,28 @@ document.getElementById('qr-date').addEventListener('input', function () {
   this.value = v.slice(0,8);
 });
 
-/* ── SCANNER ── */
+/* ── SCANNER (lazy load) ── */
 let html5QrCode         = null;
 let scannerBusy         = false;
 let pendingProductImage = null;
+let _scannerLibLoaded   = false;
 
 function openScanner() {
+  // Carica html5-qrcode solo al primo click (lazy load)
+  if (!_scannerLibLoaded) {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+    script.onload = () => { _scannerLibLoaded = true; _startScanner(); };
+    script.onerror = () => setStatus('Errore caricamento scanner ❌', 'error');
+    document.head.appendChild(script);
+    document.getElementById('scanner-modal').classList.add('open');
+    setStatus('Caricamento scanner…', '');
+    return;
+  }
+  _startScanner();
+}
+
+function _startScanner() {
   scannerBusy = false; pendingProductImage = null;
   document.getElementById('scanner-modal').classList.add('open');
   setStatus('', '');
