@@ -10,29 +10,71 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Aura Foods">
 <link rel="apple-touch-icon" href="/img/icon-180.png">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- FIX 1: Font non bloccanti — preconnect + display=swap
+     Prima il browser aspettava il font prima di dipingere qualsiasi testo -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+
+<!-- CSS critico inline: mostra lo schermo auth immediatamente senza aspettare style.css -->
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:#a8d9a0}
+  body{font-family:'Nunito',system-ui,sans-serif;display:flex;justify-content:center;min-height:100vh;
+       padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  body::before{content:'';position:fixed;inset:0;
+    background:linear-gradient(155deg,#c5eebc 0%,#a8d9a0 35%,#8cc98a 65%,#5cb87a 100%);z-index:-1;pointer-events:none}
+  .app-shell{width:100%;max-width:430px;min-height:100%;display:flex;flex-direction:column;position:relative;overflow-x:hidden}
+  .screen{display:none;flex-direction:column;min-height:100vh}
+  .screen.active{display:flex}
+  #screen-auth{justify-content:center;padding:28px 20px 24px;gap:18px}
+  .auth-logo-container{display:flex;justify-content:center;padding:12px 0 8px}
+  .auth-logo-container img{width:130px;height:130px;object-fit:contain;border-radius:30px;box-shadow:0 8px 28px rgba(30,90,55,.2)}
+  .card{background:rgba(225,245,220,.88);border-radius:26px;padding:20px;box-shadow:0 4px 18px rgba(30,90,55,.10)}
+  .form-group{margin-bottom:14px}
+  .form-label{display:block;font-weight:800;font-size:13px;color:#0d3320;margin-bottom:6px}
+  .form-input{width:100%;background:rgba(255,255,255,.85);border:2px solid transparent;border-radius:12px;
+    padding:11px 14px;font-family:inherit;font-weight:600;color:#0d3320;outline:none;font-size:16px;appearance:none}
+  .form-input:focus{border-color:#2d6a4f;background:#fff}
+  .auth-tabs{display:flex;background:rgba(255,255,255,.35);border-radius:14px;padding:3px;gap:3px;margin-bottom:16px}
+  .auth-tab{flex:1;padding:9px;border:none;border-radius:11px;font-size:14px;cursor:pointer;background:transparent;color:#1a5c3a}
+  .auth-tab.active{background:#2d6a4f;color:#fff;box-shadow:0 2px 10px rgba(30,90,55,.22)}
+  .btn{background:#2d6a4f;color:#fff;border:none;border-radius:50px;padding:13px 24px;
+    font-size:15px;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(30,90,55,.25)}
+  .btn:active{opacity:.85}
+  .footer{margin-top:auto;padding:8px 16px;text-align:center;font-size:11px;color:rgba(13,51,32,.5);font-weight:700}
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:#0d3320;color:#fff;padding:10px 20px;border-radius:50px;font-weight:700;font-size:13px;
+    z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+
+<!-- FIX 2: html5-qrcode NON caricato qui — viene iniettato dinamicamente al primo click scanner (lazy) -->
+
+<!-- FIX 3: Supabase caricato con defer — non blocca il rendering iniziale -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
-  // ── LOGO PATH — cambia questo con il percorso del tuo PNG ──
   const LOGO_PATH = "img/image.png";
 </script>
 </head>
+
+<!-- FIX 4: Service Worker registrato senza bloccare il main thread -->
 <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
-    });
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
   }
 </script>
+
 <body>
 <div class="app-shell">
 
   <!-- ═══════════════ AUTH ═══════════════ -->
   <div id="screen-auth" class="screen active">
     <div class="auth-logo-container">
-      <img id="auth-logo" src="" alt="Aura Foods Logo">
+      <img id="auth-logo" src="" alt="Aura Foods Logo" width="130" height="130">
     </div>
     <div class="card">
       <div class="auth-tabs">
@@ -43,11 +85,11 @@
       <div id="auth-login-form">
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email">
+          <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email" autocomplete="email">
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" class="form-input" placeholder="••••••••" id="login-pass">
+          <input type="password" class="form-input" placeholder="••••••••" id="login-pass" autocomplete="current-password">
         </div>
         <button class="btn" onclick="doLogin()">Entra 🥑</button>
       </div>
@@ -55,15 +97,15 @@
       <div id="auth-register-form" style="display:none">
         <div class="form-group">
           <label class="form-label">Nome</label>
-          <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name">
+          <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email">
+          <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email" autocomplete="email">
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" class="form-input" placeholder="••••••••" id="reg-pass">
+          <input type="password" class="form-input" placeholder="••••••••" id="reg-pass" autocomplete="new-password">
         </div>
         <button class="btn" onclick="doRegister()">Crea account 🌿</button>
       </div>
@@ -80,29 +122,29 @@
     </div>
     <div class="home-content">
       <div class="home-logo-card">
-        <img id="home-logo" src="" alt="Aura Foods Logo">
+        <img id="home-logo" src="" alt="Aura Foods Logo" width="240" height="auto">
       </div>
       <div class="home-actions">
         <button class="btn btn-shelf" onclick="goTo('screen-shelf')">📦 Shelf</button>
         <button class="btn btn-add" onclick="goTo('screen-add')">＋ Aggiungi</button>
       </div>
       <div class="home-social-card">
-        <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
           </svg>
           <span class="social-label">Ig</span>
         </a>
-        <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank">
+        <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18">
             <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
           </svg>
           <span class="social-label">OnlyFans</span>
         </a>
-        <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
@@ -124,7 +166,7 @@
     <div class="navbar">
       <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
       <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-add" src="" alt="Logo">
+        <img id="nav-logo-add" src="" alt="Logo" width="36" height="36">
       </div>
       <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
     </div>
@@ -153,11 +195,11 @@
       <div class="card" style="margin-bottom:16px">
         <div class="form-group">
           <label class="form-label">Nome prodotto:</label>
-          <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name">
+          <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name" autocomplete="off">
         </div>
         <div class="form-group">
           <label class="form-label">Quantità:</label>
-          <input type="text" class="form-input" placeholder="es. 3" id="prod-qty">
+          <input type="text" class="form-input" placeholder="es. 3" id="prod-qty" inputmode="decimal">
         </div>
         <div class="form-group">
           <label class="form-label">Tipo di scadenza:</label>
@@ -183,14 +225,14 @@
     <div class="navbar">
       <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
       <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-success" src="" alt="Logo">
+        <img id="nav-logo-success" src="" alt="Logo" width="36" height="36">
       </div>
       <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
     </div>
     <div class="success-content">
       <div class="success-card">
         <div class="success-check">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="38" height="38">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
@@ -207,7 +249,7 @@
     <div class="navbar">
       <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
       <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-shelf" src="" alt="Logo">
+        <img id="nav-logo-shelf" src="" alt="Logo" width="36" height="36">
       </div>
       <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
     </div>
@@ -224,7 +266,7 @@
     <div class="navbar">
       <button class="nav-btn" onclick="goTo('screen-shelf')">← Shelf</button>
       <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-detail" src="" alt="Logo">
+        <img id="nav-logo-detail" src="" alt="Logo" width="36" height="36">
       </div>
       <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
     </div>
@@ -272,15 +314,15 @@
       <div class="card">
         <div class="form-group">
           <label class="form-label">Nome</label>
-          <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome">
+          <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com">
+          <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
         </div>
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">Nuova password</label>
-          <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare">
+          <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare" autocomplete="new-password">
         </div>
       </div>
       <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
@@ -288,6 +330,7 @@
     </div>
     <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
   </div>
+
   <!-- ═══════════════ QR FORM ═══════════════ -->
   <div id="screen-qr" class="screen">
     <div class="back-header">
@@ -295,11 +338,7 @@
       <span class="back-title">Prodotto scansionato</span>
     </div>
     <div class="form-content">
-      <div id="qr-product-preview" style="
-        display:flex; align-items:center; gap:12px;
-        background:rgba(255,255,255,0.6); border-radius:16px;
-        padding:12px 14px; margin-bottom:12px;
-      ">
+      <div id="qr-product-preview" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
         <div id="qr-preview-img" style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">🥑</div>
         <div>
           <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
@@ -309,7 +348,7 @@
       <div class="card" style="margin-bottom:16px">
         <div class="form-group">
           <label class="form-label">Quantità:</label>
-          <input type="text" class="form-input" placeholder="es. 3" id="qr-qty">
+          <input type="text" class="form-input" placeholder="es. 3" id="qr-qty" inputmode="decimal">
         </div>
         <div class="form-group">
           <label class="form-label">Tipo di scadenza:</label>
@@ -329,6 +368,7 @@
     </div>
     <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
   </div>
+
   <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
   <div id="scanner-modal" class="scanner-modal">
     <div class="scanner-inner">
@@ -341,11 +381,19 @@
       <div class="scanner-status" id="scanner-status"></div>
     </div>
   </div>
+
 </div><!-- /app-shell -->
 <div class="toast" id="toast"></div>
 
-<!-- JS caricato per ultimo così il DOM è pronto -->
-<script src="js/config.js"></script>
-<script src="js/app.js"></script>
+<!-- FIX 5: style.css caricato dopo il CSS critico inline — non blocca il First Paint
+     ma viene applicato prima che l'utente interagisca con altre schermate -->
+<link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/style.css"></noscript>
+
+<!-- FIX 6: config.js e app.js caricati con defer — eseguiti dopo il parsing HTML
+     ma prima di DOMContentLoaded, senza bloccare il rendering -->
+<script defer src="js/config.js"></script>
+<script defer src="js/app.js"></script>
+
 </body>
 </html>
