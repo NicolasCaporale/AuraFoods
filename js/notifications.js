@@ -45,3 +45,65 @@ async function removeNotifications(supabase, userId) {
     console.error('Errore rimozione push:', err);
   }
 }
+async function updateNotifUI() {
+  const btn   = document.getElementById('notif-toggle-btn');
+  const label = document.getElementById('notif-status-label');
+  if (!btn || !label) return;
+
+  if (!('Notification' in window) || !('PushManager' in window)) {
+    label.textContent = 'Non supportate su questo browser';
+    btn.textContent   = '—';
+    btn.disabled      = true;
+    return;
+  }
+
+  const perm = Notification.permission;
+
+  if (perm === 'denied') {
+    label.textContent = 'Bloccate — abilitale nelle impostazioni del browser';
+    btn.textContent   = '🔕 Bloccate';
+    btn.disabled      = true;
+    btn.style.background = '#999';
+    return;
+  }
+
+  const reg  = await navigator.serviceWorker.ready;
+  const sub  = await reg.pushManager.getSubscription();
+
+  if (sub) {
+    label.textContent    = 'Attive ✅';
+    btn.textContent      = '🔕 Disattiva';
+    btn.style.background = '#c0392b';
+  } else {
+    label.textContent    = perm === 'granted' ? 'Disattivate' : 'Non ancora abilitate';
+    btn.textContent      = '🔔 Attiva';
+    btn.style.background = '#2d6a4f';
+  }
+
+  btn.disabled = false;
+}
+
+async function toggleNotifications() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+
+  if (sub) {
+    // Disattiva
+    await removeNotifications(supabase, user.id);
+    showToast('🔕 Notifiche disattivate');
+  } else {
+    // Attiva
+    await initNotifications(supabase, user.id);
+    const newSub = await reg.pushManager.getSubscription();
+    if (newSub) {
+      showToast('🔔 Notifiche attivate!');
+    } else {
+      showToast('❌ Permesso negato o errore');
+    }
+  }
+
+  await updateNotifUI();
+}
