@@ -50,32 +50,49 @@ async function updateNotifUI() {
   const label = document.getElementById('notif-status-label');
   if (!btn || !label) return;
 
-  if (!('Notification' in window) || !('PushManager' in window)) {
+  if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
     label.textContent = 'Non supportate su questo browser';
     btn.textContent   = '—';
     btn.disabled      = true;
     return;
   }
 
-  const perm = Notification.permission;
-
-  if (perm === 'denied') {
-    label.textContent = 'Bloccate — abilitale nelle impostazioni del browser';
-    btn.textContent   = '🔕 Bloccate';
-    btn.disabled      = true;
+  if (Notification.permission === 'denied') {
+    label.textContent    = 'Bloccate — abilitale nelle impostazioni';
+    btn.textContent      = '🔕 Bloccate';
+    btn.disabled         = true;
     btn.style.background = '#999';
     return;
   }
 
-  const reg  = await navigator.serviceWorker.ready;
-  const sub  = await reg.pushManager.getSubscription();
+  // Se il SW non è ancora pronto aspetta max 3 secondi
+  let reg = null;
+  try {
+    reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+    ]);
+  } catch {
+    label.textContent    = Notification.permission === 'granted' ? 'Disattivate' : 'Non ancora abilitate';
+    btn.textContent      = '🔔 Attiva';
+    btn.style.background = '#2d6a4f';
+    btn.disabled         = false;
+    return;
+  }
+
+  let sub = null;
+  try {
+    sub = await reg.pushManager.getSubscription();
+  } catch {
+    sub = null;
+  }
 
   if (sub) {
     label.textContent    = 'Attive ✅';
     btn.textContent      = '🔕 Disattiva';
     btn.style.background = '#c0392b';
   } else {
-    label.textContent    = perm === 'granted' ? 'Disattivate' : 'Non ancora abilitate';
+    label.textContent    = Notification.permission === 'granted' ? 'Disattivate' : 'Non ancora abilitate';
     btn.textContent      = '🔔 Attiva';
     btn.style.background = '#2d6a4f';
   }
@@ -105,5 +122,5 @@ async function toggleNotifications() {
     }
   }
 
-  await updateNotifUI();
+  await fUI();
 }
