@@ -101,26 +101,67 @@ async function updateNotifUI() {
 }
 
 async function toggleNotifications() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
 
-  const reg = await navigator.serviceWorker.ready;
-  const sub = await reg.pushManager.getSubscription();
+  const btn = document.getElementById('notif-toggle-btn');
 
-  if (sub) {
-    // Disattiva
-    await removeNotifications(supabase, user.id);
-    showToast('🔕 Notifiche disattivate');
-  } else {
-    // Attiva
-    await initNotifications(supabase, user.id);
-    const newSub = await reg.pushManager.getSubscription();
-    if (newSub) {
-      showToast('🔔 Notifiche attivate!');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+
+  try {
+
+    const { data: { user } } = await _supabase.auth.getUser();
+
+    if (!user) { showToast('Utente non trovato ❌'); return; }
+
+    const reg = await Promise.race([
+
+      navigator.serviceWorker.ready,
+
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+
+    ]);
+
+    const sub = await reg.pushManager.getSubscription();
+
+    if (sub) {
+
+      // Disattiva
+
+      try { await sub.unsubscribe(); } catch(e) { console.warn('unsubscribe fallito:', e); }
+
+      // Rimuove da Supabase comunque, anche se unsubscribe ha fallito
+
+      await _supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+
+      showToast('🔕 Notifiche disattivate');
+
     } else {
-      showToast('❌ Permesso negato o errore');
+
+      // Attiva
+
+      await initNotifications(_supabase, user.id);
+
+      const newSub = await reg.pushManager.getSubscription();
+
+      if (newSub) {
+
+        showToast('🔔 Notifiche attivate!');
+
+      } else {
+
+        showToast('❌ Permesso negato o non supportato');
+
+      }
+
     }
+
+  } catch(err) {
+
+    console.error('toggleNotifications errore:', err);
+
+    showToast('❌ Errore notifiche');
+
   }
 
-  await fUI();
+  await updateNotifUI();
+
 }
