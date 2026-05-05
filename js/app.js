@@ -38,7 +38,7 @@ function goTo(screenId) {
   window.scrollTo(0, 0);
 
   if (screenId === 'screen-shelf')   renderShelf();
-  if (screenId === 'screen-profile') loadProfile();
+  if (screenId === 'screen-profile') { loadProfile(); updateNotifUI(); }
 
   if (screenId === 'screen-manual') {
     const nameGroup = document.getElementById('prod-name')?.closest('.form-group');
