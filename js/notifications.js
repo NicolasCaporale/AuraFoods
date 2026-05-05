@@ -45,11 +45,13 @@ async function removeNotifications(supabase, userId) {
     console.error('Errore rimozione push:', err);
   }
 }
+
 async function updateNotifUI() {
   const btn   = document.getElementById('notif-toggle-btn');
   const label = document.getElementById('notif-status-label');
   if (!btn || !label) return;
 
+  // Browser non supporta push
   if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
     label.textContent = 'Non supportate su questo browser';
     btn.textContent   = '—';
@@ -57,6 +59,7 @@ async function updateNotifUI() {
     return;
   }
 
+  // Permesso bloccato esplicitamente dall'utente
   if (Notification.permission === 'denied') {
     label.textContent    = 'Bloccate — abilitale nelle impostazioni';
     btn.textContent      = '🔕 Bloccate';
@@ -65,14 +68,10 @@ async function updateNotifUI() {
     return;
   }
 
-  // Se il SW non è ancora pronto aspetta max 3 secondi
-  let reg = null;
-  try {
-    reg = await Promise.race([
-      navigator.serviceWorker.ready,
-      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
-    ]);
-  } catch {
+  // Controlla se c'è già un SW registrato e pronto SENZA aspettare
+  const reg = await navigator.serviceWorker.getRegistration('/');
+  if (!reg || !reg.active) {
+    // SW non ancora attivo — mostra stato base senza bloccarsi
     label.textContent    = Notification.permission === 'granted' ? 'Disattivate' : 'Non ancora abilitate';
     btn.textContent      = '🔔 Attiva';
     btn.style.background = '#2d6a4f';
@@ -80,12 +79,11 @@ async function updateNotifUI() {
     return;
   }
 
+  // SW attivo — controlla la subscription
   let sub = null;
   try {
     sub = await reg.pushManager.getSubscription();
-  } catch {
-    sub = null;
-  }
+  } catch { sub = null; }
 
   if (sub) {
     label.textContent    = 'Attive ✅';
@@ -96,7 +94,6 @@ async function updateNotifUI() {
     btn.textContent      = '🔔 Attiva';
     btn.style.background = '#2d6a4f';
   }
-
   btn.disabled = false;
 }
 
