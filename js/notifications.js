@@ -16,24 +16,26 @@ async function initNotifications(supabase, userId) {
 
   try {
     const reg = await navigator.serviceWorker.ready;
-    let subscription = await reg.pushManager.getSubscription();
 
-    if (!subscription) {
-      subscription = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-      });
-    }
+    // Forza sempre una subscription fresca — gestisce il rinnovo Apple
+    let subscription = await reg.pushManager.getSubscription();
+    if (subscription) await subscription.unsubscribe();
+
+    subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
 
     await supabase
       .from('push_subscriptions')
       .upsert({ user_id: userId, subscription: subscription.toJSON() }, { onConflict: 'user_id' });
 
-    console.log('✅ Notifiche attivate');
+    console.log('✅ Subscription aggiornata');
   } catch (err) {
     console.error('Errore push:', err);
   }
 }
+
 
 async function removeNotifications(supabase, userId) {
   try {
