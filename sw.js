@@ -78,3 +78,29 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+// ═══ PUSH NOTIFICATIONS ═══
+self.addEventListener('push', event => {
+  if (!event.data) return;
+  const data = event.data.json();
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/img/icon-180.png',
+      badge: '/img/icon-180.png',
+      tag: data.tag || 'aura-scadenza',
+      data: { url: data.url || '/' },
+      vibrate: [200, 100, 200]
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      if (list.length > 0) return list[0].focus();
+      return clients.openWindow(event.notification.data.url || '/');
+    })
+  );
+});
