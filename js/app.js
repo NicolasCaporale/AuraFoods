@@ -768,19 +768,35 @@ function _startScanner() {
   setStatus('', '');
   document.getElementById('scanner-container').innerHTML = '';
   html5QrCode = new Html5Qrcode('scanner-container');
-  Html5Qrcode.getCameras().then(cameras => {
-    if (!cameras || cameras.length === 0) { setStatus('Nessuna fotocamera trovata ❌','error'); return; }
-    html5QrCode.start(
-      { facingMode:'environment' },
-      { fps:30, qrbox:{ width:280, height:160 }, aspectRatio:1.7,
-        formatsToSupport:[
-          Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.UPC_A,  Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-        ]},
-      onBarcodeDetected, () => {}
-    ).catch(err => { console.error(err); setStatus('Errore avvio fotocamera ❌','error'); });
-  }).catch(() => setStatus('Permesso fotocamera negato ❌','error'));
+
+  // Aspetta un frame che il modal sia visibile e abbia dimensioni
+  requestAnimationFrame(() => {
+    Html5Qrcode.getCameras().then(cameras => {
+      if (!cameras || cameras.length === 0) {
+        setStatus('Nessuna fotocamera trovata ❌', 'error');
+        return;
+      }
+      const containerW = document.getElementById('scanner-container').offsetWidth || 300;
+      html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+          fps: 30,
+          qrbox: { width: Math.min(containerW - 40, 260), height: 150 },
+          aspectRatio: 1.7,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,  Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+          ]
+        },
+        onBarcodeDetected,
+        () => {}
+      ).catch(err => {
+        console.error(err);
+        setStatus('Errore avvio fotocamera ❌', 'error');
+      });
+    }).catch(() => setStatus('Permesso fotocamera negato ❌', 'error'));
+  });
 }
 
 function closeScanner() {
