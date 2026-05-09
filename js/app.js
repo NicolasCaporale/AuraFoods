@@ -702,6 +702,7 @@ async function saveProfile() {
   document.getElementById('profile-name-display').textContent  = fresh?.name  || 'Utente';
   document.getElementById('profile-email-display').textContent = user.email   || 'email@esempio.com';
   document.getElementById('edit-pass').value = '';
+  loadProfile();
 }
 
 function handleAvatar(input) {
