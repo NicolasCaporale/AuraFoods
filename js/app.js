@@ -640,10 +640,11 @@ async function loadProfile() {
   document.getElementById('edit-pass').value  = '';
   const av = document.getElementById('avatar-display');
   if (u.avatar) {
-    av.style.cssText = `background-image:url(${u.avatar});background-size:cover;background-position:center;font-size:0`;
+    av.style.cssText = `background-image:url(${u.avatar});background-size:cover;background-position:center;font-size:0;width:72px;height:72px;border-radius:50%;`;
     av.textContent = '';
   } else {
-    av.style.cssText = ''; av.textContent = '🧑';
+    av.style.cssText = '';
+    av.textContent = '🧑';
   }
 }
 
@@ -701,6 +702,7 @@ async function saveProfile() {
   document.getElementById('profile-name-display').textContent  = fresh?.name  || 'Utente';
   document.getElementById('profile-email-display').textContent = user.email   || 'email@esempio.com';
   document.getElementById('edit-pass').value = '';
+  loadProfile();
 }
 
 function handleAvatar(input) {
