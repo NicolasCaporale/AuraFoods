@@ -589,40 +589,33 @@
 
     <!-- ═══════════════ PROFILE ═══════════════ -->
     <div id="screen-profile" class="screen">
-      <div class="back-header">
-        <button class="back-btn" onclick="goTo('screen-home')">‹</button>
-        <span class="back-title">Il mio profilo</span>
+      <div class="profile-hero-header">
+        <button class="profile-back-btn" onclick="goTo('screen-home')">‹</button>
+        <button class="profile-save-btn" onclick="saveProfile()">Salva</button>
+        <div class="profile-avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+          <div class="avatar-img" id="avatar-display">🧑</div>
+          <div class="avatar-edit-badge">✏️</div>
+        </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+        <div class="profile-hero-name" id="profile-name-display">Utente</div>
+        <div class="profile-hero-email" id="profile-email-display">email@esempio.com</div>
+        <div class="profile-coins-pill">
+          🪙 <span id="coins-display">0</span>
+          <span class="profile-coins-label">Aura Coins</span>
+        </div>
       </div>
-      <div class="profile-content">
-        <div class="profile-hero">
-          <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-            <div class="avatar-img" id="avatar-display">🧑</div>
-            <div class="avatar-edit-badge">✏️</div>
-          </div>
-          <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
-          <div class="profile-name" id="profile-name-display">Utente</div>
-          <div class="profile-email" id="profile-email-display">email@esempio.com</div>
-        </div>
-        <div class="coins-card">
+
+      <div class="profile-body">
+        <div class="profile-notif-card">
           <div>
-            <div class="coins-label">🪙 I tuoi Aura Coins</div>
-            <div class="coins-desc">+5 monete per ogni alimento aggiunto</div>
+            <div class="profile-notif-title">🔔 Notifiche scadenze</div>
+            <div class="profile-notif-sub" id="notif-status-label">Controllo stato...</div>
           </div>
-          <div class="coins-value"><span>🪙</span><span id="coins-display">0</span></div>
+          <button id="notif-toggle-btn" class="notif-toggle" onclick="toggleNotifications()">...</button>
         </div>
-        <div class="profile-section-title">🔔 Notifiche</div>
-        <div class="card" style="margin-bottom:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <div>
-              <div style="font-weight:800;font-size:14px;color:#0d3320">Notifiche scadenze</div>
-              <div style="font-size:12px;font-weight:600;color:#2d8653" id="notif-status-label">Controllo stato...</div>
-            </div>
-            <button id="notif-toggle-btn" class="btn" style="width:auto;padding:10px 20px;font-size:13px"
-              onclick="toggleNotifications()">...</button>
-          </div>
-        </div>
-        <div class="profile-section-title">✏️ Modifica profilo</div>
-        <div class="card">
+
+        <div class="profile-form-card">
+          <div class="profile-section-title">✏️ Modifica profilo</div>
           <div class="form-group">
             <label class="form-label">Nome</label>
             <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
@@ -637,12 +630,12 @@
               autocomplete="new-password">
           </div>
         </div>
-        <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
+
         <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
       </div>
       <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
     </div>
-
+    
     <!-- ═══════════════ QR FORM ═══════════════ -->
     <div id="screen-qr" class="screen">
       <div class="back-header">
