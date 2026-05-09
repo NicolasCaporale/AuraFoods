@@ -41,9 +41,20 @@ function hideSplash() {
 
 /* ── NAVIGATION ── */
 function goTo(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active', 'screen-enter');
+  });
   const target = document.getElementById(screenId);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    // Double RAF: necessario su iOS — aspetta che display:flex
+    // sia committed dal browser prima di aggiungere l'animazione
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        target.classList.add('screen-enter');
+      });
+    });
+  }
   window.scrollTo(0, 0);
 
   if (screenId === 'screen-home')    renderHome();
@@ -391,15 +402,24 @@ async function renderShelf() {
   const c = document.getElementById('shelf-list');
   c.innerHTML = '<div class="shelf-empty">Caricamento... ⏳</div>';
 
-  // getProducts() usa la cache: 0 query se già caricati
   let products = await getProducts();
+
+  // Aggiorna subtitle nell'header
+  const countEl = document.getElementById('shelf-header-count');
+  if (countEl) {
+    if (!products.length) {
+      countEl.textContent = 'Nessun prodotto ancora';
+    } else {
+      const expCount = products.filter(p => isExpiringSoon(p.date)).length;
+      countEl.textContent = `${products.length} prodott${products.length === 1 ? 'o' : 'i'}${expCount ? ` • ${expCount} in scadenza ⚠️` : ''}`;
+    }
+  }
 
   if (!products.length) {
     c.innerHTML = '<div class="shelf-empty">Nessun alimento nella tua shelf 📦<br>Aggiungi qualcosa! 🥑</div>';
     return;
   }
 
-  // sort senza spread (slice crea shallow copy, non riallochiamo due array)
   products = products.slice().sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);

@@ -464,12 +464,14 @@
 
     <!-- ═══════════════ ADD ═══════════════ -->
     <div id="screen-add" class="screen">
-      <div class="navbar">
-        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-        <div class="nav-logo" onclick="goTo('screen-home')">
-          <img id="nav-logo-add" src="" alt="Logo" width="36" height="36">
+      <div class="screen-header">
+        <div class="sh-nav">
+          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
+          <img id="nav-logo-add" src="" alt="Logo" width="32" height="32" style="border-radius:9px;object-fit:cover;">
+          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
         </div>
-        <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+        <div class="sh-title">Aggiungi 🥑</div>
+        <div class="sh-subtitle">Scansiona o inserisci manualmente</div>
       </div>
       <div class="add-content">
         <div class="scan-card" onclick="simulateScan()">
@@ -525,12 +527,15 @@
 
     <!-- ═══════════════ SUCCESS ═══════════════ -->
     <div id="screen-success" class="screen">
-      <div class="navbar">
-        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-        <div class="nav-logo" onclick="goTo('screen-home')">
-          <img id="nav-logo-success" src="" alt="Logo" width="36" height="36">
+      <div class="screen-header">
+        <div class="sh-nav">
+          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
+          <img id="nav-logo-success" src="" alt="Logo" width="32" height="32"
+            style="border-radius:9px;object-fit:cover;">
+          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
         </div>
-        <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+        <div class="sh-title">Fatto! 🎉</div>
+        <div class="sh-subtitle">Prodotto aggiunto con successo</div>
       </div>
       <div class="success-content">
         <div class="success-card">
@@ -550,15 +555,16 @@
 
     <!-- ═══════════════ SHELF ═══════════════ -->
     <div id="screen-shelf" class="screen">
-      <div class="navbar">
-        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-        <div class="nav-logo" onclick="goTo('screen-home')">
-          <img id="nav-logo-shelf" src="" alt="Logo" width="36" height="36">
+      <div class="screen-header">
+        <div class="sh-nav">
+          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
+          <img id="nav-logo-shelf" src="" alt="Logo" width="32" height="32" style="border-radius:9px;object-fit:cover;">
+          <button class="sh-nav-btn" onclick="goTo('screen-add')">＋ Aggiungi</button>
         </div>
-        <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+        <div class="sh-title">La tua Shelf 📦</div>
+        <div class="sh-subtitle" id="shelf-header-count">Caricamento…</div>
       </div>
       <div class="shelf-content">
-        <div class="shelf-title">La tua Shelf 📦</div>
         <div id="shelf-list"></div>
         <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
       </div>
@@ -567,15 +573,16 @@
 
     <!-- ═══════════════ DETAIL ═══════════════ -->
     <div id="screen-detail" class="screen">
-      <div class="navbar">
-        <button class="nav-btn" onclick="goTo('screen-shelf')">← Shelf</button>
-        <div class="nav-logo" onclick="goTo('screen-home')">
-          <img id="nav-logo-detail" src="" alt="Logo" width="36" height="36">
+      <div class="screen-header">
+        <div class="sh-nav">
+          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">‹ Shelf</button>
+          <img id="nav-logo-detail" src="" alt="Logo" width="32" height="32"
+            style="border-radius:9px;object-fit:cover;">
+          <button class="sh-nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
         </div>
-        <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+        <div class="sh-title" id="detail-product-name">Prodotto</div>
       </div>
       <div class="detail-content">
-        <div class="detail-title" id="detail-product-name">Prodotto</div>
         <div class="detail-card">
           <div class="detail-emoji" id="detail-emoji">🥑</div>
           <div class="detail-info" id="detail-info"></div>
