@@ -489,14 +489,18 @@ function showIOSSteps() {
   list.innerHTML = `
     <div class="step">
       <div class="step-num">1</div>
-      <div class="step-text">Tocca il pulsante <em>Condividi</em> ${shareIcon} ${isIPad ? 'in alto a destra' : 'nella barra in basso'}</div>
+      <div class="step-text">Apri il link su safari, gli altri browser non supportano l'installazione diretta</div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text">Scorri il menu e tocca <em>"Aggiungi a Home"</em> ${addIcon}</div>
+      <div class="step-text">Tocca il pulsante <em>Condividi</em> ${shareIcon} ${isIPad ? 'in alto a destra' : 'nella barra in basso'}</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
+      <div class="step-text">Scorri il menu e tocca <em>"Aggiungi a Home"</em> ${addIcon}</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
       <div class="step-text">Tocca <em>Aggiungi</em> in alto a destra — fatto! 🎉</div>
     </div>
   `;
