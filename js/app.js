@@ -404,13 +404,51 @@ async function renderShelf() {
 
   let products = await getProducts();
 
-  // Aggiorna subtitle nell'header
+  const now = new Date(); now.setHours(0,0,0,0);
+
+  /* helpers */
+  function daysLeft(dateStr) {
+    const d = parseDate(dateStr);
+    if (!d) return null;
+    return Math.round((d - now) / 86400000);
+  }
+
+  function dateBadge(dateStr) {
+    const diff = daysLeft(dateStr);
+    if (diff === null) return { cls: 'date-badge-ok', label: dateStr, sub: '', subCls: '' };
+
+    let cls, sub, subCls;
+    if (diff < 0) {
+      cls = 'date-badge-danger';
+      sub = diff === -1 ? 'ieri' : Math.abs(diff) + ' gg fa';
+      subCls = 'date-sublabel-danger';
+    } else if (diff === 0) {
+      cls = 'date-badge-danger';
+      sub = 'oggi ⚠️';
+      subCls = 'date-sublabel-danger';
+    } else if (diff === 1) {
+      cls = 'date-badge-danger';
+      sub = 'domani ⚠️';
+      subCls = 'date-sublabel-danger';
+    } else if (diff <= 3) {
+      cls = 'date-badge-soon';
+      sub = diff + ' giorni ⚠️';
+      subCls = 'date-sublabel-warn';
+    } else {
+      cls = 'date-badge-ok';
+      sub = diff + ' giorni';
+      subCls = 'date-sublabel';
+    }
+    return { cls, label: dateStr, sub, subCls };
+  }
+
+  /* header count */
   const countEl = document.getElementById('shelf-header-count');
   if (countEl) {
     if (!products.length) {
       countEl.textContent = 'Nessun prodotto ancora';
     } else {
-      const expCount = products.filter(p => isExpiringSoon(p.date)).length;
+      const expCount = products.filter(p => (daysLeft(p.date) ?? 99) <= 3).length;
       countEl.textContent = `${products.length} prodott${products.length === 1 ? 'o' : 'i'}${expCount ? ` • ${expCount} in scadenza ⚠️` : ''}`;
     }
   }
@@ -420,32 +458,64 @@ async function renderShelf() {
     return;
   }
 
+  /* sort by date ascending */
   products = products.slice().sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
     return da - db;
   });
 
-  c.innerHTML = products.map(p => {
-    const exp   = isExpiringSoon(p.date);
+  /* split into groups */
+  const expired  = products.filter(p => (daysLeft(p.date) ?? 0) < 0);
+  const warning  = products.filter(p => { const d = daysLeft(p.date); return d !== null && d >= 0 && d <= 3; });
+  const ok       = products.filter(p => (daysLeft(p.date) ?? 99) > 3);
+
+  function cardHTML(p) {
+    const badge = dateBadge(p.date);
     const thumb = p.image_url
-      ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" style="width:46px;height:46px;border-radius:12px;object-fit:cover;">`
+      ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" style="width:44px;height:44px;border-radius:11px;object-fit:cover;">`
       : p.emoji || '🥑';
+    const isExp = (daysLeft(p.date) ?? 0) < 0;
     return `
-      <div class="product-card" onclick="openDetail(${p.id})">
+      <div class="product-card${isExp ? ' pc-expired pc-visible' : ''}" onclick="openDetail(${p.id})">
         <div class="product-emoji">${thumb}</div>
         <div class="product-info">
           <div class="product-name">${p.name}</div>
-          <div class="product-qty">Quantità: ${p.qty}</div>
-          <div class="product-date${exp ? ' expiring' : ''}">
-            Scade il: ${p.date}${exp ? ' ⚠️' : ''}
-          </div>
+          <div class="product-qty">Qtà: ${p.qty}</div>
         </div>
-        <span style="color:var(--text-mid);font-size:22px">›</span>
+        <div class="product-date-col">
+          <span class="date-badge ${badge.cls}">${badge.label}</span>
+          <span class="date-sublabel ${badge.subCls}">${badge.sub}</span>
+        </div>
+        <span class="product-arrow">›</span>
       </div>`;
-  }).join('');
-}
+  }
 
+  let html = '';
+
+  /* warn strip */
+  const warnCount = warning.length + expired.length;
+  if (warnCount > 0) {
+    html += `<div class="shelf-warn-strip">⚠️ &nbsp;${warnCount} prodott${warnCount === 1 ? 'o' : 'i'} in scadenza o scadut${warnCount === 1 ? 'o' : 'i'}</div>`;
+  }
+
+  if (warning.length) {
+    html += `<div class="shelf-section-label">⚠️ Scadenza imminente</div>`;
+    html += warning.map(cardHTML).join('');
+  }
+
+  if (ok.length) {
+    html += `<div class="shelf-section-label">✅ Tutto ok</div>`;
+    html += ok.map(cardHTML).join('');
+  }
+
+  if (expired.length) {
+    html += `<div class="shelf-section-label">🚫 Scaduti</div>`;
+    html += expired.map(cardHTML).join('');
+  }
+
+  c.innerHTML = html;
+}
 /* ── DETAIL ── */
 let currentProductId = null;
 
