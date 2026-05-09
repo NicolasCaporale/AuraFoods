@@ -4,10 +4,12 @@
     <loc>https://aura-foods.it/</loc>
     <priority>1.0</priority>
     <changefreq>monthly</changefreq>
+    <lastmod>2026-05-09</lastmod>
   </url>
   <url>
     <loc>https://aura-foods.it/installa.html</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <changefreq>yearly</changefreq>
+    <lastmod>2026-05-09</lastmod>
   </url>
 </urlset>
