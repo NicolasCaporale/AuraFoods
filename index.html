@@ -27,8 +27,16 @@
   </noscript>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0 }
-    html { background: #a8d9a0 }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      background: #a8d9a0
+    }
+
     body {
       font-family: 'Nunito', system-ui, sans-serif;
       display: flex;
@@ -37,6 +45,7 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom)
     }
+
     body::before {
       content: '';
       position: fixed;
@@ -45,6 +54,7 @@
       z-index: -1;
       pointer-events: none
     }
+
     .app-shell {
       width: 100%;
       max-width: 430px;
@@ -54,71 +64,211 @@
       position: relative;
       overflow-x: hidden
     }
-    .screen { display: none; flex-direction: column; min-height: 100vh }
-    .screen.active { display: flex }
-    #screen-auth { justify-content: center; padding: 28px 20px 24px; gap: 18px }
-    .auth-logo-container { display: flex; justify-content: center; padding: 12px 0 8px }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    #screen-auth {
+      justify-content: center;
+      padding: 28px 20px 24px;
+      gap: 18px
+    }
+
+    .auth-logo-container {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 8px
+    }
+
     .auth-logo-container img {
-      width: 130px; height: 130px; object-fit: contain;
-      border-radius: 30px; box-shadow: 0 8px 28px rgba(30,90,55,.2)
+      width: 130px;
+      height: 130px;
+      object-fit: contain;
+      border-radius: 30px;
+      box-shadow: 0 8px 28px rgba(30, 90, 55, .2)
     }
-    .card { background: rgba(225,245,220,.88); border-radius: 26px; padding: 20px; box-shadow: 0 4px 18px rgba(30,90,55,.10) }
-    .form-group { margin-bottom: 14px }
-    .form-label { display: block; font-weight: 800; font-size: 13px; color: #0d3320; margin-bottom: 6px }
+
+    .card {
+      background: rgba(225, 245, 220, .88);
+      border-radius: 26px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(30, 90, 55, .10)
+    }
+
+    .form-group {
+      margin-bottom: 14px
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 800;
+      font-size: 13px;
+      color: #0d3320;
+      margin-bottom: 6px
+    }
+
     .form-input {
-      width: 100%; background: rgba(255,255,255,.85); border: 2px solid transparent;
-      border-radius: 12px; padding: 11px 14px; font-family: inherit;
-      font-weight: 600; color: #0d3320; outline: none; font-size: 16px; appearance: none
+      width: 100%;
+      background: rgba(255, 255, 255, .85);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-weight: 600;
+      color: #0d3320;
+      outline: none;
+      font-size: 16px;
+      appearance: none
     }
-    .form-input:focus { border-color: #2d6a4f; background: #fff }
+
+    .form-input:focus {
+      border-color: #2d6a4f;
+      background: #fff
+    }
+
     .auth-tabs {
-      display: flex; background: rgba(255,255,255,.35);
-      border-radius: 14px; padding: 3px; gap: 3px; margin-bottom: 16px
+      display: flex;
+      background: rgba(255, 255, 255, .35);
+      border-radius: 14px;
+      padding: 3px;
+      gap: 3px;
+      margin-bottom: 16px
     }
+
     .auth-tab {
-      flex: 1; padding: 9px; border: none; border-radius: 11px;
-      font-size: 14px; cursor: pointer; background: transparent; color: #1a5c3a
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 11px;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      color: #1a5c3a
     }
-    .auth-tab.active { background: #2d6a4f; color: #fff; box-shadow: 0 2px 10px rgba(30,90,55,.22) }
+
+    .auth-tab.active {
+      background: #2d6a4f;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(30, 90, 55, .22)
+    }
+
     .btn {
-      background: #2d6a4f; color: #fff; border: none; border-radius: 50px;
-      padding: 13px 24px; font-size: 15px; cursor: pointer; width: 100%;
-      box-shadow: 0 4px 14px rgba(30,90,55,.25)
+      background: #2d6a4f;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 13px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(30, 90, 55, .25)
     }
-    .btn:active { opacity: .85 }
-    .footer { margin-top: auto; padding: 8px 16px; text-align: center; font-size: 11px; color: rgba(13,51,32,.5); font-weight: 700 }
+
+    .btn:active {
+      opacity: .85
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(13, 51, 32, .5);
+      font-weight: 700
+    }
+
     .toast {
-      position: fixed; bottom: 28px; left: 50%;
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
       transform: translateX(-50%) translateY(80px);
-      background: #0d3320; color: #fff; padding: 10px 20px;
-      border-radius: 50px; font-weight: 700; font-size: 13px;
-      z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-      pointer-events: none; white-space: nowrap
+      background: #0d3320;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 13px;
+      z-index: 9999;
+      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+      pointer-events: none;
+      white-space: nowrap
     }
-    .toast.show { transform: translateX(-50%) translateY(0) }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0)
+    }
+
     #splash {
-      position: fixed; inset: 0; z-index: 99999;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
       background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 20px; transition: opacity .35s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity .35s ease;
     }
-    #splash.hide { opacity: 0; pointer-events: none; }
+
+    #splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     #splash img {
-      width: 110px; height: 110px; border-radius: 28px;
-      box-shadow: 0 8px 28px rgba(30,90,55,.25);
-      animation: splashPop .5s cubic-bezier(.34,1.56,.64,1) both;
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      box-shadow: 0 8px 28px rgba(30, 90, 55, .25);
+      animation: splashPop .5s cubic-bezier(.34, 1.56, .64, 1) both;
     }
-    @keyframes splashPop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    @keyframes splashPop {
+      from {
+        transform: scale(.6);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     #splash-spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(45,106,79,.2); border-top-color: #2d6a4f;
-      border-radius: 50%; animation: spin .7s linear infinite;
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(45, 106, 79, .2);
+      border-top-color: #2d6a4f;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #splash-label { font-family: 'Fredoka One', cursive; font-size: 15px; color: #1a5c3a; }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #splash-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      color: #1a5c3a;
+    }
 
     /* ── Fix logo centrato in sh-nav ── */
-    .sh-nav { position: relative; }
+    .sh-nav {
+      position: relative;
+    }
+
     .sh-nav-logo {
       position: absolute;
       left: 50%;
@@ -131,13 +281,15 @@
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-  <meta name="description" content="Aura Foods — tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te.">
+  <meta name="description"
+    content="Aura Foods — tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://aura-foods.it/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Aura Foods">
   <meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
-  <meta property="og:description" content="Monitora le scadenze dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi alimentari con la tua dispensa digitale.">
+  <meta property="og:description"
+    content="Monitora le scadenze dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi alimentari con la tua dispensa digitale.">
   <meta property="og:image" content="https://aura-foods.it/img/image.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
@@ -205,7 +357,8 @@
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
-            <input type="password" class="form-input" placeholder="••••••••" id="login-pass" autocomplete="current-password">
+            <input type="password" class="form-input" placeholder="••••••••" id="login-pass"
+              autocomplete="current-password">
           </div>
           <button class="btn" onclick="doLogin()">Entra 🥑</button>
         </div>
@@ -238,7 +391,8 @@
       <div class="home-content">
         <div class="home-topbar">
           <div class="home-coins-pill">🪙 <span id="home-coins">0</span></div>
-          <img id="home-logo" src="" alt="Aura Foods Logo" width="36" height="36" style="border-radius:10px;object-fit:cover;">
+          <img id="home-logo" src="" alt="Aura Foods Logo" width="36" height="36"
+            style="position:absolute;left:50%;transform:translateX(-50%);border-radius:10px;object-fit:cover;pointer-events:none;">
           <div class="home-avatar-btn" id="home-avatar-btn" onclick="goTo('screen-profile')">🧑</div>
         </div>
         <div class="home-greeting">
@@ -271,24 +425,28 @@
         </div>
         <div class="home-social-card">
           <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
             </svg>
             <span class="social-label">Ig</span>
           </a>
-          <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank" rel="noopener">
+          <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank"
+            rel="noopener">
             <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18">
-              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+              <path
+                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
             </svg>
             <span class="social-label">OnlyFans</span>
           </a>
           <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
             </svg>
             <span class="social-label">Linkedln</span>
           </a>
@@ -333,7 +491,8 @@
         <div class="card" style="margin-bottom:16px">
           <div class="form-group">
             <label class="form-label">Nome prodotto:</label>
-            <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name" autocomplete="off">
+            <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name"
+              autocomplete="off">
           </div>
           <div class="form-group">
             <label class="form-label">Quantità:</label>
@@ -350,7 +509,8 @@
           </div>
           <div class="form-group" style="margin-bottom:0">
             <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8" inputmode="numeric">
+            <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8"
+              inputmode="numeric">
           </div>
         </div>
         <button class="btn" onclick="addProduct()">Conferma ✓</button>
@@ -372,8 +532,9 @@
       <div class="success-content">
         <div class="success-card">
           <div class="success-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="38" height="38">
-              <polyline points="20 6 9 17 4 12"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round" width="38" height="38">
+              <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
           <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
@@ -456,7 +617,8 @@
               <div style="font-weight:800;font-size:14px;color:#0d3320">Notifiche scadenze</div>
               <div style="font-size:12px;font-weight:600;color:#2d8653" id="notif-status-label">Controllo stato...</div>
             </div>
-            <button id="notif-toggle-btn" class="btn" style="width:auto;padding:10px 20px;font-size:13px" onclick="toggleNotifications()">...</button>
+            <button id="notif-toggle-btn" class="btn" style="width:auto;padding:10px 20px;font-size:13px"
+              onclick="toggleNotifications()">...</button>
           </div>
         </div>
         <div class="profile-section-title">✏️ Modifica profilo</div>
@@ -471,7 +633,8 @@
           </div>
           <div class="form-group" style="margin-bottom:0">
             <label class="form-label">Nuova password</label>
-            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare" autocomplete="new-password">
+            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare"
+              autocomplete="new-password">
           </div>
         </div>
         <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
@@ -487,8 +650,11 @@
         <span class="back-title">Prodotto scansionato</span>
       </div>
       <div class="form-content">
-        <div id="qr-product-preview" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
-          <div id="qr-preview-img" style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">🥑</div>
+        <div id="qr-product-preview"
+          style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
+          <div id="qr-preview-img"
+            style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">
+            🥑</div>
           <div>
             <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
             <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
@@ -510,7 +676,8 @@
           </div>
           <div class="form-group" style="margin-bottom:0">
             <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8" inputmode="numeric">
+            <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8"
+              inputmode="numeric">
           </div>
         </div>
         <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
@@ -535,11 +702,14 @@
   <div class="toast" id="toast"></div>
 
   <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="css/style.css"></noscript>
+  <noscript>
+    <link rel="stylesheet" href="css/style.css">
+  </noscript>
 
   <script defer src="js/config.js"></script>
   <script defer src="js/notifications.js"></script>
   <script defer src="js/app.js"></script>
 
 </body>
+
 </html>
