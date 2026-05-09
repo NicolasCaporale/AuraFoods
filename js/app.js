@@ -8,13 +8,15 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ── LOGO ── */
 (function applyLogos() {
   const ids = [
-    'auth-logo','home-logo','nav-logo-add',
+    'auth-logo','nav-logo-add',
     'nav-logo-success','nav-logo-shelf','nav-logo-detail',
   ];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.src = LOGO_PATH;
   });
+  const homeLogo = document.getElementById('home-logo');
+  if (homeLogo) homeLogo.src = LOGO_PATH;
 })();
 
 /* ── SESSION + PRODUCT CACHE ── */
@@ -44,6 +46,7 @@ function goTo(screenId) {
   if (target) target.classList.add('active');
   window.scrollTo(0, 0);
 
+  if (screenId === 'screen-home')    renderHome();
   if (screenId === 'screen-shelf')   renderShelf();
   if (screenId === 'screen-profile') { loadProfile(); updateNotifUI(); }
 
@@ -59,20 +62,6 @@ function goTo(screenId) {
     pendingProductImage = null;
   }
 }
-
-document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState === 'visible') {
-    const btn = document.getElementById('notif-toggle-btn');
-    if (!btn) return;
-    if (Notification.permission === 'granted') {
-      const reg = await navigator.serviceWorker.getRegistration('/');
-      const sub = reg ? await reg.pushManager.getSubscription() : null;
-      if (!sub) await updateNotifUI();
-    } else {
-      await updateNotifUI();
-    }
-  }
-});
 
 /* ── EMOJI MAP ── */
 const emojiMap = {
@@ -322,6 +311,79 @@ Se non riesci a stimare, usa extraDays: 0.`
   const parsed = JSON.parse(raw);
   if (!parsed || parsed.extraDays <= 0) return null;
   return parsed;
+}
+
+/* ── HOME RENDER ── */
+async function renderHome() {
+  const u = await ensureCurrentUser();
+  if (!u) return;
+
+  // Saluto in base all'ora
+  const h = new Date().getHours();
+  const greetEl = document.getElementById('home-greeting-time');
+  if (greetEl) {
+    if      (h >= 5  && h < 12) greetEl.textContent = 'Buongiorno 🌿';
+    else if (h >= 12 && h < 18) greetEl.textContent = 'Buon pomeriggio ☀️';
+    else if (h >= 18 && h < 22) greetEl.textContent = 'Buonasera 🌙';
+    else                         greetEl.textContent = 'Buonanotte 🌛';
+  }
+
+  // Nome
+  const nameEl = document.getElementById('home-greeting-name');
+  if (nameEl) nameEl.textContent = u.name ? u.name + '!' : 'Ciao!';
+
+  // Coins nella topbar
+  const coinsEl = document.getElementById('home-coins');
+  if (coinsEl) coinsEl.textContent = u.coins || 0;
+
+  // Avatar nella topbar
+  const avatarBtn = document.getElementById('home-avatar-btn');
+  if (avatarBtn) {
+    if (u.avatar) {
+      avatarBtn.innerHTML = `<img src="${u.avatar}" alt="avatar">`;
+    } else {
+      avatarBtn.textContent = '🧑';
+    }
+  }
+
+  // Shelf desc + expiring strip
+  const products = await getProducts();
+  const now = new Date(); now.setHours(0,0,0,0);
+
+  const expiring = products.filter(p => {
+    const d = parseDate(p.date);
+    if (!d) return false;
+    return (d - now) / 86400000 <= 3 && (d - now) / 86400000 >= 0;
+  });
+
+  const descEl = document.getElementById('home-shelf-desc');
+  if (descEl) {
+    const tot = products.length;
+    const exp = expiring.length;
+    if (tot === 0) {
+      descEl.textContent = 'Nessun prodotto ancora';
+    } else {
+      descEl.textContent = `${tot} prodott${tot === 1 ? 'o' : 'i'}${exp ? ` • ${exp} in scadenza` : ''}`;
+    }
+  }
+
+  const strip   = document.getElementById('home-expiring-strip');
+  const itemsEl = document.getElementById('home-expiring-items');
+  if (strip && itemsEl) {
+    if (expiring.length > 0) {
+      strip.style.display = 'block';
+      itemsEl.innerHTML = expiring.map(p => {
+        const d    = parseDate(p.date);
+        const diff = Math.round((d - now) / 86400000);
+        const label = diff === 0 ? 'oggi' : diff === 1 ? '1g' : diff + 'g';
+        return `<div class="hes-chip" onclick="openDetail(${p.id})">${p.emoji || '🥑'} ${p.name} <span style="opacity:.6">· ${label}</span></div>`;
+      }).join('');
+    } else {
+      strip.style.display = 'none';
+    }
+  }
+
+  spawnParticles();
 }
 
 /* ── SHELF ── */
