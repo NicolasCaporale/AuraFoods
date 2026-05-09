@@ -52,6 +52,20 @@
     background:#0d3320;color:#fff;padding:10px 20px;border-radius:50px;font-weight:700;font-size:13px;
     z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
   .toast.show{transform:translateX(-50%) translateY(0)}
+  #splash{
+    position:fixed;inset:0;z-index:99999;
+    background:linear-gradient(155deg,#c5eebc 0%,#a8d9a0 35%,#8cc98a 65%,#5cb87a 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    transition:opacity .35s ease;
+    }
+  #splash.hide{opacity:0;pointer-events:none;}
+  #splash img{width:110px;height:110px;border-radius:28px;box-shadow:0 8px 28px rgba(30,90,55,.25);
+    animation:splashPop .5s cubic-bezier(.34,1.56,.64,1) both;}
+    @keyframes splashPop{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+  #splash-spinner{width:36px;height:36px;border:3px solid rgba(45,106,79,.2);
+    border-top-color:#2d6a4f;border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+  #splash-label{font-family:'Fredoka One',cursive;font-size:15px;color:#1a5c3a;}
 </style>
 
 <!-- FIX 2: html5-qrcode NON caricato qui — viene iniettato dinamicamente al primo click scanner (lazy) -->
@@ -115,6 +129,11 @@
 </script>
 
 <body>
+<div id="splash">
+  <img src="img/image.png" alt="Aura Foods">
+  <div id="splash-spinner"></div>
+  <div id="splash-label">Caricamento…</div>
+</div>
 <div class="app-shell">
 
   <!-- ═══════════════ AUTH ═══════════════ -->
