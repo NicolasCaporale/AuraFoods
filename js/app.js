@@ -162,11 +162,15 @@ async function doRegister() {
 
 async function logout() {
   if (!confirm("Vuoi uscire dall'account?")) return;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) await removeNotifications(supabase, user.id);
+  try {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) await removeNotifications(_supabase, user.id);
+  } catch(e) {
+    console.warn('removeNotifications error:', e);
+  }
   await _supabase.auth.signOut();
-  _currentUser    = null;
-  _productsCache  = null;  // pulisce la cache al logout
+  _currentUser   = null;
+  _productsCache = null;
   location.reload();
 }
 
