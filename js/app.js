@@ -30,6 +30,13 @@ async function ensureCurrentUser() {
   return data;
 }
 
+function hideSplash() {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  splash.classList.add('hide');
+  setTimeout(() => splash.remove(), 400);
+}
+
 /* ── NAVIGATION ── */
 function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -743,6 +750,7 @@ function spawnParticles() {
 }
 
 /* ── INIT ── */
+/* ── INIT ── */
 (async function init() {
   if (window.location.pathname.includes('conferma-email')) return;
   const { data: { user } } = await _supabase.auth.getUser();
@@ -750,4 +758,5 @@ function spawnParticles() {
     const u = await ensureCurrentUser();
     if (u) goTo('screen-home');
   }
+  hideSplash(); // ← nasconde la splash in ogni caso: loggato o no
 })();
