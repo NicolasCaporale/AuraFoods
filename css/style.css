@@ -284,109 +284,132 @@ body::before {
    ══════════════════════════════════════════ */
 #screen-home { padding: 0 0 20px; position: relative; overflow: hidden; }
 
-/* FIX: orbs ridotti — usano filter:blur che è carissimo su mobile.
-   Mantenuto solo per chi ha hardware decente via @media */
 .home-bg-orbs { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  opacity: .2;
-  /* NO filter:blur di default — solo su desktop */
-}
+.orb { position: absolute; border-radius: 50%; opacity: .2; }
 .orb1 { width:200px; height:200px; background:#5cb87a; top:-60px; right:-40px; }
 .orb2 { width:160px; height:160px; background:#3dab5e; bottom:100px; left:-50px; }
 .orb3 { width:130px; height:130px; background:#7ccf7a; top:40%; right:10px; }
-
-/* Blur solo su device non-mobile (evita jank su iPhone) */
 @media (hover: hover) {
   .orb { filter: blur(50px); opacity: .3; }
   .orb1 { animation: orbFloat 8s ease-in-out infinite; }
   .orb2 { animation: orbFloat 8s ease-in-out infinite; animation-delay: -3s; }
   .orb3 { animation: orbFloat 8s ease-in-out infinite; animation-delay: -5s; }
 }
-
-@keyframes orbFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-18px); }
-}
+@keyframes orbFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
 
 .home-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px 0;
-  gap: 18px;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px 0; gap: 14px;
 }
 
-.home-logo-card {
-  background: rgba(230,250,225,0.9);
-  border-radius: 28px;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+/* ── Topbar ── */
+.home-topbar {
+  display: flex; align-items: center; justify-content: space-between;
   width: 100%;
-  box-shadow: 0 6px 24px rgba(30,90,55,0.13);
+}
+.home-coins-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.55);
+  border-radius: 50px; padding: 7px 13px;
+  font-family: 'Fredoka One', cursive; font-size: 14px; color: #0d3320;
+}
+.home-avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; overflow: hidden;
+  transition: transform .2s;
+}
+.home-avatar-btn:active { transform: scale(.92); }
+.home-avatar-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* ── Greeting ── */
+.home-greeting { width: 100%; }
+.home-greeting-sub {
+  font-size: 12px; font-weight: 800; color: #1a5c3a;
+  letter-spacing: .05em; text-transform: uppercase; margin-bottom: 2px;
+}
+.home-greeting-name {
+  font-family: 'Fredoka One', cursive; font-size: 26px; color: #0d3320; line-height: 1.1;
+}
+
+/* ── Actions grid ── */
+.home-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px; width: 100%;
+}
+.home-action-card {
+  background: rgba(255,255,255,0.58);
+  border-radius: 20px; padding: 14px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  cursor: pointer; transition: transform .15s;
   border: 1px solid rgba(255,255,255,0.5);
-  /* FIX: animazione cardFloat rimossa — causa continuo repaint su iOS
-     Mantenuto solo su hover:hover (desktop) */
+}
+.home-action-card:active { transform: scale(.96); }
+.home-action-primary {
+  grid-column: 1 / -1;
+  flex-direction: row; align-items: center; gap: 14px;
+  padding: 16px 18px;
+  background: #2d6a4f;
+}
+.hac-icon { font-size: 26px; line-height: 1; }
+.home-action-primary .hac-icon { font-size: 30px; }
+.hac-text  { flex: 1; }
+.hac-label { font-family: 'Fredoka One', cursive; font-size: 15px; color: #0d3320; }
+.hac-desc  { font-size: 11px; font-weight: 700; color: #2d8653; margin-top: 2px; }
+.home-action-primary .hac-label { font-size: 17px; color: #fff; }
+.home-action-primary .hac-desc  { color: rgba(255,255,255,0.72); }
+.hac-arrow { font-size: 22px; color: rgba(255,255,255,0.7); }
+
+/* ── Expiring strip ── */
+.home-expiring-strip {
+  width: 100%;
+  background: rgba(255,255,255,0.52);
+  border-radius: 18px; padding: 11px 14px;
+}
+.hes-label {
+  font-size: 11px; font-weight: 800; color: #1a5c3a;
+  text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
+}
+.hes-items { display: flex; gap: 8px; flex-wrap: wrap; }
+.hes-chip {
+  background: rgba(255,180,0,0.18);
+  border-radius: 50px; padding: 5px 11px;
+  font-size: 12px; font-weight: 700; color: #7a4a00;
+  display: flex; align-items: center; gap: 4px;
 }
 
-@media (hover: hover) {
-  .home-logo-card {
-    animation: cardFloat 5s ease-in-out infinite;
-    will-change: transform;
-  }
-}
-
-@keyframes cardFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
-}
-
-.home-logo-card img {
-  width: 80%;
-  max-width: 240px;
-  height: auto;
-  object-fit: contain;
-  border-radius: 22px;
-}
-
-.home-actions { display: flex; gap: 10px; width: 100%; }
-.home-actions .btn { flex: 1; padding: 13px 8px; font-size: 15px; }
-.btn-shelf { background: linear-gradient(135deg,#2d8653,#1a5c3a); }
-.btn-add   { background: linear-gradient(135deg,#3da865,#2d6a4f); }
-
+/* ── Socials ── */
 .home-social-card {
   background: rgba(210,240,210,0.7);
-  border-radius: 20px;
-  width: 100%;
+  border-radius: 20px; width: 100%;
   padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
   border: 1px solid rgba(255,255,255,0.4);
 }
 .social-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 13px;
-  background: rgba(255,255,255,0.6);
-  transition: transform .2s;
-  cursor: pointer;
-  text-decoration: none;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px; border-radius: 13px;
+  background: rgba(255,255,255,0.6); transition: transform .2s;
+  cursor: pointer; text-decoration: none;
 }
 .social-link:hover { transform: scale(1.06) translateY(-2px); background: rgba(255,255,255,0.9); }
-.social-link svg   { width: 18px; height: 18px; }
-.social-label      { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; color: var(--text-dark); }
+.social-label { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; color: var(--text-dark); }
+
+/* ── Food particles ── */
+.food-particle {
+  position: absolute; pointer-events: none; opacity: 0;
+  animation: floatUp 6s ease-in infinite; z-index: 0; will-change: transform, opacity;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg);       opacity: 0; }
+  10%  { opacity: .5; }
+  90%  { opacity: .25; }
+  100% { transform: translateY(-420px) rotate(22deg); opacity: 0; }
+}
+
 
 /* ══════════════════════════════════════════
    ADD SCREEN

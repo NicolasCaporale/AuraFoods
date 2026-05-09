@@ -1,100 +1,302 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Aura Foods</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a5c3a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Aura Foods">
-<link rel="apple-touch-icon" href="/img/icon-180.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-180.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
-<link rel="shortcut icon" href="/img/icon-180.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>Aura Foods</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Aura Foods">
+  <link rel="apple-touch-icon" href="/img/icon-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+  <link rel="shortcut icon" href="/img/icon-180.png">
 
-<!-- FIX 1: Font non bloccanti — preconnect + display=swap
+  <!-- FIX 1: Font non bloccanti — preconnect + display=swap
      Prima il browser aspettava il font prima di dipingere qualsiasi testo -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
+    as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet">
+  </noscript>
 
-<!-- CSS critico inline: mostra lo schermo auth immediatamente senza aspettare style.css -->
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{background:#a8d9a0}
-  body{font-family:'Nunito',system-ui,sans-serif;display:flex;justify-content:center;min-height:100vh;
-       padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-  body::before{content:'';position:fixed;inset:0;
-    background:linear-gradient(155deg,#c5eebc 0%,#a8d9a0 35%,#8cc98a 65%,#5cb87a 100%);z-index:-1;pointer-events:none}
-  .app-shell{width:100%;max-width:430px;min-height:100%;display:flex;flex-direction:column;position:relative;overflow-x:hidden}
-  .screen{display:none;flex-direction:column;min-height:100vh}
-  .screen.active{display:flex}
-  #screen-auth{justify-content:center;padding:28px 20px 24px;gap:18px}
-  .auth-logo-container{display:flex;justify-content:center;padding:12px 0 8px}
-  .auth-logo-container img{width:130px;height:130px;object-fit:contain;border-radius:30px;box-shadow:0 8px 28px rgba(30,90,55,.2)}
-  .card{background:rgba(225,245,220,.88);border-radius:26px;padding:20px;box-shadow:0 4px 18px rgba(30,90,55,.10)}
-  .form-group{margin-bottom:14px}
-  .form-label{display:block;font-weight:800;font-size:13px;color:#0d3320;margin-bottom:6px}
-  .form-input{width:100%;background:rgba(255,255,255,.85);border:2px solid transparent;border-radius:12px;
-    padding:11px 14px;font-family:inherit;font-weight:600;color:#0d3320;outline:none;font-size:16px;appearance:none}
-  .form-input:focus{border-color:#2d6a4f;background:#fff}
-  .auth-tabs{display:flex;background:rgba(255,255,255,.35);border-radius:14px;padding:3px;gap:3px;margin-bottom:16px}
-  .auth-tab{flex:1;padding:9px;border:none;border-radius:11px;font-size:14px;cursor:pointer;background:transparent;color:#1a5c3a}
-  .auth-tab.active{background:#2d6a4f;color:#fff;box-shadow:0 2px 10px rgba(30,90,55,.22)}
-  .btn{background:#2d6a4f;color:#fff;border:none;border-radius:50px;padding:13px 24px;
-    font-size:15px;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(30,90,55,.25)}
-  .btn:active{opacity:.85}
-  .footer{margin-top:auto;padding:8px 16px;text-align:center;font-size:11px;color:rgba(13,51,32,.5);font-weight:700}
-  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
-    background:#0d3320;color:#fff;padding:10px 20px;border-radius:50px;font-weight:700;font-size:13px;
-    z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
-  .toast.show{transform:translateX(-50%) translateY(0)}
-  #splash{
-    position:fixed;inset:0;z-index:99999;
-    background:linear-gradient(155deg,#c5eebc 0%,#a8d9a0 35%,#8cc98a 65%,#5cb87a 100%);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-    transition:opacity .35s ease;
+  <!-- CSS critico inline: mostra lo schermo auth immediatamente senza aspettare style.css -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
     }
-  #splash.hide{opacity:0;pointer-events:none;}
-  #splash img{width:110px;height:110px;border-radius:28px;box-shadow:0 8px 28px rgba(30,90,55,.25);
-    animation:splashPop .5s cubic-bezier(.34,1.56,.64,1) both;}
-    @keyframes splashPop{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
-  #splash-spinner{width:36px;height:36px;border:3px solid rgba(45,106,79,.2);
-    border-top-color:#2d6a4f;border-radius:50%;animation:spin .7s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-  #splash-label{font-family:'Fredoka One',cursive;font-size:15px;color:#1a5c3a;}
-</style>
 
-<!-- FIX 2: html5-qrcode NON caricato qui — viene iniettato dinamicamente al primo click scanner (lazy) -->
+    html {
+      background: #a8d9a0
+    }
 
-<!-- FIX 3: Supabase caricato con defer — non blocca il rendering iniziale -->
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<!-- ═══ SEO ═══ -->
-<meta name="description" content="Aura Foods — tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te.">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://aura-foods.it/">
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom)
+    }
 
-<!-- Open Graph (anteprima Google / social) -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Aura Foods">
-<meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
-<meta property="og:description" content="Monitora le scadenze dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi alimentari con la tua dispensa digitale.">
-<meta property="og:image" content="https://aura-foods.it/img/image.png">
-<meta property="og:image:width" content="512">
-<meta property="og:image:height" content="512">
-<meta property="og:url" content="https://aura-foods.it/">
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
+      z-index: -1;
+      pointer-events: none
+    }
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
-<meta name="twitter:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins.">
-<meta name="twitter:image" content="https://aura-foods.it/img/image.png">
+    .app-shell {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden
+    }
 
-<!-- JSON-LD: dice a Google logo + identità del sito -->
-<script type="application/ld+json">
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    #screen-auth {
+      justify-content: center;
+      padding: 28px 20px 24px;
+      gap: 18px
+    }
+
+    .auth-logo-container {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 8px
+    }
+
+    .auth-logo-container img {
+      width: 130px;
+      height: 130px;
+      object-fit: contain;
+      border-radius: 30px;
+      box-shadow: 0 8px 28px rgba(30, 90, 55, .2)
+    }
+
+    .card {
+      background: rgba(225, 245, 220, .88);
+      border-radius: 26px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(30, 90, 55, .10)
+    }
+
+    .form-group {
+      margin-bottom: 14px
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 800;
+      font-size: 13px;
+      color: #0d3320;
+      margin-bottom: 6px
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, .85);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-weight: 600;
+      color: #0d3320;
+      outline: none;
+      font-size: 16px;
+      appearance: none
+    }
+
+    .form-input:focus {
+      border-color: #2d6a4f;
+      background: #fff
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, .35);
+      border-radius: 14px;
+      padding: 3px;
+      gap: 3px;
+      margin-bottom: 16px
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 11px;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      color: #1a5c3a
+    }
+
+    .auth-tab.active {
+      background: #2d6a4f;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(30, 90, 55, .22)
+    }
+
+    .btn {
+      background: #2d6a4f;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 13px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(30, 90, 55, .25)
+    }
+
+    .btn:active {
+      opacity: .85
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(13, 51, 32, .5);
+      font-weight: 700
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #0d3320;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 13px;
+      z-index: 9999;
+      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+      pointer-events: none;
+      white-space: nowrap
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0)
+    }
+
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity .35s ease;
+    }
+
+    #splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #splash img {
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      box-shadow: 0 8px 28px rgba(30, 90, 55, .25);
+      animation: splashPop .5s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+
+    @keyframes splashPop {
+      from {
+        transform: scale(.6);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    #splash-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(45, 106, 79, .2);
+      border-top-color: #2d6a4f;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #splash-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      color: #1a5c3a;
+    }
+  </style>
+
+  <!-- FIX 2: html5-qrcode NON caricato qui — viene iniettato dinamicamente al primo click scanner (lazy) -->
+
+  <!-- FIX 3: Supabase caricato con defer — non blocca il rendering iniziale -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- ═══ SEO ═══ -->
+  <meta name="description"
+    content="Aura Foods — tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://aura-foods.it/">
+
+  <!-- Open Graph (anteprima Google / social) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Aura Foods">
+  <meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
+  <meta property="og:description"
+    content="Monitora le scadenze dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi alimentari con la tua dispensa digitale.">
+  <meta property="og:image" content="https://aura-foods.it/img/image.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://aura-foods.it/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
+  <meta name="twitter:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins.">
+  <meta name="twitter:image" content="https://aura-foods.it/img/image.png">
+
+  <!-- JSON-LD: dice a Google logo + identità del sito -->
+  <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -116,9 +318,9 @@
 }
 </script>
 
-<script>
-  const LOGO_PATH = "img/image.png";
-</script>
+  <script>
+    const LOGO_PATH = "img/image.png";
+  </script>
 </head>
 
 <!-- FIX 4: Service Worker registrato senza bloccare il main thread -->
@@ -129,348 +331,394 @@
 </script>
 
 <body>
-<div id="splash">
-  <img src="img/image.png" alt="Aura Foods">
-  <div id="splash-spinner"></div>
-  <div id="splash-label">Caricamento…</div>
-</div>
-<div class="app-shell">
-
-  <!-- ═══════════════ AUTH ═══════════════ -->
-  <div id="screen-auth" class="screen active">
-    <div class="auth-logo-container">
-      <img id="auth-logo" src="" alt="Aura Foods Logo" width="130" height="130">
-    </div>
-    <div class="card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
-        <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
-      </div>
-
-      <div id="auth-login-form">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" placeholder="••••••••" id="login-pass" autocomplete="current-password">
-        </div>
-        <button class="btn" onclick="doLogin()">Entra 🥑</button>
-      </div>
-
-      <div id="auth-register-form" style="display:none">
-        <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" placeholder="••••••••" id="reg-pass" autocomplete="new-password">
-        </div>
-        <button class="btn" onclick="doRegister()">Crea account 🌿</button>
-      </div>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+  <div id="splash">
+    <img src="img/image.png" alt="Aura Foods">
+    <div id="splash-spinner"></div>
+    <div id="splash-label">Caricamento…</div>
   </div>
+  <div class="app-shell">
 
-  <!-- ═══════════════ HOME ═══════════════ -->
-  <div id="screen-home" class="screen">
-    <div class="home-bg-orbs">
-      <div class="orb orb1"></div>
-      <div class="orb orb2"></div>
-      <div class="orb orb3"></div>
-    </div>
-    <div class="home-content">
-      <div class="home-logo-card">
-        <img id="home-logo" src="" alt="Aura Foods Logo" width="240" height="auto">
+    <!-- ═══════════════ AUTH ═══════════════ -->
+    <div id="screen-auth" class="screen active">
+      <div class="auth-logo-container">
+        <img id="auth-logo" src="" alt="Aura Foods Logo" width="130" height="130">
       </div>
-      <div class="home-actions">
-        <button class="btn btn-shelf" onclick="goTo('screen-shelf')">📦 Shelf</button>
-        <button class="btn btn-add" onclick="goTo('screen-add')">＋ Aggiungi</button>
-      </div>
-      <div class="home-social-card">
-        <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-          </svg>
-          <span class="social-label">Ig</span>
-        </a>
-        <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18">
-            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
-          </svg>
-          <span class="social-label">OnlyFans</span>
-        </a>
-        <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-          </svg>
-          <span class="social-label">Linkedln</span>
-        </a>
-      </div>
-      <div style="width:100%">
-        <button class="btn btn-outline" onclick="goTo('screen-profile')" style="background:rgba(255,255,255,0.4);border-color:rgba(45,106,79,0.5)">
-          👤 Il mio profilo &amp; Aura Coins
-        </button>
-      </div>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ ADD ═══════════════ -->
-  <div id="screen-add" class="screen">
-    <div class="navbar">
-      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-      <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-add" src="" alt="Logo" width="36" height="36">
-      </div>
-      <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
-    </div>
-    <div class="add-content">
-      <div class="scan-card" onclick="simulateScan()">
-        <div class="scan-frame">
-          <div class="sf-bl"></div>
-          <div class="sf-br"></div>
-          <div class="scan-line"></div>
-        </div>
-        <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
-      </div>
-      <span class="add-or">oppure</span>
-      <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ MANUAL FORM ═══════════════ -->
-  <div id="screen-manual" class="screen">
-    <div class="back-header">
-      <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-      <span class="back-title">Inserimento manuale</span>
-    </div>
-    <div class="form-content">
-      <div class="card" style="margin-bottom:16px">
-        <div class="form-group">
-          <label class="form-label">Nome prodotto:</label>
-          <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name" autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Quantità:</label>
-          <input type="text" class="form-input" placeholder="es. 3" id="prod-qty" inputmode="decimal">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tipo di scadenza:</label>
-          <div class="select-wrapper">
-            <select class="form-select" id="prod-type">
-              <option value="preferibilmente">Preferibilmente entro</option>
-              <option value="consumarsi">Da consumarsi entro</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Data scadenza (GG/MM/AA):</label>
-          <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8" inputmode="numeric">
-        </div>
-      </div>
-      <button class="btn" onclick="addProduct()">Conferma ✓</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ SUCCESS ═══════════════ -->
-  <div id="screen-success" class="screen">
-    <div class="navbar">
-      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-      <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-success" src="" alt="Logo" width="36" height="36">
-      </div>
-      <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
-    </div>
-    <div class="success-content">
-      <div class="success-card">
-        <div class="success-check">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="38" height="38">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
-        <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
-      </div>
-      <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
-      <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ SHELF ═══════════════ -->
-  <div id="screen-shelf" class="screen">
-    <div class="navbar">
-      <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
-      <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-shelf" src="" alt="Logo" width="36" height="36">
-      </div>
-      <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
-    </div>
-    <div class="shelf-content">
-      <div class="shelf-title">La tua Shelf 📦</div>
-      <div id="shelf-list"></div>
-      <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ DETAIL ═══════════════ -->
-  <div id="screen-detail" class="screen">
-    <div class="navbar">
-      <button class="nav-btn" onclick="goTo('screen-shelf')">← Shelf</button>
-      <div class="nav-logo" onclick="goTo('screen-home')">
-        <img id="nav-logo-detail" src="" alt="Logo" width="36" height="36">
-      </div>
-      <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
-    </div>
-    <div class="detail-content">
-      <div class="detail-title" id="detail-product-name">Prodotto</div>
-      <div class="detail-card">
-        <div class="detail-emoji" id="detail-emoji">🥑</div>
-        <div class="detail-info" id="detail-info"></div>
-      </div>
-      <div class="detail-actions">
-        <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
-        <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
-      </div>
-      <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
-
-  <!-- ═══════════════ PROFILE ═══════════════ -->
-  <div id="screen-profile" class="screen">
-    <div class="back-header">
-      <button class="back-btn" onclick="goTo('screen-home')">‹</button>
-      <span class="back-title">Il mio profilo</span>
-    </div>
-    <div class="profile-content">
-      <div class="profile-hero">
-        <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          <div class="avatar-img" id="avatar-display">🧑</div>
-          <div class="avatar-edit-badge">✏️</div>
-        </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
-        <div class="profile-name" id="profile-name-display">Utente</div>
-        <div class="profile-email" id="profile-email-display">email@esempio.com</div>
-      </div>
-
-      <div class="coins-card">
-        <div>
-          <div class="coins-label">🪙 I tuoi Aura Coins</div>
-          <div class="coins-desc">+5 monete per ogni alimento aggiunto</div>
-        </div>
-        <div class="coins-value"><span>🪙</span><span id="coins-display">0</span></div>
-      </div>
-
-      <div class="profile-section-title">🔔 Notifiche</div>
-      <div class="card" style="margin-bottom:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div>
-            <div style="font-weight:800;font-size:14px;color:#0d3320">Notifiche scadenze</div>
-            <div style="font-size:12px;font-weight:600;color:#2d8653" id="notif-status-label">Controllo stato...</div>
-          </div>
-          <button id="notif-toggle-btn" class="btn" style="width:auto;padding:10px 20px;font-size:13px" onclick="toggleNotifications()">...</button>
-        </div>
-      </div>
-
-      <div class="profile-section-title">✏️ Modifica profilo</div>
       <div class="card">
-        <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
+          <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Nuova password</label>
-          <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare" autocomplete="new-password">
-        </div>
-      </div>
-      <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
-      <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
-    </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
 
-  <!-- ═══════════════ QR FORM ═══════════════ -->
-  <div id="screen-qr" class="screen">
-    <div class="back-header">
-      <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-      <span class="back-title">Prodotto scansionato</span>
-    </div>
-    <div class="form-content">
-      <div id="qr-product-preview" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
-        <div id="qr-preview-img" style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">🥑</div>
-        <div>
-          <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
-          <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
+        <div id="auth-login-form">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="••••••••" id="login-pass"
+              autocomplete="current-password">
+          </div>
+          <button class="btn" onclick="doLogin()">Entra 🥑</button>
+        </div>
+
+        <div id="auth-register-form" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="••••••••" id="reg-pass" autocomplete="new-password">
+          </div>
+          <button class="btn" onclick="doRegister()">Crea account 🌿</button>
         </div>
       </div>
-      <div class="card" style="margin-bottom:16px">
-        <div class="form-group">
-          <label class="form-label">Quantità:</label>
-          <input type="text" class="form-input" placeholder="es. 3" id="qr-qty" inputmode="decimal">
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ HOME ═══════════════ -->
+    <!-- ═══════════════ HOME ═══════════════ -->
+    <div id="screen-home" class="screen">
+      <div class="home-bg-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+      </div>
+      <div class="home-content">
+
+        <div class="home-topbar">
+          <div class="home-coins-pill">🪙 <span id="home-coins">0</span></div>
+          <img id="home-logo" src="" alt="Aura Foods Logo" width="36" height="36"
+            style="border-radius:10px;object-fit:cover;">
+          <div class="home-avatar-btn" id="home-avatar-btn" onclick="goTo('screen-profile')">🧑</div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Tipo di scadenza:</label>
-          <div class="select-wrapper">
-            <select class="form-select" id="qr-type">
-              <option value="preferibilmente">Preferibilmente entro</option>
-              <option value="consumarsi">Da consumarsi entro</option>
-            </select>
+
+        <div class="home-greeting">
+          <div class="home-greeting-sub" id="home-greeting-time">Bentornato 🌿</div>
+          <div class="home-greeting-name" id="home-greeting-name">Ciao!</div>
+        </div>
+
+        <div class="home-actions-grid">
+          <div class="home-action-card home-action-primary" onclick="goTo('screen-shelf')">
+            <div class="hac-icon">📦</div>
+            <div class="hac-text">
+              <div class="hac-label">La tua Shelf</div>
+              <div class="hac-desc" id="home-shelf-desc">Caricamento…</div>
+            </div>
+            <div class="hac-arrow">›</div>
+          </div>
+          <div class="home-action-card" onclick="goTo('screen-add')">
+            <div class="hac-icon">＋</div>
+            <div class="hac-label">Aggiungi</div>
+            <div class="hac-desc">Scan o manuale</div>
+          </div>
+          <div class="home-action-card" onclick="goTo('screen-profile')">
+            <div class="hac-icon">👤</div>
+            <div class="hac-label">Profilo</div>
+            <div class="hac-desc">Coins &amp; impost.</div>
           </div>
         </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Data scadenza (GG/MM/AA):</label>
-          <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8" inputmode="numeric">
+
+        <div class="home-expiring-strip" id="home-expiring-strip" style="display:none">
+          <div class="hes-label">⚠️ In scadenza presto</div>
+          <div class="hes-items" id="home-expiring-items"></div>
         </div>
+
+        <div class="home-social-card">
+          <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+            <span class="social-label">Ig</span>
+          </a>
+          <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank"
+            rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#1a5c3a" width="18" height="18">
+              <path
+                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+            </svg>
+            <span class="social-label">OnlyFans</span>
+          </a>
+          <a class="social-link" href="https://www.instagram.com/shiva_sntn/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+            <span class="social-label">Linkedln</span>
+          </a>
+        </div>
+
       </div>
-      <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
     </div>
-    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-  </div>
 
-  <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
-  <div id="scanner-modal" class="scanner-modal">
-    <div class="scanner-inner">
-      <div class="scanner-header">
-        <span class="scanner-title">📷 Scannerizza</span>
-        <button class="scanner-close" onclick="closeScanner()">✕</button>
+    <!-- ═══════════════ ADD ═══════════════ -->
+    <div id="screen-add" class="screen">
+      <div class="navbar">
+        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+        <div class="nav-logo" onclick="goTo('screen-home')">
+          <img id="nav-logo-add" src="" alt="Logo" width="36" height="36">
+        </div>
+        <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
       </div>
-      <div id="scanner-container"></div>
-      <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
-      <div class="scanner-status" id="scanner-status"></div>
+      <div class="add-content">
+        <div class="scan-card" onclick="simulateScan()">
+          <div class="scan-frame">
+            <div class="sf-bl"></div>
+            <div class="sf-br"></div>
+            <div class="scan-line"></div>
+          </div>
+          <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
+        </div>
+        <span class="add-or">oppure</span>
+        <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
     </div>
-  </div>
 
-</div><!-- /app-shell -->
-<div class="toast" id="toast"></div>
+    <!-- ═══════════════ MANUAL FORM ═══════════════ -->
+    <div id="screen-manual" class="screen">
+      <div class="back-header">
+        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
+        <span class="back-title">Inserimento manuale</span>
+      </div>
+      <div class="form-content">
+        <div class="card" style="margin-bottom:16px">
+          <div class="form-group">
+            <label class="form-label">Nome prodotto:</label>
+            <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name"
+              autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantità:</label>
+            <input type="text" class="form-input" placeholder="es. 3" id="prod-qty" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo di scadenza:</label>
+            <div class="select-wrapper">
+              <select class="form-select" id="prod-type">
+                <option value="preferibilmente">Preferibilmente entro</option>
+                <option value="consumarsi">Da consumarsi entro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Data scadenza (GG/MM/AA):</label>
+            <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8"
+              inputmode="numeric">
+          </div>
+        </div>
+        <button class="btn" onclick="addProduct()">Conferma ✓</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
 
-<!-- FIX 5: style.css caricato dopo il CSS critico inline — non blocca il First Paint
+    <!-- ═══════════════ SUCCESS ═══════════════ -->
+    <div id="screen-success" class="screen">
+      <div class="navbar">
+        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+        <div class="nav-logo" onclick="goTo('screen-home')">
+          <img id="nav-logo-success" src="" alt="Logo" width="36" height="36">
+        </div>
+        <button class="nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+      </div>
+      <div class="success-content">
+        <div class="success-card">
+          <div class="success-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round" width="38" height="38">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
+        </div>
+        <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
+        <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ SHELF ═══════════════ -->
+    <div id="screen-shelf" class="screen">
+      <div class="navbar">
+        <button class="nav-btn" onclick="goTo('screen-home')">Home</button>
+        <div class="nav-logo" onclick="goTo('screen-home')">
+          <img id="nav-logo-shelf" src="" alt="Logo" width="36" height="36">
+        </div>
+        <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+      </div>
+      <div class="shelf-content">
+        <div class="shelf-title">La tua Shelf 📦</div>
+        <div id="shelf-list"></div>
+        <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ DETAIL ═══════════════ -->
+    <div id="screen-detail" class="screen">
+      <div class="navbar">
+        <button class="nav-btn" onclick="goTo('screen-shelf')">← Shelf</button>
+        <div class="nav-logo" onclick="goTo('screen-home')">
+          <img id="nav-logo-detail" src="" alt="Logo" width="36" height="36">
+        </div>
+        <button class="nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
+      </div>
+      <div class="detail-content">
+        <div class="detail-title" id="detail-product-name">Prodotto</div>
+        <div class="detail-card">
+          <div class="detail-emoji" id="detail-emoji">🥑</div>
+          <div class="detail-info" id="detail-info"></div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
+          <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
+        </div>
+        <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ PROFILE ═══════════════ -->
+    <div id="screen-profile" class="screen">
+      <div class="back-header">
+        <button class="back-btn" onclick="goTo('screen-home')">‹</button>
+        <span class="back-title">Il mio profilo</span>
+      </div>
+      <div class="profile-content">
+        <div class="profile-hero">
+          <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+            <div class="avatar-img" id="avatar-display">🧑</div>
+            <div class="avatar-edit-badge">✏️</div>
+          </div>
+          <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+          <div class="profile-name" id="profile-name-display">Utente</div>
+          <div class="profile-email" id="profile-email-display">email@esempio.com</div>
+        </div>
+
+        <div class="coins-card">
+          <div>
+            <div class="coins-label">🪙 I tuoi Aura Coins</div>
+            <div class="coins-desc">+5 monete per ogni alimento aggiunto</div>
+          </div>
+          <div class="coins-value"><span>🪙</span><span id="coins-display">0</span></div>
+        </div>
+
+        <div class="profile-section-title">🔔 Notifiche</div>
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-weight:800;font-size:14px;color:#0d3320">Notifiche scadenze</div>
+              <div style="font-size:12px;font-weight:600;color:#2d8653" id="notif-status-label">Controllo stato...</div>
+            </div>
+            <button id="notif-toggle-btn" class="btn" style="width:auto;padding:10px 20px;font-size:13px"
+              onclick="toggleNotifications()">...</button>
+          </div>
+        </div>
+
+        <div class="profile-section-title">✏️ Modifica profilo</div>
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Nuova password</label>
+            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare"
+              autocomplete="new-password">
+          </div>
+        </div>
+        <button class="btn" onclick="saveProfile()">Salva modifiche ✓</button>
+        <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ QR FORM ═══════════════ -->
+    <div id="screen-qr" class="screen">
+      <div class="back-header">
+        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
+        <span class="back-title">Prodotto scansionato</span>
+      </div>
+      <div class="form-content">
+        <div id="qr-product-preview"
+          style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
+          <div id="qr-preview-img"
+            style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">
+            🥑</div>
+          <div>
+            <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
+            <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="form-group">
+            <label class="form-label">Quantità:</label>
+            <input type="text" class="form-input" placeholder="es. 3" id="qr-qty" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo di scadenza:</label>
+            <div class="select-wrapper">
+              <select class="form-select" id="qr-type">
+                <option value="preferibilmente">Preferibilmente entro</option>
+                <option value="consumarsi">Da consumarsi entro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Data scadenza (GG/MM/AA):</label>
+            <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8"
+              inputmode="numeric">
+          </div>
+        </div>
+        <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
+      </div>
+      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+    </div>
+
+    <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
+    <div id="scanner-modal" class="scanner-modal">
+      <div class="scanner-inner">
+        <div class="scanner-header">
+          <span class="scanner-title">📷 Scannerizza</span>
+          <button class="scanner-close" onclick="closeScanner()">✕</button>
+        </div>
+        <div id="scanner-container"></div>
+        <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
+        <div class="scanner-status" id="scanner-status"></div>
+      </div>
+    </div>
+
+  </div><!-- /app-shell -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FIX 5: style.css caricato dopo il CSS critico inline — non blocca il First Paint
      ma viene applicato prima che l'utente interagisca con altre schermate -->
-<link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="css/style.css"></noscript>
+  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="css/style.css">
+  </noscript>
 
-<!-- FIX 6: config.js e app.js caricati con defer — eseguiti dopo il parsing HTML
+  <!-- FIX 6: config.js e app.js caricati con defer — eseguiti dopo il parsing HTML
      ma prima di DOMContentLoaded, senza bloccare il rendering -->
-<script defer src="js/config.js"></script>
-<script defer src="js/notifications.js"></script>
-<script defer src="js/app.js"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/app.js"></script>
 
 </body>
+
 </html>
