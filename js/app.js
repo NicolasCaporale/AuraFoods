@@ -393,6 +393,7 @@ async function renderHome() {
       strip.style.display = 'none';
     }
   }
+  //saygex
 
   spawnParticles();
 }
