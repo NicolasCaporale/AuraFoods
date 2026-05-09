@@ -326,6 +326,80 @@ body::before {
   width: 100%;
   text-align: center;
 }
+.scanner-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.75);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.scanner-modal.open {
+  display: flex;
+}
+.scanner-inner {
+  background: #1a3a2a;
+  border-radius: 24px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.scanner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scanner-title {
+  font-family: 'Fredoka One', cursive;
+  color: #fff;
+  font-size: 18px;
+}
+.scanner-close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#scanner-container {
+  width: 100%;
+  min-height: 260px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+}
+/* Forza il video di html5-qrcode a riempire il container */
+#scanner-container video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+#scanner-container > div {
+  width: 100% !important;
+}
+.scanner-hint {
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.scanner-status {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  min-height: 20px;
+}
+.scanner-status.found { color: #5cb87a; }
+.scanner-status.error { color: #ff6b6b; }
 </style>
 </head>
 <body>
