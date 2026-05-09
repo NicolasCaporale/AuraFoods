@@ -116,15 +116,16 @@ body::before {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
-  position: relative; /* ← aggiungi solo questa */
+  position: relative; /* già presente */
 }
+
 .sh-nav-logo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   border-radius: 9px;
   object-fit: cover;
-  pointer-events: none; /* evita che catturi click sui bottoni sottostanti */
+  pointer-events: none;
 }
 .sh-nav-btn {
   background: rgba(255,255,255,0.52);
@@ -339,10 +340,20 @@ body::before {
 
 /* ── Topbar ── */
 .home-topbar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  position: relative; /* ← aggiungi solo questa */
+  position: relative; /* aggiungi */
+}
 
+#home-logo {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border-radius: 10px;
+  object-fit: cover;
+  pointer-events: none;
 }
 .home-coins-pill {
   display: flex; align-items: center; gap: 5px;
