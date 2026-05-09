@@ -118,6 +118,14 @@ body::before {
   margin-bottom: 14px;
   position: relative; /* ← aggiungi solo questa */
 }
+.sh-nav-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 9px;
+  object-fit: cover;
+  pointer-events: none; /* evita che catturi click sui bottoni sottostanti */
+}
 .sh-nav-btn {
   background: rgba(255,255,255,0.52);
   border: none;
