@@ -419,19 +419,29 @@ body::before {
 
 .home-social-card {
   background: rgba(210,240,210,0.7);
-  border-radius: 20px; width: 100%;
-  padding: 14px 18px;
-  display: flex; align-items: center; justify-content: center; gap: 16px;
+  border-radius: 20px;
+  width: 100%;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid rgba(255,255,255,0.4);
 }
 .social-link {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 8px 12px; border-radius: 13px;
-  background: rgba(255,255,255,0.6); transition: transform .2s;
-  cursor: pointer; text-decoration: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, background .2s;
+  text-decoration: none;
+  flex-shrink: 0;
 }
-.social-link:hover { transform: scale(1.06) translateY(-2px); background: rgba(255,255,255,0.9); }
-.social-label { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; color: var(--text-dark); }
+.social-link:hover  { transform: scale(1.08) translateY(-2px); background: rgba(255,255,255,0.9); }
+.social-link:active { transform: scale(.94); }
 
 .food-particle {
   position: absolute; pointer-events: none; opacity: 0;
