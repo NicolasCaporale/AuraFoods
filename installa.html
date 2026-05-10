@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Installa Aura Foods</title>
+<title>Installa Aura Foods — Aggiungi alla Home gratis</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a5c3a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Aura Foods">
-<!-- ═══ SEO ═══ -->
+
 <meta name="description" content="Installa Aura Foods sul tuo iPhone o Android in pochi secondi — segui i passaggi guidati e aggiungi la app alla Home del tuo telefono. Gratis, senza App Store.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://aura-foods.it/installa.html">
 
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Aura Foods">
 <meta property="og:title" content="Installa Aura Foods sul tuo telefono 📲">
@@ -24,13 +23,11 @@
 <meta property="og:image:height" content="512">
 <meta property="og:url" content="https://aura-foods.it/installa.html">
 
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Installa Aura Foods 📲">
 <meta name="twitter:description" content="Aggiungi Aura Foods alla Home del tuo telefono in pochi tap. Gratis, senza App Store.">
 <meta name="twitter:image" content="https://aura-foods.it/img/image.png">
 
-<!-- JSON-LD -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -51,12 +48,13 @@
   }
 }
 </script>
+
 <link rel="apple-touch-icon" href="/img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-/* ── RESET ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{background:#a8d9a0;height:100%}
 
@@ -80,7 +78,6 @@ body::before {
   z-index: -1;
 }
 
-/* ── SHELL ── */
 .page {
   width: 100%;
   max-width: 420px;
@@ -97,7 +94,6 @@ body::before {
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* ── LOGO ── */
 .logo-wrap {
   display: flex;
   flex-direction: column;
@@ -129,7 +125,23 @@ body::before {
   line-height: 1.5;
 }
 
-/* ── ALREADY INSTALLED BADGE ── */
+/* Testo statico SEO — visibile anche senza JS */
+.seo-description {
+  background: rgba(225,245,220,.92);
+  border-radius: 20px;
+  padding: 18px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a5c3a;
+  line-height: 1.7;
+  text-align: center;
+  width: 100%;
+}
+.seo-description strong {
+  font-weight: 900;
+  color: #0d3320;
+}
+
 .installed-badge {
   display: none;
   background: rgba(39,174,96,.15);
@@ -142,7 +154,6 @@ body::before {
 }
 .installed-badge.show { display: flex; align-items: center; gap: 6px; }
 
-/* ── ANDROID BUTTON ── */
 .btn-install {
   display: none;
   width: 100%;
@@ -165,7 +176,6 @@ body::before {
   50%      { box-shadow: 0 6px 32px rgba(30,90,55,.55); }
 }
 
-/* ── STEPS CARD ── */
 .steps-card {
   width: 100%;
   background: rgba(225,245,220,.92);
@@ -176,7 +186,6 @@ body::before {
   flex-direction: column;
   gap: 14px;
 }
-
 .steps-title {
   font-family: 'Fredoka One', cursive;
   font-size: 16px;
@@ -185,7 +194,6 @@ body::before {
   align-items: center;
   gap: 8px;
 }
-
 .step {
   display: flex;
   align-items: flex-start;
@@ -198,11 +206,9 @@ body::before {
 .step:nth-child(3) { animation-delay: .2s }
 .step:nth-child(4) { animation-delay: .3s }
 .step:nth-child(5) { animation-delay: .4s }
-
 @keyframes slideIn {
   to { opacity:1; transform:translateX(0); }
 }
-
 .step-num {
   width: 28px;
   height: 28px;
@@ -216,7 +222,6 @@ body::before {
   justify-content: center;
   flex-shrink: 0;
 }
-
 .step-text {
   font-size: 14px;
   font-weight: 700;
@@ -230,7 +235,6 @@ body::before {
   font-weight: 900;
 }
 
-/* ── ICON INLINE ── */
 .ico {
   display: inline-flex;
   align-items: center;
@@ -241,7 +245,6 @@ body::before {
   top: -1px;
 }
 
-/* ── VISUAL HINT (freccia animata) ── */
 .arrow-hint {
   display: none;
   flex-direction: column;
@@ -251,9 +254,6 @@ body::before {
   font-size: 13px;
   color: #2d6a4f;
 }
-.arrow-hint.ios-bottom { display: flex; } /* default per iOS Safari (share in basso) */
-.arrow-hint.ios-top    { display: none; }
-
 .arrow-bounce {
   font-size: 28px;
   animation: bounce 1s ease-in-out infinite;
@@ -263,16 +263,11 @@ body::before {
   0%,100% { transform: translateY(0); }
   50%      { transform: translateY(8px); }
 }
-.arrow-bounce.up {
-  transform: rotate(180deg);
-  animation: bounceUp 1s ease-in-out infinite;
-}
 @keyframes bounceUp {
   0%,100% { transform: rotate(180deg) translateY(0); }
   50%      { transform: rotate(180deg) translateY(8px); }
 }
 
-/* ── DESKTOP FALLBACK ── */
 .desktop-msg {
   display: none;
   text-align: center;
@@ -285,10 +280,7 @@ body::before {
   line-height: 1.7;
   width: 100%;
 }
-.desktop-msg a {
-  color: #2d6a4f;
-  font-weight: 900;
-}
+.desktop-msg a { color: #2d6a4f; font-weight: 900; }
 .qr-box {
   margin: 16px auto 0;
   width: 140px;
@@ -303,7 +295,22 @@ body::before {
 }
 .qr-box img { width: 120px; height: 120px; }
 
-/* ── FOOTER ── */
+/* Link torna all'app */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50px;
+  padding: 9px 20px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px;
+  color: #1a5c3a;
+  text-decoration: none;
+  transition: background .2s;
+}
+.back-link:hover { background: rgba(255,255,255,0.85); }
+
 .footer {
   font-size: 11px;
   font-weight: 700;
@@ -312,7 +319,6 @@ body::before {
   margin-top: auto;
 }
 
-/* ── BROWSER WARNING ── */
 .browser-warn {
   display: none;
   background: rgba(240,192,64,.25);
@@ -326,80 +332,6 @@ body::before {
   width: 100%;
   text-align: center;
 }
-.scanner-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  background: rgba(0,0,0,0.75);
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.scanner-modal.open {
-  display: flex;
-}
-.scanner-inner {
-  background: #1a3a2a;
-  border-radius: 24px;
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.scanner-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.scanner-title {
-  font-family: 'Fredoka One', cursive;
-  color: #fff;
-  font-size: 18px;
-}
-.scanner-close {
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: #fff;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  font-size: 16px;
-  cursor: pointer;
-}
-#scanner-container {
-  width: 100%;
-  min-height: 260px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #000;
-}
-/* Forza il video di html5-qrcode a riempire il container */
-#scanner-container video {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-}
-#scanner-container > div {
-  width: 100% !important;
-}
-.scanner-hint {
-  color: rgba(255,255,255,0.7);
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-}
-.scanner-status {
-  text-align: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  min-height: 20px;
-}
-.scanner-status.found { color: #5cb87a; }
-.scanner-status.error { color: #ff6b6b; }
 </style>
 </head>
 <body>
@@ -411,17 +343,25 @@ body::before {
     <p>Aggiungi l'app alla home del tuo telefono<br>per usarla come un'app vera!</p>
   </div>
 
+  <!-- Testo statico indicizzabile da Google -->
+  <div class="seo-description">
+    <strong>Aura Foods</strong> è la tua dispensa digitale gratuita.<br>
+    Tieni traccia delle scadenze, guadagna <strong>Aura Coins</strong> e riduci gli sprechi alimentari.<br><br>
+    Installala sulla schermata Home del tuo <strong>iPhone</strong> o <strong>Android</strong> in pochi secondi —
+    senza passare dall'App Store, è completamente gratis.
+  </div>
+
   <!-- Badge: già installata -->
   <div class="installed-badge" id="installed-badge">
     ✅ App già installata!
   </div>
 
-  <!-- Android: tasto diretto (beforeinstallprompt) -->
+  <!-- Android: tasto diretto -->
   <button class="btn-install" id="btn-android" onclick="triggerInstall()">
     📲 Aggiungi alla Home
   </button>
 
-  <!-- Warning browser non supportato (iOS Chrome/Firefox) -->
+  <!-- Warning browser non supportato -->
   <div class="browser-warn" id="browser-warn"></div>
 
   <!-- Steps iOS / Android manual -->
@@ -439,38 +379,31 @@ body::before {
   <!-- Fallback desktop -->
   <div class="desktop-msg" id="desktop-msg">
     Apri questa pagina dal <strong>browser del tuo smartphone</strong> per installare l'app.<br><br>
-    Vai su <a href="https://aura-foods.it/installa">aura-foods.it/installa</a> o inquadra il QR:
+    Vai su <a href="https://aura-foods.it/installa.html">aura-foods.it/installa</a> o inquadra il QR:
     <div class="qr-box">
-      <!-- QR generato via API pubblica — nessuna dipendenza esterna pesante -->
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://aura-foods.it/installa&color=1a5c3a&bgcolor=ffffff" alt="QR Code" loading="lazy">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://aura-foods.it/installa.html&color=1a5c3a&bgcolor=ffffff" alt="QR Code per installare Aura Foods" loading="lazy">
     </div>
   </div>
+
+  <!-- Link torna all'app -->
+  <a class="back-link" href="/">‹ Torna all'app</a>
 
   <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 </div>
 
 <script>
-/* ════════════════════════════════════════
-   DETECT: OS + Browser
-   ════════════════════════════════════════ */
 const ua  = navigator.userAgent;
 const isIOS     = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 const isAndroid = /Android/.test(ua);
 const isSafari  = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
-const isChromeMobile = /Chrome/.test(ua) || /CriOS/.test(ua);
-const isFirefoxMobile = /Firefox/.test(ua) || /FxiOS/.test(ua);
 const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
   || window.navigator.standalone === true;
 
-/* ════════════════════════════════════════
-   ANDROID: beforeinstallprompt
-   ════════════════════════════════════════ */
 let _deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _deferredPrompt = e;
-  // Mostra il tasto solo se non già installata
   if (!isInStandaloneMode) {
     document.getElementById('btn-android').classList.add('show');
     document.getElementById('steps-card').style.display = 'none';
@@ -495,11 +428,7 @@ window.addEventListener('appinstalled', () => {
   document.getElementById('arrow-hint').style.display = 'none';
 });
 
-/* ════════════════════════════════════════
-   RENDER CONTESTUALE
-   ════════════════════════════════════════ */
 function init() {
-  // Già installata (standalone)
   if (isInStandaloneMode) {
     document.getElementById('installed-badge').classList.add('show');
     document.getElementById('steps-card').style.display = 'none';
@@ -507,32 +436,26 @@ function init() {
     return;
   }
 
-  // ── DESKTOP ──
   if (!isIOS && !isAndroid) {
     document.getElementById('desktop-msg').style.display = 'block';
     return;
   }
 
-  // ── iOS ──
   if (isIOS) {
-    // Chrome/Firefox su iOS non supportano Add to Home dal browser — devono aprire Safari
     if (!isSafari) {
-      document.getElementById('browser-warn').style.display = 'block';
-      document.getElementById('browser-warn').innerHTML =
-        '⚠️ Per installare Aura Foods su iPhone devi aprire questa pagina con <strong>Safari</strong>.<br><br>'
+      const warn = document.getElementById('browser-warn');
+      warn.style.display = 'block';
+      warn.innerHTML = '⚠️ Per installare Aura Foods su iPhone devi aprire questa pagina con <strong>Safari</strong>.<br><br>'
         + 'Copia il link e incollalo in Safari: <strong>aura-foods.it/installa</strong>';
       return;
     }
-
     showIOSSteps();
     return;
   }
 
-  // ── ANDROID senza beforeinstallprompt (Firefox, Samsung browser, etc.) ──
   if (isAndroid && !_deferredPrompt) {
     showAndroidManualSteps();
   }
-  // Se beforeinstallprompt arriverà dopo, il listener lo gestisce
 }
 
 function showIOSSteps() {
@@ -544,7 +467,6 @@ function showIOSSteps() {
   title.textContent = '📱 Come installare su iPhone:';
   card.style.display = 'flex';
 
-  // Detect posizione della share bar (top su iPad/iOS 15+ landscape, bottom su iPhone)
   const isIPad = /iPad/.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
 
   const shareIcon = `<span class="ico">
@@ -563,7 +485,7 @@ function showIOSSteps() {
   list.innerHTML = `
     <div class="step">
       <div class="step-num">1</div>
-      <div class="step-text">Apri il link su <em>safari</em>, gli altri browser non supportano l'installazione diretta</div>
+      <div class="step-text">Apri il link su <em>Safari</em> — gli altri browser non supportano l'installazione diretta</div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
@@ -579,7 +501,6 @@ function showIOSSteps() {
     </div>
   `;
 
-  // Freccia
   arrow.style.display = 'flex';
   const arrowIcon  = document.getElementById('arrow-icon');
   const arrowLabel = document.getElementById('arrow-label');
@@ -617,8 +538,6 @@ function showAndroidManualSteps() {
   `;
 }
 
-// Esegui dopo che eventuali listener beforeinstallprompt hanno avuto il tempo di sparare
-// (Chrome può spararlo in modo sincrono ma spesso è leggermente ritardato)
 setTimeout(init, 80);
 </script>
 </body>
