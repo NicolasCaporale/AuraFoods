@@ -239,19 +239,15 @@ async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   if (!u) return;
   const qtyNum = parseFloat(qty) || 1;
 
-  // Cerca prima nella cache locale per evitare query inutili
-  const cached = _productsCache?.items;
-  let existing = null;
-  if (cached) {
-    existing = cached.find(p =>
-      p.name.toLowerCase() === name.toLowerCase() && p.date === date
-    ) || null;
-  } else {
-    const { data } = await _supabase
-      .from('products').select('*')
-      .eq('user_id', u.id).ilike('name', name).eq('date', date).single();
-    existing = data;
-  }
+  // Cerca sempre su Supabase — evita race condition con la cache
+  const { data: existingArr } = await _supabase
+    .from('products')
+    .select('*')
+    .eq('user_id', u.id)
+    .ilike('name', name)
+    .eq('date', date);
+
+  const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
 
   if (existing) {
     const newQty = String(parseFloat(existing.qty || 1) + qtyNum);
@@ -268,7 +264,7 @@ async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
     showToast(name + ' aggiunto! +5 🪙');
   }
 
-  invalidateCache(); // invalida dopo ogni scrittura
+  invalidateCache();
   if (giveCoins) await addCoins(5);
 }
 
