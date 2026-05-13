@@ -767,18 +767,20 @@ function _startScanner() {
   document.getElementById('scanner-container').innerHTML = '';
   html5QrCode = new Html5Qrcode('scanner-container');
 
-  // Aspetta un frame che il modal sia visibile e abbia dimensioni
-  requestAnimationFrame(() => {
+  // Su mobile serve un delay reale — rAF non basta perché il layout
+  // del modal non è ancora committed quando il frame viene eseguito
+  setTimeout(() => {
     Html5Qrcode.getCameras().then(cameras => {
       if (!cameras || cameras.length === 0) {
         setStatus('Nessuna fotocamera trovata ❌', 'error');
         return;
       }
-      const containerW = document.getElementById('scanner-container').offsetWidth || 300;
+      const container = document.getElementById('scanner-container');
+      const containerW = container.offsetWidth || 300;
       html5QrCode.start(
         { facingMode: 'environment' },
         {
-          fps: 30,
+          fps: 10,          // abbassa a 10 su mobile — meno stress sulla CPU
           qrbox: { width: Math.min(containerW - 40, 260), height: 150 },
           aspectRatio: 1.7,
           formatsToSupport: [
@@ -793,8 +795,11 @@ function _startScanner() {
         console.error(err);
         setStatus('Errore avvio fotocamera ❌', 'error');
       });
-    }).catch(() => setStatus('Permesso fotocamera negato ❌', 'error'));
-  });
+    }).catch(err => {
+      console.error(err);
+      setStatus('Permesso fotocamera negato ❌', 'error');
+    });
+  }, 300); // 300ms è sufficiente su praticamente tutti i device mobile
 }
 
 function closeScanner() {
