@@ -2,7 +2,7 @@
   "name": "Aura Foods",
   "short_name": "Aura Foods",
   "description": "Gestisci la tua dispensa con Aura Foods",
-  "start_url": "/",
+  "start_url": "/app.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#e8f5e9",
