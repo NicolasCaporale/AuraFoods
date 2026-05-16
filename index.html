@@ -1,715 +1,795 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <title>Aura Foods</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a5c3a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Aura Foods">
-  <link rel="apple-touch-icon" href="/img/icon-180.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
-  <link rel="shortcut icon" href="/img/icon-180.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload"
-    href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
-    as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
-      rel="stylesheet">
-  </noscript>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
-    }
-
-    html {
-      background: #a8d9a0
-    }
-
-    body {
-      font-family: 'Nunito', system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom)
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
-      z-index: -1;
-      pointer-events: none
-    }
-
-    .app-shell {
-      width: 100%;
-      max-width: 430px;
-      min-height: 100%;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow-x: hidden
-    }
-
-    .screen {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh
-    }
-
-    .screen.active {
-      display: flex
-    }
-
-    #screen-auth {
-      justify-content: center;
-      padding: 28px 20px 24px;
-      gap: 18px
-    }
-
-    .auth-logo-container {
-      display: flex;
-      justify-content: center;
-      padding: 12px 0 8px
-    }
-
-    .auth-logo-container img {
-      width: 130px;
-      height: 130px;
-      object-fit: contain;
-      border-radius: 30px;
-      box-shadow: 0 8px 28px rgba(30, 90, 55, .2)
-    }
-
-    .card {
-      background: rgba(225, 245, 220, .88);
-      border-radius: 26px;
-      padding: 20px;
-      box-shadow: 0 4px 18px rgba(30, 90, 55, .10)
-    }
-
-    .form-group {
-      margin-bottom: 14px
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 800;
-      font-size: 13px;
-      color: #0d3320;
-      margin-bottom: 6px
-    }
-
-    .form-input {
-      width: 100%;
-      background: rgba(255, 255, 255, .85);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-family: inherit;
-      font-weight: 600;
-      color: #0d3320;
-      outline: none;
-      font-size: 16px;
-      appearance: none
-    }
-
-    .form-input:focus {
-      border-color: #2d6a4f;
-      background: #fff
-    }
-
-    .auth-tabs {
-      display: flex;
-      background: rgba(255, 255, 255, .35);
-      border-radius: 14px;
-      padding: 3px;
-      gap: 3px;
-      margin-bottom: 16px
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 9px;
-      border: none;
-      border-radius: 11px;
-      font-size: 14px;
-      cursor: pointer;
-      background: transparent;
-      color: #1a5c3a
-    }
-
-    .auth-tab.active {
-      background: #2d6a4f;
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(30, 90, 55, .22)
-    }
-
-    .btn {
-      background: #2d6a4f;
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: 13px 24px;
-      font-size: 15px;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 14px rgba(30, 90, 55, .25)
-    }
-
-    .btn:active {
-      opacity: .85
-    }
-
-    .footer {
-      margin-top: auto;
-      padding: 8px 16px;
-      text-align: center;
-      font-size: 11px;
-      color: rgba(13, 51, 32, .5);
-      font-weight: 700
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #0d3320;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 13px;
-      z-index: 9999;
-      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
-      pointer-events: none;
-      white-space: nowrap
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0)
-    }
-
-    #splash {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      transition: opacity .35s ease;
-    }
-
-    #splash.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #splash img {
-      width: 110px;
-      height: 110px;
-      border-radius: 28px;
-      box-shadow: 0 8px 28px rgba(30, 90, 55, .25);
-      animation: splashPop .5s cubic-bezier(.34, 1.56, .64, 1) both;
-    }
-
-    @keyframes splashPop {
-      from {
-        transform: scale(.6);
-        opacity: 0;
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aura Foods — Zero sprechi, più Aura 🌿</title>
+<meta name="description" content="Tieni traccia della scadenza dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te."/>
+<meta name="theme-color" content="#1a5c3a"/>
+<meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿"/>
+<meta property="og:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins."/>
+<meta property="og:image" content="img/image.png"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#004326",
+        "primary-container": "#1a5c3a",
+        "secondary": "#2c694e",
+        "secondary-container": "#aeeecb",
+        "surface": "#ecffe4",
+        "surface-container": "#d0f9c6",
+        "surface-container-high": "#caf3c1",
+        "surface-container-highest": "#c5eebc",
+        "surface-container-low": "#d5ffcc",
+        "on-primary": "#ffffff",
+        "on-primary-container": "#91d2a7",
+        "on-secondary-container": "#316e52",
+        "on-surface": "#002203",
+        "on-surface-variant": "#404942",
+        "outline-variant": "#c0c9bf",
+        "inverse-primary": "#93d5aa",
+        "error": "#ba1a1a",
+        "primary-fixed": "#aff2c4",
+        "secondary-fixed": "#b1f0ce",
       }
     }
-
-    #splash-spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(45, 106, 79, .2);
-      border-top-color: #2d6a4f;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    #splash-label {
-      font-family: 'Fredoka One', cursive;
-      font-size: 15px;
-      color: #1a5c3a;
-    }
-
-    /* ── Fix logo centrato in sh-nav ── */
-    .sh-nav {
-      position: relative;
-    }
-
-    .sh-nav-logo {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 9px;
-      object-fit: cover;
-      pointer-events: none;
-    }
-  </style>
-
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-  <meta name="description"
-    content="Aura Foods — tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://aura-foods.it/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Aura Foods">
-  <meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
-  <meta property="og:description"
-    content="Monitora le scadenze dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi alimentari con la tua dispensa digitale.">
-  <meta property="og:image" content="https://aura-foods.it/img/image.png">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
-  <meta property="og:url" content="https://aura-foods.it/">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
-  <meta name="twitter:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins.">
-  <meta name="twitter:image" content="https://aura-foods.it/img/image.png">
-
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Aura Foods",
-  "url": "https://aura-foods.it/",
-  "description": "Tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi alimentari.",
-  "applicationCategory": "LifestyleApplication",
-  "operatingSystem": "Any",
-  "logo": {
-    "@type": "ImageObject",
-    "url": "https://aura-foods.it/img/image.png",
-    "width": 512,
-    "height": 512
-  },
-  "creator": {
-    "@type": "Organization",
-    "name": "Sigma Gooners & Co"
   }
 }
-  </script>
-
-  <script>
-    const LOGO_PATH = "img/image.png";
-  </script>
-</head>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+</script>
+<style>
+  :root {
+    --green-dark: #004326;
+    --green-mid: #1a5c3a;
+    --green-muted: #2c694e;
+    --green-light: #a8d9a0;
+    --green-mint: #c5eebc;
+    --green-pale: #ecffe4;
+    --text-dark: #002203;
+    --text-mid: #404942;
   }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--green-pale);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  .fredoka { font-family: 'Fredoka One', cursive; }
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  /* Freshness bar */
+  .freshness-bar { height: 6px; border-radius: 9999px; background: #c5eebc; overflow: hidden; }
+  .freshness-fill { height: 100%; border-radius: 9999px; }
+
+  /* Floating animation */
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes floatBob {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes coinSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.4; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scanLine {
+    0% { top: 10%; }
+    50% { top: 85%; }
+    100% { top: 10%; }
+  }
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .animate-float { animation: floatBob 4s ease-in-out infinite; }
+  .animate-float-slow { animation: floatBob 6s ease-in-out infinite; }
+  .animate-float-2 { animation: floatBob 5s ease-in-out 1s infinite; }
+
+  /* Reveal on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Organic blob background */
+  .blob-bg {
+    background: radial-gradient(ellipse at 20% 50%, #c5eebc55 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, #a8d9a044 0%, transparent 55%),
+                radial-gradient(ellipse at 60% 80%, #2d6a4f22 0%, transparent 50%),
+                #ecffe4;
+  }
+
+  /* Nav */
+  .nav-link {
+    position: relative;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-mid);
+    transition: color 0.2s;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 2px;
+    background: var(--green-mid);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .nav-link:hover { color: var(--green-dark); }
+  .nav-link:hover::after { width: 100%; }
+
+  /* Bento grid items hover */
+  .bento-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,67,38,0.15);
+  }
+
+  /* Step card */
+  .step-icon {
+    transition: background 0.3s, transform 0.3s;
+  }
+  .step-card:hover .step-icon {
+    background: var(--green-mid);
+    transform: scale(1.08);
+  }
+  .step-card:hover .step-icon .material-symbols-outlined {
+    color: white !important;
+  }
+
+  /* Coin pulse */
+  .coin-pulse::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(177,240,206,0.5);
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
+
+  /* Scanner animation */
+  .scan-line {
+    position: absolute;
+    left: 8px; right: 8px; height: 2px;
+    background: linear-gradient(90deg, transparent, #2d6a4f, transparent);
+    border-radius: 9999px;
+    animation: scanLine 2s ease-in-out infinite;
+    box-shadow: 0 0 8px #2d6a4f;
+  }
+
+  /* AI badge pulse */
+  .ai-dot { animation: blink 1.8s ease-in-out infinite; }
+
+  /* FAB */
+  .fab {
+    box-shadow: 0 8px 32px rgba(0,67,38,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 12px 40px rgba(0,67,38,0.45); }
+  .fab:active { transform: scale(0.96); }
+
+  /* CTA button */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-dark);
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 14px 36px;
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgba(0,67,38,0.28);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,67,38,0.35); }
+  .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(197,238,188,0.8);
+    color: var(--green-dark);
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    padding: 13px 32px;
+    border-radius: 9999px;
+    text-decoration: none;
+    border: 2px solid rgba(45,106,79,0.3);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(197,238,188,1); transform: translateY(-1px); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--green-pale); }
+  ::-webkit-scrollbar-thumb { background: var(--green-light); border-radius: 3px; }
+
+  /* material icons */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<header class="bg-surface/90 backdrop-blur-md sticky top-0 z-50 border-b border-outline-variant/20" style="border-bottom:1px solid rgba(192,201,191,0.2);">
+  <nav class="max-w-6xl mx-auto px-5 h-20 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 no-underline">
+      <img src="img/image.png" alt="Aura Foods" class="w-10 h-10 rounded-xl object-cover shadow-sm"/>
+      <span class="fredoka text-2xl" style="color:var(--green-dark);">Aura Foods</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#come-funziona" class="nav-link">Come funziona</a>
+      <a href="#features" class="nav-link">Funzioni</a>
+      <a href="#coins" class="nav-link">Aura Coins</a>
+    </div>
+    <a href="/installa.html" class="btn-primary" style="font-size:15px;padding:10px 24px;">
+      Inizia gratis
+      <span class="material-symbols-outlined" style="font-size:18px;">download</span>
+    </a>
+  </nav>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="relative overflow-hidden blob-bg pt-20 pb-28 md:pt-28 md:pb-40">
+  <!-- Decorative blobs -->
+  <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-30 pointer-events-none" style="background:radial-gradient(circle, #2d6a4f55, transparent 70%);"></div>
+  <div class="absolute -bottom-10 -left-10 w-72 h-72 rounded-full opacity-20 pointer-events-none" style="background:radial-gradient(circle, #a8d9a0, transparent 70%);"></div>
+
+  <div class="max-w-6xl mx-auto px-5 grid grid-cols-1 md:grid-cols-2 gap-16 items-center relative z-10">
+    <!-- Left: Text -->
+    <div class="flex flex-col gap-6" style="animation: floatUp 0.7s ease both;">
+      <div class="inline-flex items-center gap-2 self-start px-4 py-2 rounded-full font-bold text-sm" style="background:rgba(197,238,188,0.8);color:var(--green-mid);">
+        <span class="material-symbols-outlined" style="font-size:16px;color:var(--green-mid);">energy_savings_leaf</span>
+        Sostenibilità in cucina
+      </div>
+      <h1 class="fredoka leading-tight" style="font-size:clamp(38px,5vw,60px);color:var(--green-dark);line-height:1.15;">
+        La tua dispensa,<br>
+        <span style="color:var(--green-muted);font-style:italic;">finalmente intelligente.</span>
+      </h1>
+      <p style="font-size:18px;line-height:1.7;color:var(--text-mid);max-width:460px;">
+        Scansiona i tuoi alimenti, monitora le scadenze e guadagna <strong>Aura Coins 🪙</strong> ad ogni aggiunta. Zero sprechi, più risparmio — tutto dal tuo telefono.
+      </p>
+      <div class="flex flex-wrap gap-4 mt-2">
+        <a href="/installa.html" class="btn-primary">
+          Installa gratis
+          <span class="material-symbols-outlined" style="font-size:20px;">download</span>
+        </a>
+        <a href="#come-funziona" class="btn-secondary">
+          Come funziona
+          <span class="material-symbols-outlined" style="font-size:18px;">arrow_downward</span>
+        </a>
+      </div>
+      <!-- Social proof -->
+      <div class="flex items-center gap-3 mt-2">
+        <div class="flex -space-x-2">
+          <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-lg" style="background:#c5eebc;">🧑</div>
+          <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-lg" style="background:#aeeecb;">👩</div>
+          <div class="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-lg" style="background:#d5ffcc;">🧔</div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:var(--text-mid);">+2.000 dispense già salvate 🌿</span>
+      </div>
+    </div>
+
+    <!-- Right: App mockup -->
+    <div class="relative flex justify-center" style="animation: floatUp 0.9s ease 0.15s both;">
+      <!-- Main card -->
+      <div class="glass-card rounded-3xl shadow-2xl p-5 w-80 animate-float" style="rotate:2deg;">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+          <span class="fredoka text-lg" style="color:var(--green-dark);">La mia Shelf 📦</span>
+          <div class="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold" style="background:#c5eebc;color:var(--green-dark);">
+            🪙 <span>85</span>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="flex flex-col gap-3">
+          <!-- Scade tra 1g -->
+          <div class="rounded-2xl p-3 flex items-center gap-3" style="background:rgba(255,255,255,0.85);border:1px solid rgba(186,26,26,0.15);">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#fde8e8;">🥚</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-sm" style="color:var(--text-dark);">Uova Bio</span>
+                <span class="text-xs font-bold" style="color:#ba1a1a;">domani ⚠️</span>
+              </div>
+              <div class="text-xs mt-1" style="color:var(--text-mid);">Qtà: 6</div>
+              <div class="freshness-bar mt-1">
+                <div class="freshness-fill w-[12%]" style="background:#ba1a1a;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scade tra 5g -->
+          <div class="rounded-2xl p-3 flex items-center gap-3" style="background:rgba(255,255,255,0.85);border:1px solid rgba(192,201,191,0.3);">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#d5ffcc;">🥛</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-sm" style="color:var(--text-dark);">Latte Intero</span>
+                <span class="text-xs font-bold" style="color:var(--text-mid);">5 giorni</span>
+              </div>
+              <div class="text-xs mt-1" style="color:var(--text-mid);">Qtà: 2</div>
+              <div class="freshness-bar mt-1">
+                <div class="freshness-fill w-[55%]" style="background:#2d6a4f;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI badge — "preferibilmente entro" -->
+          <div class="rounded-2xl p-3 flex items-center gap-3" style="background:rgba(255,255,255,0.85);border:1px solid rgba(44,105,78,0.2);">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#c5eebc;">🍪</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-sm" style="color:var(--text-dark);">Crackers</span>
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#c5eebc;color:var(--green-mid);">+30gg AI 🤖</span>
+              </div>
+              <div class="text-xs mt-1" style="color:var(--text-mid);">Preferibilmente entro • dispensa</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coins row -->
+        <div class="mt-4 rounded-2xl p-3 flex items-center justify-between" style="background:var(--green-dark);">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🪙</span>
+            <div>
+              <div class="text-xs font-bold" style="color:rgba(177,240,206,0.8);">Aura Coins</div>
+              <div class="fredoka text-lg text-white">85 coins</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-white opacity-60">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- Badge -34% spreco -->
+      <div class="absolute -bottom-4 -right-2 glass-card rounded-2xl p-3 shadow-xl flex items-center gap-3 animate-float-2" style="rotate:-3deg;">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--green-mid);">
+          <span class="material-symbols-outlined text-white" style="font-size:18px;">trending_down</span>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-mid);">Spreco ridotto</div>
+          <div class="fredoka text-xl" style="color:var(--green-dark);">-34%</div>
+        </div>
+      </div>
+
+      <!-- Badge +5 coins -->
+      <div class="absolute -top-4 -left-4 glass-card rounded-2xl px-4 py-2 shadow-lg flex items-center gap-2 animate-float-slow">
+        <span class="text-xl">🪙</span>
+        <div class="fredoka text-base" style="color:var(--green-dark);">+5 coins aggiunti!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ COME FUNZIONA ═══════════════ -->
+<section id="come-funziona" class="py-24 reveal" style="background:rgba(208,249,198,0.5);">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-16">
+      <h2 class="fredoka text-4xl md:text-5xl mb-3" style="color:var(--green-dark);">Semplicità naturale</h2>
+      <p style="color:var(--text-mid);font-size:17px;">In 3 passi hai la tua dispensa sotto controllo.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Step 1: Scansiona -->
+      <div class="step-card flex flex-col items-center text-center gap-4 group cursor-default">
+        <div class="step-icon w-24 h-24 rounded-3xl flex items-center justify-center shadow-md relative" style="background:#c5eebc;">
+          <!-- Scanner mini-mockup -->
+          <div class="relative w-12 h-12">
+            <div style="position:absolute;inset:0;border:2px solid var(--green-dark);border-radius:6px;"></div>
+            <div class="scan-line" style="position:absolute;left:0;right:0;"></div>
+            <div style="position:absolute;top:0;left:0;width:8px;height:8px;border-top:2px solid var(--green-dark);border-left:2px solid var(--green-dark);border-radius:1px;"></div>
+            <div style="position:absolute;top:0;right:0;width:8px;height:8px;border-top:2px solid var(--green-dark);border-right:2px solid var(--green-dark);border-radius:1px;"></div>
+            <div style="position:absolute;bottom:0;left:0;width:8px;height:8px;border-bottom:2px solid var(--green-dark);border-left:2px solid var(--green-dark);border-radius:1px;"></div>
+            <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-bottom:2px solid var(--green-dark);border-right:2px solid var(--green-dark);border-radius:1px;"></div>
+          </div>
+        </div>
+        <div>
+          <div class="fredoka text-2xl mb-2" style="color:var(--green-dark);">1. Scansiona</div>
+          <p style="color:var(--text-mid);font-size:15px;line-height:1.6;">Inquadra il codice a barre — grazie a <strong>Open Food Facts</strong> il prodotto viene trovato e aggiunto automaticamente con nome e immagine.</p>
+        </div>
+        <div class="text-sm font-bold px-3 py-1 rounded-full" style="background:rgba(197,238,188,0.7);color:var(--green-mid);">
+          Oppure inserimento manuale ✏️
+        </div>
+      </div>
+
+      <!-- Step 2: Monitora -->
+      <div class="step-card flex flex-col items-center text-center gap-4 group cursor-default" style="animation-delay:0.1s;">
+        <div class="step-icon w-24 h-24 rounded-3xl flex items-center justify-center shadow-md" style="background:#c5eebc;">
+          <span class="material-symbols-outlined" style="font-size:44px;color:var(--green-dark);">notifications_active</span>
+        </div>
+        <div>
+          <div class="fredoka text-2xl mb-2" style="color:var(--green-dark);">2. Monitora</div>
+          <p style="color:var(--text-mid);font-size:15px;line-height:1.6;">Ricevi <strong>notifiche push</strong> quando un alimento sta per scadere. Per i prodotti "preferibilmente entro", l'AI ti dice quanto durano davvero — anche settimane in più.</p>
+        </div>
+        <div class="text-sm font-bold px-3 py-1 rounded-full" style="background:rgba(197,238,188,0.7);color:var(--green-mid);">
+          🤖 AI Safety integrata
+        </div>
+      </div>
+
+      <!-- Step 3: Risparmia -->
+      <div class="step-card flex flex-col items-center text-center gap-4 group cursor-default" style="animation-delay:0.2s;">
+        <div class="step-icon w-24 h-24 rounded-3xl flex items-center justify-center shadow-md" style="background:#c5eebc;">
+          <span class="material-symbols-outlined" style="font-size:44px;color:var(--green-dark);">savings</span>
+        </div>
+        <div>
+          <div class="fredoka text-2xl mb-2" style="color:var(--green-dark);">3. Guadagna</div>
+          <p style="color:var(--text-mid);font-size:15px;line-height:1.6;">Ogni prodotto aggiunto ti vale <strong>+5 Aura Coins 🪙</strong>. Riduci gli sprechi, tieni il frigo sotto controllo e accumula punti per ogni alimento salvato.</p>
+        </div>
+        <div class="text-sm font-bold px-3 py-1 rounded-full" style="background:rgba(197,238,188,0.7);color:var(--green-mid);">
+          🪙 +5 coins per ogni prodotto
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURES BENTO ═══════════════ -->
+<section id="features" class="py-24 reveal">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14">
+      <h2 class="fredoka text-4xl md:text-5xl mb-3" style="color:var(--green-dark);">Perché Aura Foods?</h2>
+      <p style="color:var(--text-mid);font-size:17px;">Tutto quello che serve, niente di superfluo.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5" style="min-height:560px;">
+
+      <!-- Feature 1: Scanner — large card -->
+      <div class="bento-card md:col-span-8 rounded-3xl p-8 flex flex-col justify-between overflow-hidden relative group" style="background:#c5eebc;">
+        <div>
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3" style="background:rgba(45,106,79,0.15);color:var(--green-mid);">Innovazione</span>
+          <h3 class="fredoka text-3xl mb-3" style="color:var(--green-dark);">Scansione codici a barre</h3>
+          <p style="color:var(--text-mid);font-size:15px;max-width:340px;line-height:1.6;">
+            Usa la fotocamera per scansionare qualsiasi prodotto. Aura Foods lo trova su <strong>Open Food Facts</strong> e importa nome, marca e immagine automaticamente.
+          </p>
+        </div>
+        <!-- Barcode mini visual -->
+        <div class="mt-6 flex items-center gap-3">
+          <div class="rounded-2xl p-4 shadow-lg" style="background:white;">
+            <div class="flex gap-0.5 h-10 items-end">
+              <div class="w-0.5 h-full rounded" style="background:#1a5c3a;"></div><div class="w-1 h-8 rounded" style="background:#1a5c3a;"></div><div class="w-0.5 h-full rounded" style="background:#1a5c3a;"></div><div class="w-1.5 h-9 rounded" style="background:#1a5c3a;"></div><div class="w-0.5 h-7 rounded" style="background:#1a5c3a;"></div><div class="w-1 h-full rounded" style="background:#1a5c3a;"></div><div class="w-0.5 h-8 rounded" style="background:#1a5c3a;"></div><div class="w-1 h-full rounded" style="background:#1a5c3a;"></div><div class="w-0.5 h-9 rounded" style="background:#1a5c3a;"></div><div class="w-1.5 h-7 rounded" style="background:#1a5c3a;"></div><div class="w-0.5 h-full rounded" style="background:#1a5c3a;"></div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <div class="rounded-xl px-3 py-2 text-sm font-bold shadow-sm" style="background:white;color:var(--green-dark);">✅ Mulino Bianco – Crackers</div>
+            <div class="text-xs" style="color:var(--text-mid);">Trovato su Open Food Facts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2: AI Safety -->
+      <div class="bento-card md:col-span-4 rounded-3xl p-7 flex flex-col justify-center text-center" style="background:var(--green-dark);color:white;">
+        <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center relative coin-pulse" style="background:rgba(255,255,255,0.12);position:relative;">
+          <span class="text-3xl">🤖</span>
+        </div>
+        <h3 class="fredoka text-2xl mb-2">AI Safety Check</h3>
+        <p style="font-size:14px;line-height:1.6;color:rgba(177,240,206,0.9);">
+          Per i prodotti "preferibilmente entro", l'AI analizza quanto durano <em>davvero</em> dopo la data — spesso settimane in più in dispensa o freezer.
+        </p>
+        <div class="mt-4 rounded-xl p-3 flex items-center gap-2 text-left" style="background:rgba(255,255,255,0.1);">
+          <span class="ai-dot w-2 h-2 rounded-full flex-shrink-0" style="background:#93d5aa;display:inline-block;"></span>
+          <span style="font-size:13px;color:rgba(177,240,206,0.9);">Crackers • ✅ Basso rischio • +30gg in dispensa</span>
+        </div>
+      </div>
+
+      <!-- Feature 3: Inserimento manuale -->
+      <div class="bento-card md:col-span-4 rounded-3xl p-7 flex flex-col items-center text-center" style="background:rgba(174,238,203,0.6);">
+        <span class="material-symbols-outlined mb-4" style="font-size:48px;color:var(--green-muted);">edit_note</span>
+        <h3 class="fredoka text-2xl mb-2" style="color:var(--green-dark);">Inserimento manuale</h3>
+        <p style="color:var(--text-mid);font-size:14px;line-height:1.6;">
+          Nessun barcode? Nessun problema. Inserisci nome, quantità e data di scadenza a mano, in pochi secondi.
+        </p>
+      </div>
+
+      <!-- Feature 4: Notifiche push -->
+      <div class="bento-card md:col-span-8 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8" style="background:rgba(208,249,198,0.7);">
+        <div class="flex-1">
+          <h3 class="fredoka text-3xl mb-3" style="color:var(--green-dark);">Notifiche push intelligenti</h3>
+          <p style="color:var(--text-mid);font-size:15px;line-height:1.6;">
+            Non dimenticare mai più lo yogurt scaduto in fondo al frigo. Aura Foods ti avvisa <strong>3 giorni prima</strong> che un prodotto scade — direttamente sul tuo telefono.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(186,26,26,0.12);color:#ba1a1a;">⚠️ Uova — scade domani</span>
+            <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(197,238,188,0.8);color:var(--green-mid);">✅ Spinaci — 5 giorni</span>
+          </div>
+        </div>
+        <div class="w-24 h-24 rounded-full flex items-center justify-center flex-shrink-0 animate-float" style="background:rgba(26,92,58,0.12);">
+          <span class="material-symbols-outlined" style="font-size:52px;color:var(--green-dark);">add_alert</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ AURA COINS ═══════════════ -->
+<section id="coins" class="py-24 relative overflow-hidden reveal" style="background:var(--green-dark);">
+  <!-- Background decorations -->
+  <div class="absolute inset-0 pointer-events-none opacity-10">
+    <div class="absolute top-0 left-0 w-96 h-96 rounded-full" style="background:radial-gradient(circle,white,transparent);transform:translate(-30%,-30%);"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 rounded-full" style="background:radial-gradient(circle,#93d5aa,transparent);transform:translate(30%,30%);"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-5 grid grid-cols-1 md:grid-cols-2 gap-16 items-center relative z-10">
+    <!-- Visual: coin counter -->
+    <div class="flex justify-center order-2 md:order-1">
+      <div class="relative">
+        <!-- Ring chart -->
+        <div class="relative w-64 h-64 md:w-72 md:h-72">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="transparent" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="transparent" stroke="#b1f0ce" stroke-width="10"
+              stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <span class="fredoka" style="font-size:48px;line-height:1;">420</span>
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:rgba(177,240,206,0.7);text-transform:uppercase;">Aura Coins</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">= 84 prodotti aggiunti</span>
+          </div>
+        </div>
+
+        <!-- Floating coin badges -->
+        <div class="absolute -top-4 -right-4 animate-float" style="animation-delay:0s;">
+          <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 shadow-lg" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);">
+            <span class="text-xl">🪙</span>
+            <span class="fredoka text-white text-base">+5</span>
+          </div>
+        </div>
+        <div class="absolute -bottom-4 -left-4 animate-float-2">
+          <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 shadow-lg" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);">
+            <span class="text-xl">🪙</span>
+            <span class="fredoka text-white text-base">+5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div class="order-1 md:order-2 flex flex-col gap-6">
+      <h2 class="fredoka leading-tight" style="font-size:clamp(34px,4vw,52px);color:white;">
+        Guadagna mentre risparmi.
+      </h2>
+      <p style="font-size:17px;line-height:1.7;color:rgba(177,240,206,0.9);">
+        Con Aura Foods ogni prodotto che aggiungi ti vale <strong style="color:#b1f0ce;">+5 Aura Coins 🪙</strong>.
+        Più gestisci la tua dispensa, più accumuli. È un sistema semplice per premiare chi riduce gli sprechi davvero.
+      </p>
+
+      <!-- How coins work -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-start gap-4 rounded-2xl p-4" style="background:rgba(255,255,255,0.08);">
+          <span class="text-2xl mt-0.5">📦</span>
+          <div>
+            <div class="font-bold text-white text-sm mb-1">Aggiungi un prodotto</div>
+            <div style="font-size:13px;color:rgba(177,240,206,0.8);">Ogni volta che aggiungi un alimento (scansione o manuale) ricevi automaticamente +5 Aura Coins.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 rounded-2xl p-4" style="background:rgba(255,255,255,0.08);">
+          <span class="text-2xl mt-0.5">🌿</span>
+          <div>
+            <div class="font-bold text-white text-sm mb-1">Zero sprechi = più punti</div>
+            <div style="font-size:13px;color:rgba(177,240,206,0.8);">Mantieni la tua dispensa aggiornata e accumula coins. Il sistema reward cresce con te.</div>
+          </div>
+        </div>
+      </div>
+
+      <a href="/installa.html" style="background:rgba(177,240,206,0.2);color:white;border:2px solid rgba(177,240,206,0.3);" class="btn-secondary self-start">
+        Inizia a guadagnare
+        <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SHELF PREVIEW ═══════════════ -->
+<section class="py-24 reveal" style="background:rgba(213,255,204,0.4);">
+  <div class="max-w-6xl mx-auto px-5 grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+    <div class="flex flex-col gap-5">
+      <h2 class="fredoka text-4xl md:text-5xl" style="color:var(--green-dark);">La tua Shelf, sempre con te.</h2>
+      <p style="color:var(--text-mid);font-size:17px;line-height:1.7;">
+        Tutti i tuoi alimenti ordinati per scadenza. Un colpo d'occhio e sai cosa cucinare stasera, cosa sta per scadere e cosa hai in freezer.
+      </p>
+      <ul class="flex flex-col gap-3">
+        <li class="flex items-center gap-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:#c5eebc;color:var(--green-dark);">✓</span>
+          <span style="color:var(--text-mid);font-size:15px;">Scaduti, in scadenza e tutto ok — sempre separati</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:#c5eebc;color:var(--green-dark);">✓</span>
+          <span style="color:var(--text-mid);font-size:15px;">Rimuovi 1 o rimuovi tutti con un tap</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:#c5eebc;color:var(--green-dark);">✓</span>
+          <span style="color:var(--text-mid);font-size:15px;">Funziona offline come una vera PWA</span>
+        </li>
+      </ul>
+      <a href="/installa.html" class="btn-primary self-start">
+        Prova la Shelf
+        <span class="material-symbols-outlined" style="font-size:20px;">open_in_new</span>
+      </a>
+    </div>
+
+    <!-- Shelf mockup -->
+    <div class="glass-card rounded-3xl p-5 shadow-xl animate-float-slow">
+      <div class="flex items-center justify-between mb-4">
+        <span class="fredoka text-xl" style="color:var(--green-dark);">📦 La tua Shelf</span>
+        <span class="text-sm font-bold" style="color:var(--text-mid);">4 prodotti • 1 in scadenza ⚠️</span>
+      </div>
+
+      <!-- Warn strip -->
+      <div class="rounded-xl px-4 py-2 mb-4 text-sm font-bold" style="background:rgba(186,26,26,0.08);color:#ba1a1a;">
+        ⚠️ &nbsp;1 prodotto in scadenza imminente
+      </div>
+
+      <!-- Section: scadenza imminente -->
+      <div class="text-xs font-bold uppercase tracking-wider mb-2 px-1" style="color:#ba1a1a;">⚠️ Scadenza imminente</div>
+      <div class="rounded-2xl p-3 flex items-center gap-3 mb-4" style="background:rgba(255,255,255,0.85);border:1px solid rgba(186,26,26,0.15);">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#fde8e8;">🥚</div>
+        <div class="flex-1">
+          <div class="flex justify-between">
+            <span class="font-bold text-sm">Uova Bio</span>
+            <div class="text-right">
+              <span class="text-xs font-bold" style="color:#ba1a1a;">25/05/26</span><br>
+              <span class="text-xs" style="color:#ba1a1a;">domani ⚠️</span>
+            </div>
+          </div>
+          <div class="text-xs" style="color:var(--text-mid);">Qtà: 6</div>
+        </div>
+        <span style="color:var(--text-mid);font-size:20px;">›</span>
+      </div>
+
+      <!-- Section: tutto ok -->
+      <div class="text-xs font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--green-muted);">✅ Tutto ok</div>
+      <div class="flex flex-col gap-2">
+        <div class="rounded-2xl p-3 flex items-center gap-3" style="background:rgba(255,255,255,0.85);border:1px solid rgba(192,201,191,0.3);">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#d5ffcc;">🥛</div>
+          <div class="flex-1">
+            <div class="flex justify-between">
+              <span class="font-bold text-sm">Latte Intero</span>
+              <div class="text-right">
+                <span class="text-xs font-bold" style="color:var(--text-mid);">30/05/26</span><br>
+                <span class="text-xs" style="color:var(--text-mid);">6 giorni</span>
+              </div>
+            </div>
+            <div class="text-xs" style="color:var(--text-mid);">Qtà: 2</div>
+          </div>
+          <span style="color:var(--text-mid);font-size:20px;">›</span>
+        </div>
+        <div class="rounded-2xl p-3 flex items-center gap-3" style="background:rgba(255,255,255,0.85);border:1px solid rgba(192,201,191,0.3);">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style="background:#c5eebc;">🍪</div>
+          <div class="flex-1">
+            <div class="flex justify-between">
+              <span class="font-bold text-sm">Crackers</span>
+              <div class="text-right">
+                <span class="text-xs font-bold" style="color:var(--green-muted);">15/08/26</span><br>
+                <span class="text-xs" style="color:var(--green-muted);">91 giorni</span>
+              </div>
+            </div>
+            <div class="text-xs" style="color:var(--text-mid);">Qtà: 1 • AI: +30gg 🤖</div>
+          </div>
+          <span style="color:var(--text-mid);font-size:20px;">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA FINALE ═══════════════ -->
+<section class="py-24 text-center reveal">
+  <div class="max-w-2xl mx-auto px-5">
+    <img src="img/image.png" alt="Aura Foods" class="mx-auto w-20 h-20 rounded-2xl shadow-lg mb-8" onerror="this.style.display='none'"/>
+    <h2 class="fredoka mb-4" style="font-size:clamp(36px,5vw,56px);color:var(--green-dark);line-height:1.2;">
+      Pronto a trasformare la tua cucina?
+    </h2>
+    <p class="mb-10" style="color:var(--text-mid);font-size:17px;line-height:1.7;">
+      Unisciti a migliaia di persone che hanno già ridotto lo spreco alimentare grazie ad Aura Foods. Gratis, subito, sul tuo telefono.
+    </p>
+    <a href="/installa.html" class="btn-primary" style="font-size:20px;padding:18px 48px;">
+      Scarica la PWA ora
+      <span class="material-symbols-outlined" style="font-size:22px;">download</span>
+    </a>
+    <div class="mt-6 flex justify-center gap-6 flex-wrap">
+      <span style="color:var(--text-mid);font-size:13px;font-weight:700;">✓ Gratis</span>
+      <span style="color:var(--text-mid);font-size:13px;font-weight:700;">✓ Nessun abbonamento</span>
+      <span style="color:var(--text-mid);font-size:13px;font-weight:700;">✓ Funziona offline</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="border-t py-10" style="background:rgba(208,249,198,0.5);border-color:rgba(192,201,191,0.25);">
+  <div class="max-w-6xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <img src="img/image.png" alt="Aura Foods" class="w-8 h-8 rounded-lg" onerror="this.style.display='none'"/>
+      <span class="fredoka text-xl" style="color:var(--green-dark);">Aura Foods</span>
+    </div>
+    <div class="flex flex-wrap justify-center gap-6">
+      <a href="/installa.html" class="text-sm font-bold hover:text-green-800 transition-colors" style="color:var(--text-mid);">Scarica PWA</a>
+      <a href="#come-funziona" class="text-sm font-bold hover:text-green-800 transition-colors" style="color:var(--text-mid);">Come funziona</a>
+      <a href="#features" class="text-sm font-bold hover:text-green-800 transition-colors" style="color:var(--text-mid);">Funzioni</a>
+      <a href="#coins" class="text-sm font-bold hover:text-green-800 transition-colors" style="color:var(--text-mid);">Aura Coins</a>
+    </div>
+    <p class="text-sm font-bold" style="color:rgba(64,73,66,0.5);">© 2025-26 Sigma Gooners & Co</p>
+  </div>
+</footer>
+
+<!-- ═══════════════ FAB MOBILE ═══════════════ -->
+<div class="fixed bottom-6 right-6 md:hidden z-50">
+  <a href="/installa.html" class="fab w-16 h-16 rounded-full flex items-center justify-center" style="background:var(--green-dark);">
+    <span class="text-2xl">🌿</span>
+  </a>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.querySelector(a.getAttribute('href'));
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Navbar shadow on scroll
+  const header = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      header.style.boxShadow = '0 4px 24px rgba(0,67,38,0.10)';
+    } else {
+      header.style.boxShadow = 'none';
+    }
+  });
 </script>
 
-<body>
-  <div id="splash">
-    <img src="img/image.png" alt="Aura Foods">
-    <div id="splash-spinner"></div>
-    <div id="splash-label">Caricamento…</div>
-  </div>
-  <div class="app-shell">
-
-    <!-- ═══════════════ AUTH ═══════════════ -->
-    <div id="screen-auth" class="screen active">
-      <div class="auth-logo-container">
-        <img id="auth-logo" src="" alt="Aura Foods Logo" width="130" height="130">
-      </div>
-      <div class="card">
-        <div class="auth-tabs">
-          <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
-          <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
-        </div>
-        <div id="auth-login-form">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" placeholder="••••••••" id="login-pass"
-              autocomplete="current-password">
-          </div>
-          <button class="btn" onclick="doLogin()">Entra 🥑</button>
-        </div>
-        <div id="auth-register-form" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" placeholder="••••••••" id="reg-pass" autocomplete="new-password">
-          </div>
-          <button class="btn" onclick="doRegister()">Crea account 🌿</button>
-        </div>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ HOME ═══════════════ -->
-    <div id="screen-home" class="screen">
-      <div class="home-bg-orbs">
-        <div class="orb orb1"></div>
-        <div class="orb orb2"></div>
-        <div class="orb orb3"></div>
-      </div>
-      <div class="home-content">
-        <div class="home-topbar">
-          <div class="home-coins-pill">🪙 <span id="home-coins">0</span></div>
-          <img id="home-logo" src="" alt="Aura Foods Logo" width="36" height="36"
-            style="position:absolute;left:50%;transform:translateX(-50%);border-radius:10px;object-fit:cover;pointer-events:none;">
-          <div class="home-avatar-btn" id="home-avatar-btn" onclick="goTo('screen-profile')">🧑</div>
-        </div>
-        <div class="home-greeting">
-          <div class="home-greeting-sub" id="home-greeting-time">Bentornato 🌿</div>
-          <div class="home-greeting-name" id="home-greeting-name">Ciao!</div>
-        </div>
-        <div class="home-actions-grid">
-          <div class="home-action-card home-action-primary" onclick="goTo('screen-shelf')">
-            <div class="hac-icon">📦</div>
-            <div class="hac-text">
-              <div class="hac-label">La tua Shelf</div>
-              <div class="hac-desc" id="home-shelf-desc">Caricamento…</div>
-            </div>
-            <div class="hac-arrow">›</div>
-          </div>
-          <div class="home-action-card" onclick="goTo('screen-add')">
-            <div class="hac-icon">＋</div>
-            <div class="hac-label">Aggiungi</div>
-            <div class="hac-desc">Scan o manuale</div>
-          </div>
-          <div class="home-action-card" onclick="goTo('screen-profile')">
-            <div class="hac-icon">👤</div>
-            <div class="hac-label">Profilo</div>
-            <div class="hac-desc">Coins &amp; impost.</div>
-          </div>
-        </div>
-        <div class="home-expiring-strip" id="home-expiring-strip" style="display:none">
-          <div class="hes-label">⚠️ In scadenza presto</div>
-          <div class="hes-items" id="home-expiring-items"></div>
-        </div>
-        <div class="home-social-card">
-          <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener"
-            aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
-          <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank"
-            rel="noopener" aria-label="OnlyFans">
-            <svg viewBox="0 0 24 24" fill="#1a5c3a" width="20" height="20">
-              <path
-                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
-            </svg>
-          </a>
-          <a class="social-link" href="https://www.instagram.com/peppe.nitti13/" target="_blank" rel="noopener"
-            aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-              <rect x="2" y="9" width="4" height="12" />
-              <circle cx="4" cy="4" r="2" />
-            </svg>
-          </a>
-          <a class="social-link" href="/installa.html" rel="noopener" aria-label="Installa l'app">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </a>
-        </div>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ ADD ═══════════════ -->
-    <div id="screen-add" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-add" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
-        </div>
-        <div class="sh-title">Aggiungi 🥑</div>
-        <div class="sh-subtitle">Scansiona o inserisci manualmente</div>
-      </div>
-      <div class="add-content">
-        <div class="scan-card" onclick="simulateScan()">
-          <div class="scan-frame">
-            <div class="sf-bl"></div>
-            <div class="sf-br"></div>
-            <div class="scan-line"></div>
-          </div>
-          <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
-        </div>
-        <span class="add-or">oppure</span>
-        <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ MANUAL FORM ═══════════════ -->
-    <div id="screen-manual" class="screen">
-      <div class="back-header">
-        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-        <span class="back-title">Inserimento manuale</span>
-      </div>
-      <div class="form-content">
-        <div class="card" style="margin-bottom:16px">
-          <div class="form-group">
-            <label class="form-label">Nome prodotto:</label>
-            <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name"
-              autocomplete="off">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Quantità:</label>
-            <input type="text" class="form-input" placeholder="es. 3" id="prod-qty" inputmode="decimal">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tipo di scadenza:</label>
-            <div class="select-wrapper">
-              <select class="form-select" id="prod-type">
-                <option value="preferibilmente">Preferibilmente entro</option>
-                <option value="consumarsi">Da consumarsi entro</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8"
-              inputmode="numeric">
-          </div>
-        </div>
-        <button class="btn" onclick="addProduct()">Conferma ✓</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ SUCCESS ═══════════════ -->
-    <div id="screen-success" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-success" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
-        </div>
-        <div class="sh-title">Fatto! 🎉</div>
-        <div class="sh-subtitle">Prodotto aggiunto con successo</div>
-      </div>
-      <div class="success-content">
-        <div class="success-card">
-          <div class="success-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-              stroke-linejoin="round" width="38" height="38">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
-        </div>
-        <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
-        <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ SHELF ═══════════════ -->
-    <div id="screen-shelf" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-shelf" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-add')">＋ Aggiungi</button>
-        </div>
-        <div class="sh-title">La tua Shelf 📦</div>
-        <div class="sh-subtitle" id="shelf-header-count">Caricamento…</div>
-      </div>
-      <div class="shelf-content">
-        <div id="shelf-list"></div>
-        <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ DETAIL ═══════════════ -->
-    <div id="screen-detail" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">‹ Shelf</button>
-          <img id="nav-logo-detail" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
-        </div>
-        <div class="sh-title" id="detail-product-name">Prodotto</div>
-      </div>
-      <div class="detail-content">
-        <div class="detail-card">
-          <div class="detail-emoji" id="detail-emoji">🥑</div>
-          <div class="detail-info" id="detail-info"></div>
-        </div>
-        <div class="detail-actions">
-          <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
-          <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
-        </div>
-        <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ PROFILE ═══════════════ -->
-    <div id="screen-profile" class="screen">
-      <div class="profile-hero-header">
-        <button class="profile-back-btn" onclick="goTo('screen-home')">‹</button>
-        <button class="profile-save-btn" onclick="saveProfile()">Salva</button>
-        <div class="profile-avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          <div class="avatar-img" id="avatar-display">🧑</div>
-          <div class="avatar-edit-badge">✏️</div>
-        </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
-        <div class="profile-hero-name" id="profile-name-display">Utente</div>
-        <div class="profile-hero-email" id="profile-email-display">email@esempio.com</div>
-        <div class="profile-coins-pill">
-          🪙 <span id="coins-display">0</span>
-          <span class="profile-coins-label">Aura Coins</span>
-        </div>
-      </div>
-
-      <div class="profile-body">
-        <div class="profile-notif-card">
-          <div>
-            <div class="profile-notif-title">🔔 Notifiche scadenze</div>
-            <div class="profile-notif-sub" id="notif-status-label">Controllo stato...</div>
-          </div>
-          <button id="notif-toggle-btn" class="notif-toggle" onclick="toggleNotifications()">...</button>
-        </div>
-
-        <div class="profile-form-card">
-          <div class="profile-section-title">✏️ Modifica profilo</div>
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Nuova password</label>
-            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare"
-              autocomplete="new-password">
-          </div>
-        </div>
-
-        <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ QR FORM ═══════════════ -->
-    <div id="screen-qr" class="screen">
-      <div class="back-header">
-        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-        <span class="back-title">Prodotto scansionato</span>
-      </div>
-      <div class="form-content">
-        <div id="qr-product-preview"
-          style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
-          <div id="qr-preview-img"
-            style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">
-            🥑</div>
-          <div>
-            <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
-            <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="form-group">
-            <label class="form-label">Quantità:</label>
-            <input type="text" class="form-input" placeholder="es. 3" id="qr-qty" inputmode="decimal">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tipo di scadenza:</label>
-            <div class="select-wrapper">
-              <select class="form-select" id="qr-type">
-                <option value="preferibilmente">Preferibilmente entro</option>
-                <option value="consumarsi">Da consumarsi entro</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8"
-              inputmode="numeric">
-          </div>
-        </div>
-        <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
-    <div id="scanner-modal" class="scanner-modal">
-      <div class="scanner-inner">
-        <div class="scanner-header">
-          <span class="scanner-title">📷 Scannerizza</span>
-          <button class="scanner-close" onclick="closeScanner()">✕</button>
-        </div>
-        <div id="scanner-container"></div>
-        <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
-        <div class="scanner-status" id="scanner-status"></div>
-      </div>
-    </div>
-
-  </div><!-- /app-shell -->
-  <div class="toast" id="toast"></div>
-
-  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="css/style.css">
-  </noscript>
-
-  <script defer src="js/config.js"></script>
-  <script defer src="js/notifications.js"></script>
-  <script defer src="js/app.js"></script>
-
 </body>
-
 </html>
