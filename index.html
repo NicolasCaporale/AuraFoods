@@ -6,6 +6,46 @@
 <title>Aura Foods — Zero sprechi, più Aura 🌿</title>
 <meta name="description" content="Tieni traccia della scadenza dei tuoi alimenti, guadagna Aura Coins e riduci gli sprechi. La tua dispensa digitale sempre con te."/>
 <meta name="theme-color" content="#1a5c3a"/>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Aura Foods">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+<link rel="shortcut icon" href="/img/icon-180.png">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://aura-foods.it/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aura Foods">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:url" content="https://aura-foods.it/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Aura Foods — Zero sprechi, più Aura 🌿">
+<meta name="twitter:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins.">
+<meta name="twitter:image" content="https://aura-foods.it/img/image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Aura Foods",
+  "url": "https://aura-foods.it/",
+  "description": "Tieni traccia della scadenza dei tuoi alimenti, accumula Aura Coins e riduci gli sprechi alimentari.",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Any",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://aura-foods.it/img/image.png",
+    "width": 512,
+    "height": 512
+  },
+  "creator": {
+    "@type": "Organization",
+    "name": "Sigma Gooners & Co"
+  }
+}
+</script>
 <meta property="og:title" content="Aura Foods — Zero sprechi, più Aura 🌿"/>
 <meta property="og:description" content="Monitora le scadenze dei tuoi alimenti e guadagna Aura Coins."/>
 <meta property="og:image" content="img/image.png"/>
@@ -252,9 +292,10 @@ tailwind.config = {
 
 <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    window.addEventListener('load', () => navigator.serviceWorker.register('/js/sw.js'));
   }
 </script>
+
 
 <body>
 
