@@ -45,7 +45,7 @@ async function removeNotifications(supabase, userId) {
 
 async function getSWReg() {
   // Prova prima getRegistration (veloce)
-  const quick = await navigator.serviceWorker.getRegistration('/');
+  const quick = await navigator.serviceWorker.getRegistration('/app.html');
   if (quick?.active) return quick;
   // Fallback: aspetta ready con timeout 5s
   return Promise.race([
