@@ -252,9 +252,10 @@ async function addProduct() {
     goTo('screen-success');
     // NON resetta il flag — la schermata cambia, non serve
   } catch(e) {
-    showToast('Errore ❌');
-    _isAddingProduct = false; // resetta solo in caso di errore
-  }
+     console.error('Errore addProduct:', e);
+     showToast('Errore: ' + e.message);
+     _isAddingProduct = false;
+   }
 }
 
 
