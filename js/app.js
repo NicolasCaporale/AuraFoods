@@ -185,7 +185,7 @@ async function addCoins(n) {
   const { data: { session } } = await _supabase.auth.getSession()
   if (!session) return
 
-  await fetch('https://<PROJECT_REF>.functions.supabase.co/add-coins', {
+  await fetch('https://aoulslptqvqpybhhiaof.supabase.co/add-coins', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
