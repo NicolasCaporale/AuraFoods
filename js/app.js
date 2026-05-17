@@ -60,8 +60,9 @@ function goTo(screenId) {
   if (screenId === 'screen-home')    renderHome();
   if (screenId === 'screen-shelf')   renderShelf();
   if (screenId === 'screen-profile') { loadProfile(); updateNotifUI(); }
-
+  if (screenId === 'screen-qr') { _isAddingProduct = false; }
   if (screenId === 'screen-manual') {
+     _isAddingProduct = false;
     const nameGroup = document.getElementById('prod-name')?.closest('.form-group');
     if (nameGroup) nameGroup.style.display = '';
     ['prod-name','prod-qty','prod-date'].forEach(id => {
