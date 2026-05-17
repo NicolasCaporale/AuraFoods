@@ -182,22 +182,11 @@ async function getCoins() {
 }
 
 async function addCoins(n) {
-  const { data: { session } } = await _supabase.auth.getSession()
-  if (!session) return
+  await _supabase.rpc('give_product_coins');
 
-  await fetch('https://aoulslptqvqpybhhiaof.supabase.co/add-coins', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + session.access_token
-    },
-    body: JSON.stringify({ amount: n })
-  })
-
-  // Aggiorna solo display locale, fonte di verità è il DB
   if (_currentUser) {
-    _currentUser.coins = (_currentUser.coins || 0) + n
-    updateCoinsDisplay()
+    _currentUser.coins = (_currentUser.coins || 0) + n;
+    updateCoinsDisplay();
   }
 }
 
