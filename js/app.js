@@ -233,23 +233,26 @@ function invalidateCache() {
 /* ── ADD PRODUCT ── */
 function simulateScan() { openScanner(); }
 
+let _isAddingProduct = false;
+
 async function addProduct() {
-  const btn = document.querySelector('#screen-manual .btn-primary');
-  if (btn?.disabled) return; // già in corso
-  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  if (_isAddingProduct) return;
+  _isAddingProduct = true;
 
   try {
     const name  = (document.getElementById('prod-name').value || '').trim();
     const qty   = (document.getElementById('prod-qty').value  || '').trim();
     const type  =  document.getElementById('prod-type').value;
     const dateR = (document.getElementById('prod-date').value || '').trim();
-    if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); return; }
+    if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); _isAddingProduct = false; return; }
 
     await mergeOrAddProduct(name, qty, type, formatDate(dateR), true, pendingProductImage);
     pendingProductImage = null;
     goTo('screen-success');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Aggiungi'; }
+    // NON resetta il flag — la schermata cambia, non serve
+  } catch(e) {
+    showToast('Errore ❌');
+    _isAddingProduct = false; // resetta solo in caso di errore
   }
 }
 
@@ -882,22 +885,22 @@ function openQRForm(name, imageUrl) {
 }
 
 async function addProductFromQR() {
-  const btn = document.querySelector('#screen-qr .btn-primary');
-  if (btn?.disabled) return;
-  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  if (_isAddingProduct) return;
+  _isAddingProduct = true;
 
   try {
-    if (!pendingQRProduct) { goTo('screen-add'); return; }
+    if (!pendingQRProduct) { goTo('screen-add'); _isAddingProduct = false; return; }
     const qty   = (document.getElementById('qr-qty').value  || '').trim();
     const type  =  document.getElementById('qr-type').value;
     const dateR = (document.getElementById('qr-date').value || '').trim();
-    if (!qty || !dateR) { showToast('Compila quantità e scadenza 🌿'); return; }
+    if (!qty || !dateR) { showToast('Compila quantità e scadenza 🌿'); _isAddingProduct = false; return; }
 
     await mergeOrAddProduct(pendingQRProduct.name, qty, type, formatDate(dateR), true, pendingQRProduct.imageUrl);
     pendingQRProduct = null; pendingProductImage = null;
     goTo('screen-success');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Aggiungi'; }
+  } catch(e) {
+    showToast('Errore ❌');
+    _isAddingProduct = false;
   }
 }
 
