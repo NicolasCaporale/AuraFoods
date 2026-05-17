@@ -181,12 +181,23 @@ async function getCoins() {
 }
 
 async function addCoins(n) {
-  const u = await ensureCurrentUser();
-  if (!u) return;
-  const newCoins = (u.coins || 0) + n;
-  await _supabase.from('users').update({ coins: newCoins }).eq('id', u.id);
-  _currentUser.coins = newCoins;
-  updateCoinsDisplay();
+  const { data: { session } } = await _supabase.auth.getSession()
+  if (!session) return
+
+  await fetch('https://<PROJECT_REF>.functions.supabase.co/add-coins', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token
+    },
+    body: JSON.stringify({ amount: n })
+  })
+
+  // Aggiorna solo display locale, fonte di verità è il DB
+  if (_currentUser) {
+    _currentUser.coins = (_currentUser.coins || 0) + n
+    updateCoinsDisplay()
+  }
 }
 
 function updateCoinsDisplay() {
