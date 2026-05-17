@@ -34,7 +34,10 @@
 }
 
 html { background: #a8d9a0; }
-
+.btn-primary:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
 body {
   font-family: 'Nunito', sans-serif;
   background: #a8d9a0;
