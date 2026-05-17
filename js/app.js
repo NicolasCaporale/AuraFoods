@@ -234,16 +234,25 @@ function invalidateCache() {
 function simulateScan() { openScanner(); }
 
 async function addProduct() {
-  const name  = (document.getElementById('prod-name').value || '').trim();
-  const qty   = (document.getElementById('prod-qty').value  || '').trim();
-  const type  =  document.getElementById('prod-type').value;
-  const dateR = (document.getElementById('prod-date').value || '').trim();
-  if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); return; }
+  const btn = document.querySelector('#screen-manual .btn-primary');
+  if (btn?.disabled) return; // già in corso
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
 
-  await mergeOrAddProduct(name, qty, type, formatDate(dateR), true, pendingProductImage);
-  pendingProductImage = null;
-  goTo('screen-success');
+  try {
+    const name  = (document.getElementById('prod-name').value || '').trim();
+    const qty   = (document.getElementById('prod-qty').value  || '').trim();
+    const type  =  document.getElementById('prod-type').value;
+    const dateR = (document.getElementById('prod-date').value || '').trim();
+    if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); return; }
+
+    await mergeOrAddProduct(name, qty, type, formatDate(dateR), true, pendingProductImage);
+    pendingProductImage = null;
+    goTo('screen-success');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Aggiungi'; }
+  }
 }
+
 
 async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   const u = await ensureCurrentUser();
@@ -873,14 +882,23 @@ function openQRForm(name, imageUrl) {
 }
 
 async function addProductFromQR() {
-  if (!pendingQRProduct) { goTo('screen-add'); return; }
-  const qty   = (document.getElementById('qr-qty').value  || '').trim();
-  const type  =  document.getElementById('qr-type').value;
-  const dateR = (document.getElementById('qr-date').value || '').trim();
-  if (!qty || !dateR) { showToast('Compila quantità e scadenza 🌿'); return; }
-  await mergeOrAddProduct(pendingQRProduct.name, qty, type, formatDate(dateR), true, pendingQRProduct.imageUrl);
-  pendingQRProduct = null; pendingProductImage = null;
-  goTo('screen-success');
+  const btn = document.querySelector('#screen-qr .btn-primary');
+  if (btn?.disabled) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+
+  try {
+    if (!pendingQRProduct) { goTo('screen-add'); return; }
+    const qty   = (document.getElementById('qr-qty').value  || '').trim();
+    const type  =  document.getElementById('qr-type').value;
+    const dateR = (document.getElementById('qr-date').value || '').trim();
+    if (!qty || !dateR) { showToast('Compila quantità e scadenza 🌿'); return; }
+
+    await mergeOrAddProduct(pendingQRProduct.name, qty, type, formatDate(dateR), true, pendingQRProduct.imageUrl);
+    pendingQRProduct = null; pendingProductImage = null;
+    goTo('screen-success');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Aggiungi'; }
+  }
 }
 
 function prefillManualForm(name, imageUrl, nameConfirmed) {
