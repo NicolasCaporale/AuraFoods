@@ -53,6 +53,7 @@ self.addEventListener('fetch', event => {
   if (event.request.url.includes('supabase.co')) {
     return;
   }
+  if (event.request.url.includes('vercel.app')) return;
 
   event.respondWith(
     fetch(event.request)
