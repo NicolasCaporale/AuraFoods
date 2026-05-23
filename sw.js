@@ -2,7 +2,7 @@
    AURA FOODS — Service Worker
    ══════════════════════════════════════════ */
 
-const CACHE_NAME = 'aura-foods-v4';
+const CACHE_NAME = 'aura-foods-v5';
 
 const ASSETS = [
   '/',
