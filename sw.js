@@ -2,7 +2,7 @@
    AURA FOODS — Service Worker
    ══════════════════════════════════════════ */
 
-const CACHE_NAME = 'aura-foods-v5';
+const CACHE_NAME = 'aura-foods-v6';
 
 const ASSETS = [
   '/',
@@ -50,10 +50,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.url.includes('supabase.co')) {
+  const url = event.request.url;
+
+  // lascia passare senza intercettare
+  if (url.includes('supabase.co') || url.includes('vercel.app')) {
+    event.respondWith(fetch(event.request));
     return;
   }
-  if (event.request.url.includes('vercel.app')) return;
 
   event.respondWith(
     fetch(event.request)
@@ -75,6 +78,9 @@ self.addEventListener('fetch', event => {
         });
       })
   );
+});
+
+
 });
 
 // ═══ PUSH NOTIFICATIONS ═══
