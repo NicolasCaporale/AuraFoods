@@ -305,37 +305,49 @@ function isExpiringSoon(s) {
   return (d - now) / 86400000 <= 3;
 }
 
-/* ── AI SAFETY ── */
+/* ── AI SAFETY (via backend Vercel) ── */
+const AI_SAFETY_ENDPOINT = 'https://aura-foods-api.vercel.app/api/ai-safety';
+
 async function getAISafety(productName, imageUrl) {
-  const contentParts = [];
-  if (imageUrl) {
-    try {
-      const img = new Image(); img.crossOrigin = 'anonymous';
-      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = imageUrl; });
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      const b64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      contentParts.push({ type:'image', source:{ type:'base64', media_type:'image/jpeg', data:b64 } });
-    } catch (_) {}
+  try {
+    let imageBase64 = null;
+
+    // Converti l'immagine in base64 solo se presente
+    if (imageUrl) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise((res, rej) => {
+          img.onload = res;
+          img.onerror = rej;
+          img.src = imageUrl;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        // toDataURL restituisce "data:image/jpeg;base64,XXXX" — prendiamo solo XXXX
+        imageBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+      } catch (_) {
+        // immagine non caricabile: procediamo senza
+        imageBase64 = null;
+      }
+    }
+
+    const res = await fetch(AI_SAFETY_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productName, imageBase64 }),
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    return data; // null se extraDays <= 0 o errore
+  } catch (e) {
+    console.error('getAISafety error:', e);
+    return null;
   }
-  contentParts.push({
-    type:'text',
-    text:`Sei un esperto di sicurezza alimentare. Il prodotto è: "${productName}".
-Rispondi SOLO con un oggetto JSON (nessun testo extra, nessun markdown) con questa struttura:
-{"extraDays":<intero>,"storage":"dispensa"|"frigo"|"freezer","risk":"low"|"medium"|"high","tips":"<max 1 frase>","matchedName":"<nome>"}
-Se non riesci a stimare, usa extraDays: 0.`
-  });
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json' },
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{ role:'user', content:contentParts }] })
-  });
-  const data = await response.json();
-  const raw = (data.content?.[0]?.text || '').replace(/```json|```/g,'').trim();
-  const parsed = JSON.parse(raw);
-  if (!parsed || parsed.extraDays <= 0) return null;
-  return parsed;
 }
 
 /* ── HOME RENDER ── */
