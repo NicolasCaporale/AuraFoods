@@ -81,8 +81,6 @@ self.addEventListener('fetch', event => {
 });
 
 
-});
-
 // ═══ PUSH NOTIFICATIONS ═══
 self.addEventListener('push', event => {
   if (!event.data) return;
