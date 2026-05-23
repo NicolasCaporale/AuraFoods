@@ -310,9 +310,9 @@ const AI_SAFETY_ENDPOINT = 'https://aura-foods-api.vercel.app/api/ai-safety';
 
 async function getAISafety(productName, imageUrl) {
   try {
+    showToast('Chiamata AI in corso... 🤖');
+    
     let imageBase64 = null;
-
-    // Converti l'immagine in base64 solo se presente
     if (imageUrl) {
       try {
         const img = new Image();
@@ -326,10 +326,8 @@ async function getAISafety(productName, imageUrl) {
         canvas.width  = img.naturalWidth;
         canvas.height = img.naturalHeight;
         canvas.getContext('2d').drawImage(img, 0, 0);
-        // toDataURL restituisce "data:image/jpeg;base64,XXXX" — prendiamo solo XXXX
         imageBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
       } catch (_) {
-        // immagine non caricabile: procediamo senza
         imageBase64 = null;
       }
     }
@@ -340,15 +338,19 @@ async function getAISafety(productName, imageUrl) {
       body: JSON.stringify({ productName, imageBase64 }),
     });
 
-    if (!res.ok) return null;
+    showToast('Risposta: ' + res.status);
 
+    if (!res.ok) return null;
     const data = await res.json();
-    return data; // null se extraDays <= 0 o errore
+    showToast('Data: ' + JSON.stringify(data).slice(0, 50));
+    return data;
+
   } catch (e) {
-    console.error('getAISafety error:', e);
+    showToast('Errore: ' + e.message);
     return null;
   }
 }
+
 
 /* ── HOME RENDER ── */
 async function renderHome() {
