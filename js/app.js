@@ -7,16 +7,21 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ── LOGO ── */
 (function applyLogos() {
-  const ids = ['auth-logo'];
+  const ids = [
+    'auth-logo','nav-logo-add',
+    'nav-logo-success','nav-logo-shelf','nav-logo-detail',
+  ];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.src = LOGO_PATH;
   });
+  const homeLogo = document.getElementById('home-logo');
+  if (homeLogo) homeLogo.src = LOGO_PATH;
 })();
 
 /* ── SESSION + PRODUCT CACHE ── */
 let _currentUser   = null;
-let _productsCache = null;
+let _productsCache = null; // { userId, items } — invalidato da invalidateCache()
 
 async function ensureCurrentUser() {
   if (_currentUser) return _currentUser;
@@ -42,6 +47,8 @@ function goTo(screenId) {
   const target = document.getElementById(screenId);
   if (target) {
     target.classList.add('active');
+    // Double RAF: necessario su iOS — aspetta che display:flex
+    // sia committed dal browser prima di aggiungere l'animazione
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         target.classList.add('screen-enter');
@@ -55,15 +62,10 @@ function goTo(screenId) {
   if (screenId === 'screen-profile') { loadProfile(); updateNotifUI(); }
   if (screenId === 'screen-qr') { _isAddingProduct = false; }
   if (screenId === 'screen-manual') {
-    _isAddingProduct = false;
+     _isAddingProduct = false;
     const nameGroup = document.getElementById('prod-name')?.closest('.form-group');
     if (nameGroup) nameGroup.style.display = '';
-    ['prod-name','prod-qty'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    // Reset date pills
-    ['prod-date-d','prod-date-m','prod-date-y'].forEach(id => {
+    ['prod-name','prod-qty','prod-date'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -105,10 +107,10 @@ function switchAuthTab(tab) {
   const regForm   = document.getElementById('auth-register-form');
   if (tab === 'login') {
     tabs[0].classList.add('active');    tabs[1].classList.remove('active');
-    loginForm.classList.add('active');  regForm.classList.remove('active');
+    loginForm.style.display = 'block'; regForm.style.display = 'none';
   } else {
     tabs[0].classList.remove('active'); tabs[1].classList.add('active');
-    loginForm.classList.remove('active'); regForm.classList.add('active');
+    loginForm.style.display = 'none';  regForm.style.display = 'block';
   }
 }
 
@@ -181,6 +183,7 @@ async function getCoins() {
 
 async function addCoins(n) {
   await _supabase.rpc('give_product_coins');
+
   if (_currentUser) {
     _currentUser.coins = (_currentUser.coins || 0) + n;
     updateCoinsDisplay();
@@ -197,6 +200,7 @@ async function getProducts(forceRefresh = false) {
   const u = await ensureCurrentUser();
   if (!u) return [];
 
+  // Usa cache se valida e non forzato refresh
   if (!forceRefresh && _productsCache?.userId === u.id && _productsCache.items) {
     return _productsCache.items;
   }
@@ -211,63 +215,10 @@ async function getProducts(forceRefresh = false) {
   return _productsCache.items;
 }
 
+// Invalida la cache dopo ogni scrittura
 function invalidateCache() {
   if (_productsCache) _productsCache.items = null;
 }
-
-/* ── DATE HELPERS ── */
-function getProdDate() {
-  const d = (document.getElementById('prod-date-d')?.value || '').trim();
-  const m = (document.getElementById('prod-date-m')?.value || '').trim();
-  const y = (document.getElementById('prod-date-y')?.value || '').trim();
-  return d && m && y ? `${d}/${m}/${y}` : '';
-}
-
-function getQrDate() {
-  const d = (document.getElementById('qr-date-d')?.value || '').trim();
-  const m = (document.getElementById('qr-date-m')?.value || '').trim();
-  const y = (document.getElementById('qr-date-y')?.value || '').trim();
-  return d && m && y ? `${d}/${m}/${y}` : '';
-}
-
-function formatDate(raw) {
-  const parts = raw.replace(/[.\-]/g, '/').split('/');
-  if (parts.length !== 3) return raw;
-  let [d, m, y] = parts;
-  d = d.padStart(2,'0'); m = m.padStart(2,'0');
-  if (y.length === 2) y = '20' + y;
-  return `${d}/${m}/${y}`;
-}
-
-function parseDate(s) {
-  const p = (s || '').split('/');
-  if (p.length !== 3) return null;
-  let [d, m, y] = p;
-  if (y.length === 2) y = '20' + y;
-  return new Date(+y, +m - 1, +d);
-}
-
-function isExpiringSoon(s) {
-  const d = parseDate(s);
-  if (!d) return false;
-  const now = new Date(); now.setHours(0,0,0,0);
-  return (d - now) / 86400000 <= 3;
-}
-
-/* ── AUTO-ADVANCE DATE PILLS ── */
-['prod', 'qr'].forEach(prefix => {
-  ['d', 'm'].forEach((part, idx) => {
-    const parts = ['d', 'm', 'y'];
-    const el = document.getElementById(`${prefix}-date-${part}`);
-    if (!el) return;
-    el.addEventListener('input', () => {
-      if (el.value.length >= el.maxLength) {
-        const next = document.getElementById(`${prefix}-date-${parts[idx + 1]}`);
-        if (next) next.focus();
-      }
-    });
-  });
-});
 
 /* ── ADD PRODUCT ── */
 function simulateScan() { openScanner(); }
@@ -282,26 +233,27 @@ async function addProduct() {
     const name  = (document.getElementById('prod-name').value || '').trim();
     const qty   = (document.getElementById('prod-qty').value  || '').trim();
     const type  =  document.getElementById('prod-type').value;
-    const unit  =  document.getElementById('prod-unit')?.value || '';
-    const dateR = getProdDate();
-
+    const dateR = (document.getElementById('prod-date').value || '').trim();
     if (!name || !qty || !dateR) { showToast('Compila tutti i campi 🌿'); _isAddingProduct = false; return; }
 
-    await mergeOrAddProduct(name, qty, unit, type, formatDate(dateR), true, pendingProductImage);
+    await mergeOrAddProduct(name, qty, type, formatDate(dateR), true, pendingProductImage);
     pendingProductImage = null;
     goTo('screen-success');
+    // NON resetta il flag — la schermata cambia, non serve
   } catch(e) {
-    console.error('Errore addProduct:', e);
-    showToast('Errore: ' + e.message);
-    _isAddingProduct = false;
-  }
+     console.error('Errore addProduct:', e);
+     showToast('Errore: ' + e.message);
+     _isAddingProduct = false;
+   }
 }
 
-async function mergeOrAddProduct(name, qty, unit, type, date, giveCoins, imageUrl) {
+
+async function mergeOrAddProduct(name, qty, type, date, giveCoins, imageUrl) {
   const u = await ensureCurrentUser();
   if (!u) return;
   const qtyNum = parseFloat(qty) || 1;
 
+  // Cerca sempre su Supabase — evita race condition con la cache
   const { data: existingArr } = await _supabase
     .from('products')
     .select('*')
@@ -318,9 +270,7 @@ async function mergeOrAddProduct(name, qty, unit, type, date, giveCoins, imageUr
   } else {
     await _supabase.from('products').insert({
       user_id: u.id, name,
-      qty: String(qtyNum),
-      unit: unit || null,
-      type, date,
+      qty: String(qtyNum), type, date,
       emoji: getEmoji(name),
       image_url: imageUrl || null,
       ai_safety: null,
@@ -330,6 +280,29 @@ async function mergeOrAddProduct(name, qty, unit, type, date, giveCoins, imageUr
 
   invalidateCache();
   if (giveCoins) await addCoins(5);
+}
+
+/* ── DATE HELPERS ── */
+function formatDate(raw) {
+  const parts = raw.replace(/[.\-]/g, '/').split('/');
+  if (parts.length !== 3) return raw;
+  let [d, m, y] = parts;
+  d = d.padStart(2,'0'); m = m.padStart(2,'0');
+  if (y.length === 2) y = '20' + y;
+  return `${d}/${m}/${y}`;
+}
+function parseDate(s) {
+  const p = (s || '').split('/');
+  if (p.length !== 3) return null;
+  let [d, m, y] = p;
+  if (y.length === 2) y = '20' + y;
+  return new Date(+y, +m - 1, +d);
+}
+function isExpiringSoon(s) {
+  const d = parseDate(s);
+  if (!d) return false;
+  const now = new Date(); now.setHours(0,0,0,0);
+  return (d - now) / 86400000 <= 3;
 }
 
 /* ── AI SAFETY ── */
@@ -370,6 +343,7 @@ async function renderHome() {
   const u = await ensureCurrentUser();
   if (!u) return;
 
+  // Saluto in base all'ora
   const h = new Date().getHours();
   const greetEl = document.getElementById('home-greeting-time');
   if (greetEl) {
@@ -379,21 +353,25 @@ async function renderHome() {
     else                         greetEl.textContent = 'Buonanotte 🌛';
   }
 
+  // Nome
   const nameEl = document.getElementById('home-greeting-name');
   if (nameEl) nameEl.textContent = u.name ? u.name + '!' : 'Ciao!';
 
+  // Coins nella topbar
   const coinsEl = document.getElementById('home-coins');
   if (coinsEl) coinsEl.textContent = u.coins || 0;
 
+  // Avatar nella topbar
   const avatarBtn = document.getElementById('home-avatar-btn');
   if (avatarBtn) {
     if (u.avatar) {
-      avatarBtn.innerHTML = `<img src="${u.avatar}" alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`;
+      avatarBtn.innerHTML = `<img src="${u.avatar}" alt="avatar">`;
     } else {
       avatarBtn.textContent = '🧑';
     }
   }
 
+  // Shelf desc + expiring strip
   const products = await getProducts();
   const now = new Date(); now.setHours(0,0,0,0);
 
@@ -402,10 +380,6 @@ async function renderHome() {
     if (!d) return false;
     return (d - now) / 86400000 <= 3 && (d - now) / 86400000 >= 0;
   });
-
-  // Contatore shelf nella home card
-  const shelfCountEl = document.getElementById('home-shelf-count');
-  if (shelfCountEl) shelfCountEl.textContent = products.length;
 
   const descEl = document.getElementById('home-shelf-desc');
   if (descEl) {
@@ -422,27 +396,32 @@ async function renderHome() {
   const itemsEl = document.getElementById('home-expiring-items');
   if (strip && itemsEl) {
     if (expiring.length > 0) {
-      strip.style.display = 'flex';
-      itemsEl.textContent = expiring.map(p => {
+      strip.style.display = 'block';
+      itemsEl.innerHTML = expiring.map(p => {
         const d    = parseDate(p.date);
         const diff = Math.round((d - now) / 86400000);
         const label = diff === 0 ? 'oggi' : diff === 1 ? '1g' : diff + 'g';
-        return `${p.emoji || '🥑'} ${p.name} · ${label}`;
-      }).join('  •  ');
+        return `<div class="hes-chip" onclick="openDetail(${p.id})">${p.emoji || '🥑'} ${p.name} <span style="opacity:.6">· ${label}</span></div>`;
+      }).join('');
     } else {
       strip.style.display = 'none';
     }
   }
+  //saygex
+
+  spawnParticles();
 }
 
 /* ── SHELF ── */
 async function renderShelf() {
   const c = document.getElementById('shelf-list');
-  c.innerHTML = '<div class="shelf-empty"><div class="shelf-empty-emoji">⏳</div><div class="shelf-empty-title">Caricamento...</div></div>';
+  c.innerHTML = '<div class="shelf-empty">Caricamento... ⏳</div>';
 
   let products = await getProducts();
+
   const now = new Date(); now.setHours(0,0,0,0);
 
+  /* helpers */
   function daysLeft(dateStr) {
     const d = parseDate(dateStr);
     if (!d) return null;
@@ -452,21 +431,33 @@ async function renderShelf() {
   function dateBadge(dateStr) {
     const diff = daysLeft(dateStr);
     if (diff === null) return { cls: 'date-badge-ok', label: dateStr, sub: '', subCls: '' };
+
     let cls, sub, subCls;
     if (diff < 0) {
-      cls = 'date-badge-danger'; sub = diff === -1 ? 'ieri' : Math.abs(diff) + ' gg fa'; subCls = 'date-sublabel-danger';
+      cls = 'date-badge-danger';
+      sub = diff === -1 ? 'ieri' : Math.abs(diff) + ' gg fa';
+      subCls = 'date-sublabel-danger';
     } else if (diff === 0) {
-      cls = 'date-badge-danger'; sub = 'oggi ⚠️'; subCls = 'date-sublabel-danger';
+      cls = 'date-badge-danger';
+      sub = 'oggi ⚠️';
+      subCls = 'date-sublabel-danger';
     } else if (diff === 1) {
-      cls = 'date-badge-danger'; sub = 'domani ⚠️'; subCls = 'date-sublabel-danger';
+      cls = 'date-badge-danger';
+      sub = 'domani ⚠️';
+      subCls = 'date-sublabel-danger';
     } else if (diff <= 3) {
-      cls = 'date-badge-soon'; sub = diff + ' giorni ⚠️'; subCls = 'date-sublabel-warn';
+      cls = 'date-badge-soon';
+      sub = diff + ' giorni ⚠️';
+      subCls = 'date-sublabel-warn';
     } else {
-      cls = 'date-badge-ok'; sub = diff + ' giorni'; subCls = 'date-sublabel';
+      cls = 'date-badge-ok';
+      sub = diff + ' giorni';
+      subCls = 'date-sublabel';
     }
     return { cls, label: dateStr, sub, subCls };
   }
 
+  /* header count */
   const countEl = document.getElementById('shelf-header-count');
   if (countEl) {
     if (!products.length) {
@@ -477,157 +468,108 @@ async function renderShelf() {
     }
   }
 
-  // Aggiorna coins nella shelf
-  const shelfCoinsEl = document.getElementById('shelf-coins-val');
-  if (shelfCoinsEl && _currentUser) shelfCoinsEl.textContent = _currentUser.coins || 0;
-
   if (!products.length) {
-    c.innerHTML = `
-      <div class="shelf-empty">
-        <div class="shelf-empty-emoji">📦</div>
-        <div class="shelf-empty-title">Nessun alimento ancora</div>
-        <div class="shelf-empty-sub">Aggiungi il tuo primo prodotto! 🥑</div>
-      </div>`;
+    c.innerHTML = '<div class="shelf-empty">Nessun alimento nella tua shelf 📦<br>Aggiungi qualcosa! 🥑</div>';
     return;
   }
 
+  /* sort by date ascending */
   products = products.slice().sort((a, b) => {
     const da = parseDate(a.date) || new Date(8640000000000000);
     const db = parseDate(b.date) || new Date(8640000000000000);
     return da - db;
   });
 
-  const expired = products.filter(p => (daysLeft(p.date) ?? 0) < 0);
-  const warning = products.filter(p => { const d = daysLeft(p.date); return d !== null && d >= 0 && d <= 3; });
-  const ok      = products.filter(p => (daysLeft(p.date) ?? 99) > 3);
+  /* split into groups */
+  const expired  = products.filter(p => (daysLeft(p.date) ?? 0) < 0);
+  const warning  = products.filter(p => { const d = daysLeft(p.date); return d !== null && d >= 0 && d <= 3; });
+  const ok       = products.filter(p => (daysLeft(p.date) ?? 99) > 3);
 
   function cardHTML(p) {
     const badge = dateBadge(p.date);
     const thumb = p.image_url
-      ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" style="width:52px;height:52px;border-radius:12px;object-fit:cover;">`
-      : (p.emoji || '🥑');
-
-    let badgeCls = 'badge-safe', dotClass = 'dot-safe';
-    if (badge.cls === 'date-badge-danger') { badgeCls = 'badge-critical'; dotClass = 'dot-critical'; }
-    else if (badge.cls === 'date-badge-soon') { badgeCls = 'badge-warning'; dotClass = 'dot-warning'; }
-
-    const unitLabel = p.unit ? ` ${p.unit}` : '';
-
+      ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy" style="width:44px;height:44px;border-radius:11px;object-fit:cover;">`
+      : p.emoji || '🥑';
+    const isExp = (daysLeft(p.date) ?? 0) < 0;
     return `
-      <div class="shelf-item glass-card" onclick="openDetail(${p.id})">
-        <div class="shelf-emoji-box">${thumb}</div>
-        <div class="shelf-item-info">
-          <div class="shelf-item-name">${p.name}</div>
-          <div class="shelf-item-qty">${p.qty || ''}${unitLabel}</div>
-          <span class="shelf-item-badge ${badgeCls}">${badge.sub || badge.label}</span>
+      <div class="product-card${isExp ? ' pc-expired pc-visible' : ''}" onclick="openDetail(${p.id})">
+        <div class="product-emoji">${thumb}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-qty">Qtà: ${p.qty}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-          <div class="expiry-dot ${dotClass}"></div>
-          <span style="color:var(--on-surface-variant);font-size:18px;">›</span>
+        <div class="product-date-col">
+          <span class="date-badge ${badge.cls}">${badge.label}</span>
+          <span class="date-sublabel ${badge.subCls}">${badge.sub}</span>
         </div>
+        <span class="product-arrow">›</span>
       </div>`;
   }
 
   let html = '';
 
+  /* warn strip */
   const warnCount = warning.length + expired.length;
   if (warnCount > 0) {
-    html += `<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(245,158,11,0.1);border-left:4px solid var(--expiry-warning);border-radius:0 14px 14px 0;margin-bottom:4px;font-size:13px;font-weight:700;color:#92400e;">
-      ⚠️ ${warnCount} prodott${warnCount === 1 ? 'o' : 'i'} in scadenza o scadut${warnCount === 1 ? 'o' : 'i'}
-    </div>`;
+    html += `<div class="shelf-warn-strip">⚠️ &nbsp;${warnCount} prodott${warnCount === 1 ? 'o' : 'i'} in scadenza o scadut${warnCount === 1 ? 'o' : 'i'}</div>`;
   }
 
   if (warning.length) {
-    html += `<div style="font-size:12px;font-weight:700;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.06em;padding:4px 4px 8px;">⚠️ Scadenza imminente</div>`;
+    html += `<div class="shelf-section-label">⚠️ Scadenza imminente</div>`;
     html += warning.map(cardHTML).join('');
   }
 
   if (ok.length) {
-    html += `<div style="font-size:12px;font-weight:700;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.06em;padding:12px 4px 8px;">✅ Tutto ok</div>`;
+    html += `<div class="shelf-section-label">✅ Tutto ok</div>`;
     html += ok.map(cardHTML).join('');
   }
 
   if (expired.length) {
-    html += `<div style="font-size:12px;font-weight:700;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.06em;padding:12px 4px 8px;">🚫 Scaduti</div>`;
+    html += `<div class="shelf-section-label">🚫 Scaduti</div>`;
     html += expired.map(cardHTML).join('');
   }
 
   c.innerHTML = html;
 }
-
 /* ── DETAIL ── */
 let currentProductId = null;
 
 async function openDetail(id) {
+  // Usa cache — 0 query aggiuntive
   const products = await getProducts();
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentProductId = id;
-
   document.getElementById('detail-product-name').textContent = p.name;
-
   const emojiEl = document.getElementById('detail-emoji');
   if (p.image_url) {
-    emojiEl.innerHTML = `<img src="${p.image_url}" alt="${p.name}" style="width:80px;height:80px;border-radius:20px;object-fit:cover;box-shadow:0 4px 16px rgba(45,106,79,0.2);">`;
+    emojiEl.innerHTML = `<img src="${p.image_url}" alt="${p.name}" style="width:56px;height:56px;border-radius:14px;object-fit:cover;">`;
   } else {
     emojiEl.textContent = p.emoji || '🥑';
   }
-
-  const daysLeft = (() => {
-    const d = parseDate(p.date);
-    if (!d) return null;
-    const now = new Date(); now.setHours(0,0,0,0);
-    return Math.round((d - now) / 86400000);
-  })();
-
-  let badgeCls = 'badge-safe', badgeText = daysLeft !== null ? `${daysLeft} giorni rimanenti` : '';
-  if (daysLeft !== null) {
-    if (daysLeft < 0)  { badgeCls = 'badge-critical'; badgeText = 'Scaduto'; }
-    else if (daysLeft === 0) { badgeCls = 'badge-critical'; badgeText = 'Scade oggi ⚠️'; }
-    else if (daysLeft <= 3)  { badgeCls = 'badge-warning';  badgeText = `Scade tra ${daysLeft} giorni ⚠️`; }
-  }
-
-  const unitLabel = p.unit ? ` ${p.unit}` : '';
-
+  const label = p.type === 'preferibilmente' ? 'Preferibilmente entro:' : 'Da consumarsi entro:';
+  const exp   = isExpiringSoon(p.date);
   let safetyBlock = '';
   if (p.type === 'preferibilmente') {
     safetyBlock = p.ai_safety
       ? buildSafetyBlock(p.ai_safety, p.date)
       : `<div id="ai-safety-block" class="ai-safety-block ai-loading">
            <span class="ai-spinner"></span>
-           <span style="font-size:13px;color:var(--on-surface-variant);">Analisi AI in corso…</span>
+           <span style="font-size:13px;color:var(--text-mid);">Analisi AI in corso…</span>
          </div>`;
   }
-
   document.getElementById('detail-info').innerHTML = `
-    <div class="detail-row">
-      <span class="detail-row-label">Nome</span>
-      <span class="detail-row-value">${p.name}</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-row-label">Quantità</span>
-      <span class="detail-row-value">${p.qty || '–'}${unitLabel}</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-row-label">Tipo scadenza</span>
-      <span class="detail-row-value">${p.type === 'consumarsi' ? 'Da consumarsi entro' : 'Preferibilmente entro'}</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-row-label">Data</span>
-      <div style="text-align:right;">
-        <span class="detail-row-value">${p.date}</span><br>
-        <span class="shelf-item-badge ${badgeCls}" style="display:inline-block;margin-top:4px;">${badgeText}</span>
-      </div>
-    </div>
-    ${safetyBlock ? `<div style="padding:14px 20px;">${safetyBlock}</div>` : ''}`;
-
+    <p>Quantità: ${p.qty}</p>
+    <p>${label}</p>
+    <p class="${exp ? 'd-expiry' : ''}">${p.date}${exp ? ' ⚠️' : ''}</p>
+    ${safetyBlock}`;
   goTo('screen-detail');
-
   if (p.type === 'preferibilmente' && !p.ai_safety) {
     const result = await getAISafety(p.name, p.image_url);
     const block  = document.getElementById('ai-safety-block');
     if (result) {
       await _supabase.from('products').update({ ai_safety: result }).eq('id', id);
+      // Aggiorna anche la cache locale
       if (_productsCache?.items) {
         const cached = _productsCache.items.find(x => x.id === id);
         if (cached) cached.ai_safety = result;
@@ -708,11 +650,11 @@ async function loadProfile() {
   document.getElementById('edit-pass').value  = '';
   const av = document.getElementById('avatar-display');
   if (u.avatar) {
-    av.style.cssText = `background-image:url(${u.avatar});background-size:cover;background-position:center;font-size:0;`;
+    av.style.cssText = `background-image:url(${u.avatar});background-size:cover;background-position:center;font-size:0;width:72px;height:72px;border-radius:50%;`;
     av.textContent = '';
   } else {
     av.style.cssText = '';
-    av.textContent = '🧑‍🍳';
+    av.textContent = '🧑';
   }
 }
 
@@ -739,7 +681,11 @@ async function saveProfile() {
       emailChanged ? { emailRedirectTo: 'https://aura-foods.it/conferma-email' } : {}
     );
 
-    if (error) { showToast('Errore aggiornamento ❌'); console.error(error); return; }
+    if (error) {
+      showToast('Errore aggiornamento ❌');
+      console.error(error);
+      return;
+    }
   }
 
   const { error: dbError } = await _supabase
@@ -747,11 +693,19 @@ async function saveProfile() {
     .update({ name: n })
     .eq('id', user.id);
 
-  if (dbError) { showToast('Errore salvataggio ❌'); console.error(dbError); return; }
+  if (dbError) {
+    showToast('Errore salvataggio ❌');
+    console.error(dbError);
+    return;
+  }
 
-  if (emailChanged)      showToast('Controlla la nuova email 📧');
-  else if (passwordChanged) showToast('Profilo aggiornato ✓ 🔐');
-  else                   showToast('Profilo aggiornato ✓ 🌿');
+  if (emailChanged) {
+    showToast('Controlla la nuova email 📧');
+  } else if (passwordChanged) {
+    showToast('Profilo aggiornato ✓ 🔐');
+  } else {
+    showToast('Profilo aggiornato ✓ 🌿');
+  }
 
   _currentUser = null;
   const fresh = await ensureCurrentUser();
@@ -785,6 +739,20 @@ function showToast(msg) {
   t._t = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+/* ── DATE AUTO-FORMAT ── */
+document.getElementById('prod-date').addEventListener('input', function () {
+  let v = this.value.replace(/\D/g, '');
+  if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+  if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+  this.value = v.slice(0,8);
+});
+document.getElementById('qr-date').addEventListener('input', function () {
+  let v = this.value.replace(/\D/g, '');
+  if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+  if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+  this.value = v.slice(0,8);
+});
+
 /* ── SCANNER (lazy load) ── */
 let html5QrCode         = null;
 let scannerBusy         = false;
@@ -792,6 +760,7 @@ let pendingProductImage = null;
 let _scannerLibLoaded   = false;
 
 function openScanner() {
+  // Carica html5-qrcode solo al primo click (lazy load)
   if (!_scannerLibLoaded) {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
@@ -812,6 +781,8 @@ function _startScanner() {
   document.getElementById('scanner-container').innerHTML = '';
   html5QrCode = new Html5Qrcode('scanner-container');
 
+  // Su mobile serve un delay reale — rAF non basta perché il layout
+  // del modal non è ancora committed quando il frame viene eseguito
   setTimeout(() => {
     Html5Qrcode.getCameras().then(cameras => {
       if (!cameras || cameras.length === 0) {
@@ -823,7 +794,7 @@ function _startScanner() {
       html5QrCode.start(
         { facingMode: 'environment' },
         {
-          fps: 10,
+          fps: 10,          // abbassa a 10 su mobile — meno stress sulla CPU
           qrbox: { width: Math.min(containerW - 40, 260), height: 150 },
           aspectRatio: 1.7,
           formatsToSupport: [
@@ -842,7 +813,7 @@ function _startScanner() {
       console.error(err);
       setStatus('Permesso fotocamera negato ❌', 'error');
     });
-  }, 300);
+  }, 300); // 300ms è sufficiente su praticamente tutti i device mobile
 }
 
 function closeScanner() {
@@ -897,15 +868,9 @@ function openQRForm(name, imageUrl) {
   const imgEl = document.getElementById('qr-preview-img');
   if (imageUrl) {
     imgEl.innerHTML = `<img src="${imageUrl}" alt="${name}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;">`;
-  } else {
-    imgEl.textContent = getEmoji(name);
-  }
-  document.getElementById('qr-qty').value = '';
-  // Reset date pills QR
-  ['qr-date-d','qr-date-m','qr-date-y'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  } else { imgEl.textContent = getEmoji(name); }
+  document.getElementById('qr-qty').value  = '';
+  document.getElementById('qr-date').value = '';
   goTo('screen-qr');
   setTimeout(() => document.getElementById('qr-qty').focus(), 400);
 }
@@ -917,21 +882,12 @@ async function addProductFromQR() {
   try {
     if (!pendingQRProduct) { goTo('screen-add'); _isAddingProduct = false; return; }
     const qty   = (document.getElementById('qr-qty').value  || '').trim();
-    const unit  =  document.getElementById('qr-unit')?.value || '';
     const type  =  document.getElementById('qr-type').value;
-    const dateR = getQrDate();
-
+    const dateR = (document.getElementById('qr-date').value || '').trim();
     if (!qty || !dateR) { showToast('Compila quantità e scadenza 🌿'); _isAddingProduct = false; return; }
 
-    await mergeOrAddProduct(pendingQRProduct.name, qty, unit, type, formatDate(dateR), true, pendingQRProduct.imageUrl);
-    pendingQRProduct = null;
-    pendingProductImage = null;
-    // Reset pill QR
-    ['qr-date-d','qr-date-m','qr-date-y'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    document.getElementById('qr-qty').value = '';
+    await mergeOrAddProduct(pendingQRProduct.name, qty, type, formatDate(dateR), true, pendingQRProduct.imageUrl);
+    pendingQRProduct = null; pendingProductImage = null;
     goTo('screen-success');
   } catch(e) {
     showToast('Errore ❌');
@@ -943,13 +899,10 @@ function prefillManualForm(name, imageUrl, nameConfirmed) {
   pendingProductImage = imageUrl || null;
   const nameEl = document.getElementById('prod-name');
   const qtyEl  = document.getElementById('prod-qty');
+  const dateEl = document.getElementById('prod-date');
   if (nameEl) nameEl.value = name || '';
   if (qtyEl)  qtyEl.value  = '';
-  // Reset date pills
-  ['prod-date-d','prod-date-m','prod-date-y'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  if (dateEl) dateEl.value  = '';
   const nameGroup = nameEl?.closest('.form-group');
   if (nameGroup) nameGroup.style.display = nameConfirmed ? 'none' : '';
   const existingPreview = document.getElementById('scan-product-preview');
@@ -957,14 +910,12 @@ function prefillManualForm(name, imageUrl, nameConfirmed) {
   if (name && imageUrl) {
     const preview = document.createElement('div');
     preview.id = 'scan-product-preview';
-    preview.style.cssText = 'display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.65);border-radius:16px;padding:12px 14px;margin-bottom:4px;';
+    preview.style.cssText = 'display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:4px;';
     preview.innerHTML = `<img src="${imageUrl}" alt="${name}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0;">
-      <div>
-        <div style="font-family:var(--font-display);font-size:15px;color:var(--primary);">${name}</div>
-        <div style="font-size:12px;font-weight:700;color:var(--secondary);">Prodotto trovato ✅</div>
-      </div>`;
-    const formContent = document.querySelector('#screen-manual .form-content');
-    const card = formContent?.querySelector('.form-card');
+      <div><div style="font-family:'Fredoka One',cursive;font-size:15px;color:#0d3320;">${name}</div>
+      <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div></div>`;
+    const formContent = document.querySelector('.form-content');
+    const card = formContent?.querySelector('.card');
     if (card) formContent.insertBefore(preview, card);
   }
   goTo('screen-manual');
@@ -978,6 +929,26 @@ function setStatus(msg, type) {
   el.className   = 'scanner-status' + (type ? ' ' + type : '');
 }
 
+/* ── PARTICELLE ── */
+const FOOD_PARTICLES = ['🥑','🍓','🧀','🥕','🍋','🍌','🍇','🥦','🍅','🫐'];
+function spawnParticles() {
+  const orbs = document.querySelector('.home-bg-orbs');
+  if (!orbs) return;
+  orbs.querySelectorAll('.food-particle').forEach(el => el.remove());
+  FOOD_PARTICLES.forEach((emoji, i) => {
+    const el = document.createElement('span');
+    el.className = 'food-particle';
+    el.textContent = emoji;
+    el.style.left             = (8 + Math.random() * 84) + '%';
+    el.style.bottom           = '-30px';
+    el.style.animationDelay   = (i * 0.55) + 's';
+    el.style.animationDuration = (5 + Math.random() * 3) + 's';
+    el.style.fontSize         = (16 + Math.random() * 14) + 'px';
+    orbs.appendChild(el);
+  });
+}
+
+/* ── INIT ── */
 /* ── INIT ── */
 (async function init() {
   if (window.location.pathname.includes('conferma-email')) return;
@@ -986,5 +957,5 @@ function setStatus(msg, type) {
     const u = await ensureCurrentUser();
     if (u) goTo('screen-home');
   }
-  hideSplash();
+  hideSplash(); // ← nasconde la splash in ogni caso: loggato o no
 })();
