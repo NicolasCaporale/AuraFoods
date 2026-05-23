@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <title>Aura Foods</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a5c3a">
+  <meta name="theme-color" content="#0f5238">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Aura Foods">
@@ -18,13 +17,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload"
-    href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&family=Fredoka+One&display=swap"
     as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
   </noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <script>
     if (window.matchMedia('(display-mode: browser)').matches) {
@@ -33,34 +31,57 @@
   </script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #0f5238;
+      --primary-container: #2d6a4f;
+      --on-primary: #ffffff;
+      --on-primary-container: #a8e7c5;
+      --secondary: #006d39;
+      --secondary-container: #99f7b3;
+      --on-secondary-container: #05743e;
+      --background: #f0fdea;
+      --surface: #f0fdea;
+      --surface-glass: rgba(255,255,255,0.65);
+      --surface-container: #e5f2df;
+      --surface-container-low: #eaf7e4;
+      --surface-container-high: #dfecd9;
+      --surface-container-highest: #d9e6d4;
+      --on-surface: #141e13;
+      --on-surface-variant: #404943;
+      --outline-variant: #bfc9c1;
+      --expiry-safe: #2d6a4f;
+      --expiry-warning: #f59e0b;
+      --expiry-critical: #dc2626;
+      --error: #ba1a1a;
+      --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-body: 'Nunito Sans', system-ui, sans-serif;
+      --font-fredoka: 'Fredoka One', cursive;
     }
 
-    html {
-      background: #a8d9a0
-    }
+    html { background: var(--background); }
 
     body {
-      font-family: 'Nunito', system-ui, sans-serif;
+      font-family: var(--font-body);
+      color: var(--on-surface);
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: radial-gradient(at 0% 0%, rgba(177,240,206,0.3) 0, transparent 50%),
+                  radial-gradient(at 100% 100%, rgba(45,106,79,0.1) 0, transparent 50%),
+                  var(--background);
       display: flex;
       justify-content: center;
-      min-height: 100vh;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom)
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(155deg, #c5eebc 0%, #a8d9a0 35%, #8cc98a 65%, #5cb87a 100%);
-      z-index: -1;
-      pointer-events: none
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+      line-height: 1;
     }
 
+    /* ── App Shell ── */
     .app-shell {
       width: 100%;
       max-width: 430px;
@@ -68,149 +89,249 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow-x: hidden
+      overflow-x: hidden;
     }
 
-    .screen {
-      display: none;
-      flex-direction: column;
-      min-height: 100vh
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ── Glass Card ── */
+    .glass-card {
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 8px 32px rgba(45,106,79,0.08);
     }
 
-    .screen.active {
-      display: flex
-    }
-
-    #screen-auth {
-      justify-content: center;
-      padding: 28px 20px 24px;
-      gap: 18px
-    }
-
-    .auth-logo-container {
+    /* ── TopAppBar ── */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      max-width: 430px;
+      margin: 0 auto;
+      height: 64px;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 1px 8px rgba(45,106,79,0.06);
+    }
+
+    .top-bar-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .top-bar-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 50px;
+      transition: background 0.15s;
+    }
+    .top-bar-btn:hover { background: rgba(15,82,56,0.08); }
+    .top-bar-btn:active { transform: scale(0.95); }
+    .top-bar-btn.pill-btn {
+      background: var(--primary);
+      color: #fff;
+      padding: 6px 14px;
+    }
+    .top-bar-btn.pill-btn:hover { opacity: 0.9; }
+
+    /* ── Bottom Nav ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 100;
+      max-width: 430px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 8px env(safe-area-inset-bottom, 10px);
+      background: var(--surface-glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 20px rgba(45,106,79,0.08);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--on-surface-variant);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 50px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .nav-item.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .nav-item:active { transform: scale(0.92); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--primary-container);
+      color: var(--on-primary);
+      border: none;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      padding: 12px 0 8px
+      gap: 8px;
+      box-shadow: 0 4px 0 #0e5138;
+      transition: all 0.15s;
     }
+    .btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #0e5138; }
 
-    .auth-logo-container img {
-      width: 130px;
-      height: 130px;
-      object-fit: contain;
-      border-radius: 30px;
-      box-shadow: 0 8px 28px rgba(30, 90, 55, .2)
+    .btn-outline {
+      padding: 12px 20px;
+      background: none;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
     }
+    .btn-outline:hover { background: rgba(15,82,56,0.05); }
+    .btn-outline:active { transform: scale(0.97); }
 
-    .card {
-      background: rgba(225, 245, 220, .88);
-      border-radius: 26px;
-      padding: 20px;
-      box-shadow: 0 4px 18px rgba(30, 90, 55, .10)
+    .btn-danger {
+      padding: 12px 20px;
+      background: none;
+      border: 2px solid var(--error);
+      color: var(--error);
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
     }
+    .btn-danger:hover { background: rgba(186,26,26,0.05); }
+    .btn-danger:active { transform: scale(0.97); }
 
-    .form-group {
-      margin-bottom: 14px
-    }
-
+    /* ── Form Inputs ── */
     .form-label {
       display: block;
-      font-weight: 800;
       font-size: 13px;
-      color: #0d3320;
-      margin-bottom: 6px
+      font-weight: 700;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+      padding-left: 4px;
     }
 
     .form-input {
       width: 100%;
-      background: rgba(255, 255, 255, .85);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-family: inherit;
-      font-weight: 600;
-      color: #0d3320;
-      outline: none;
-      font-size: 16px;
-      appearance: none
-    }
-
-    .form-input:focus {
-      border-color: #2d6a4f;
-      background: #fff
-    }
-
-    .auth-tabs {
-      display: flex;
-      background: rgba(255, 255, 255, .35);
+      height: 52px;
+      padding: 0 16px;
+      background: #fff;
+      border: 1.5px solid transparent;
       border-radius: 14px;
-      padding: 3px;
-      gap: 3px;
-      margin-bottom: 16px
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 9px;
-      border: none;
-      border-radius: 11px;
-      font-size: 14px;
-      cursor: pointer;
-      background: transparent;
-      color: #1a5c3a
-    }
-
-    .auth-tab.active {
-      background: #2d6a4f;
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(30, 90, 55, .22)
-    }
-
-    .btn {
-      background: #2d6a4f;
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: 13px 24px;
+      font-family: var(--font-body);
       font-size: 15px;
-      cursor: pointer;
+      font-weight: 600;
+      color: var(--on-surface);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15,82,56,0.1);
+    }
+
+    .form-select {
       width: 100%;
-      box-shadow: 0 4px 14px rgba(30, 90, 55, .25)
+      height: 52px;
+      padding: 0 40px 0 16px;
+      background: #fff;
+      border: 1.5px solid transparent;
+      border-radius: 14px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--on-surface);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23404943' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
     }
+    .form-select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(15,82,56,0.1); }
 
-    .btn:active {
-      opacity: .85
-    }
+    .form-group { margin-bottom: 20px; }
 
-    .footer {
-      margin-top: auto;
-      padding: 8px 16px;
-      text-align: center;
-      font-size: 11px;
-      color: rgba(13, 51, 32, .5);
-      font-weight: 700
-    }
-
+    /* ── Toast ── */
     .toast {
       position: fixed;
-      bottom: 28px;
+      bottom: 90px;
       left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #0d3320;
+      transform: translateX(-50%) translateY(60px);
+      background: #0f3022;
       color: #fff;
       padding: 10px 20px;
       border-radius: 50px;
       font-weight: 700;
       font-size: 13px;
       z-index: 9999;
-      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
       pointer-events: none;
-      white-space: nowrap
+      white-space: nowrap;
     }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0)
-    }
-
+    /* ── Splash ── */
     #splash {
       position: fixed;
       inset: 0;
@@ -221,75 +342,1107 @@
       align-items: center;
       justify-content: center;
       gap: 20px;
-      transition: opacity .35s ease;
+      transition: opacity 0.35s ease;
     }
-
-    #splash.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-
+    #splash.hide { opacity: 0; pointer-events: none; }
     #splash img {
-      width: 110px;
-      height: 110px;
+      width: 110px; height: 110px;
       border-radius: 28px;
-      box-shadow: 0 8px 28px rgba(30, 90, 55, .25);
-      animation: splashPop .5s cubic-bezier(.34, 1.56, .64, 1) both;
+      box-shadow: 0 8px 28px rgba(30,90,55,0.25);
+      animation: splashPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
     }
-
     @keyframes splashPop {
-      from {
-        transform: scale(.6);
-        opacity: 0;
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
-
     #splash-spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(45, 106, 79, .2);
+      width: 36px; height: 36px;
+      border: 3px solid rgba(45,106,79,0.2);
       border-top-color: #2d6a4f;
       border-radius: 50%;
-      animation: spin .7s linear infinite;
+      animation: spin 0.7s linear infinite;
     }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
+    @keyframes spin { to { transform: rotate(360deg); } }
     #splash-label {
-      font-family: 'Fredoka One', cursive;
+      font-family: var(--font-fredoka);
       font-size: 15px;
       color: #1a5c3a;
     }
 
-    /* ── Fix logo centrato in sh-nav ── */
-    .sh-nav {
-      position: relative;
+    /* ══════════════════════════════
+       SCREEN: AUTH
+    ══════════════════════════════ */
+    #screen-auth {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #c5eebc 0%, #5cb87a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px 24px;
+      gap: 20px;
     }
 
-    .sh-nav-logo {
+    .auth-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .auth-logo-wrap img {
+      width: 120px; height: 120px;
+      border-radius: 28px;
+      box-shadow: 0 8px 32px rgba(30,90,55,0.2);
+      background: #fff;
+      padding: 6px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 390px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 32px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 32px rgba(45,106,79,0.1);
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: rgba(229,242,223,0.6);
+      border-radius: 50px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--on-surface-variant);
+      transition: all 0.25s;
+    }
+    .auth-tab.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      box-shadow: 0 2px 8px rgba(45,106,79,0.2);
+    }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .auth-footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(15,82,56,0.7);
+    }
+
+    /* ══════════════════════════════
+       SCREEN: HOME
+    ══════════════════════════════ */
+    #screen-home {
+      padding-top: 64px;
+      padding-bottom: 90px;
+    }
+
+    .home-content {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .coin-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      box-shadow: 0 4px 12px rgba(255,140,0,0.3);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .coin-pill:active { transform: scale(0.95); }
+
+    .home-greeting-sub {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--secondary);
+      letter-spacing: 0.02em;
+    }
+    .home-greeting-name {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--on-surface);
+      line-height: 1.2;
+    }
+
+    .expiring-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(245,158,11,0.12);
+      border-left: 4px solid var(--expiry-warning);
+      border-radius: 0 16px 16px 0;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.75; } }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .home-card-full {
+      grid-column: 1 / -1;
+      padding: 24px;
+      border-radius: 24px;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-card-full:active { transform: scale(0.98); }
+    .home-card-full .card-bg-icon {
       position: absolute;
+      right: -16px; bottom: -16px;
+      font-size: 120px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    .home-card-half {
+      padding: 20px 16px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      cursor: pointer;
+      aspect-ratio: 1;
+      transition: transform 0.2s;
+    }
+    .home-card-half:active { transform: scale(0.95); }
+
+    .home-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(15,82,56,0.25);
+    }
+
+    .card-label {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--on-surface);
+    }
+    .card-sublabel {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .social-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 16px 0;
+      border-top: 1px solid rgba(15,82,56,0.06);
+    }
+    .social-link-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+    }
+    .social-link-item span.label { font-size: 10px; font-weight: 700; color: var(--on-surface-variant); }
+    .social-icon-box {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--surface-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .social-link-item:hover .social-icon-box { background: var(--primary-container); color: var(--on-primary-container); }
+    .social-icon-box.primary-box { background: var(--primary); }
+
+    /* ══════════════════════════════
+       SCREEN: ADD
+    ══════════════════════════════ */
+    #screen-add {
+      padding-top: 64px;
+      padding-bottom: 90px;
+    }
+
+    .add-content {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .scan-card-wrap {
+      width: 100%;
+      position: relative;
+    }
+    .scan-card-glow {
+      position: absolute;
+      inset: -4px;
+      background: linear-gradient(135deg, rgba(15,82,56,0.15), rgba(0,109,57,0.15));
+      border-radius: 36px;
+      filter: blur(16px);
+      opacity: 0.6;
+    }
+    .scan-card {
+      position: relative;
+      border-radius: 32px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .scan-frame-box {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--surface-container-highest);
+      border-radius: 20px;
+      border: 2px dashed rgba(15,82,56,0.25);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scan-frame-emoji {
+      font-size: 64px;
+      opacity: 0.3;
+    }
+    /* Corner brackets */
+    .sf-corner {
+      position: absolute;
+      width: 32px; height: 32px;
+      border-color: var(--primary);
+      border-style: solid;
+      border-width: 0;
+    }
+    .sf-tl { top: 12px; left: 12px; border-top-width: 4px; border-left-width: 4px; border-radius: 4px 0 0 0; }
+    .sf-tr { top: 12px; right: 12px; border-top-width: 4px; border-right-width: 4px; border-radius: 0 4px 0 0; }
+    .sf-bl { bottom: 12px; left: 12px; border-bottom-width: 4px; border-left-width: 4px; border-radius: 0 0 0 4px; }
+    .sf-br { bottom: 12px; right: 12px; border-bottom-width: 4px; border-right-width: 4px; border-radius: 0 0 4px 0; }
+
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      box-shadow: 0 0 12px var(--primary);
+      animation: scanAnim 2.5s cubic-bezier(0.4,0,0.2,1) infinite;
+      top: 0;
+    }
+    @keyframes scanAnim {
+      0% { top: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .scan-hint {
+      position: absolute;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
-      border-radius: 9px;
-      object-fit: cover;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .scan-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--primary); }
+    .scan-subtitle { font-size: 14px; color: var(--on-surface-variant); }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 0 16px;
+    }
+    .or-line { flex: 1; height: 1px; background: rgba(112,121,115,0.2); }
+    .or-text { font-size: 13px; font-weight: 700; color: var(--on-surface-variant); font-style: italic; }
+
+    /* ══════════════════════════════
+       SCREEN: MANUAL / QR FORM
+    ══════════════════════════════ */
+    .form-screen {
+      padding-top: 64px;
+      padding-bottom: 90px;
+    }
+
+    .form-content {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-header {
+      margin-bottom: 4px;
+    }
+    .form-header h1 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .form-header p {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+    }
+
+    .form-card {
+      border-radius: 24px;
+      padding: 24px;
+    }
+
+    /* Date pill inputs */
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .date-pill {
+      height: 52px;
+      text-align: center;
+      background: #fff;
+      border: 1.5px solid transparent;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--on-surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .date-pill:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,82,56,0.1); }
+    .date-pill::placeholder { color: var(--outline-variant); font-weight: 600; }
+
+    /* QR product preview */
+    .qr-preview {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .qr-preview-emoji {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 2px 8px rgba(45,106,79,0.1);
+      flex-shrink: 0;
+    }
+    .qr-found-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(45,106,79,0.1);
+      color: var(--expiry-safe);
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    /* Aura tip card */
+    .tip-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(153,247,179,0.2);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .tip-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--secondary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--secondary);
+    }
+
+    /* Coins teaser in scan form */
+    .coins-teaser {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: var(--surface-container);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .coins-teaser-badge {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(255,140,0,0.3);
+      transform: rotate(12deg);
+      font-size: 20px;
+    }
+
+    /* ══════════════════════════════
+       SCREEN: SUCCESS
+    ══════════════════════════════ */
+    #screen-success {
+      padding-top: 64px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 32px;
+      overflow: hidden;
+    }
+
+    .success-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 0 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .success-circle {
+      width: 128px; height: 128px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 48px rgba(177,240,206,0.5);
+      animation: successPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    }
+    @keyframes successPop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .success-circle .material-symbols-outlined {
+      font-size: 64px;
+      color: #fff;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+    }
+
+    .success-title {
+      font-family: var(--font-fredoka);
+      font-size: 30px;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+    .success-subtitle {
+      font-size: 15px;
+      color: var(--on-surface-variant);
+    }
+
+    .coins-earned-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(16px);
+      border: 2px solid rgba(245,158,11,0.3);
+      font-size: 14px;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+    }
+
+    .eco-card {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 20px;
+    }
+    .eco-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(15,82,56,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════
+       SCREEN: SHELF
+    ══════════════════════════════ */
+    #screen-shelf {
+      padding-top: 64px;
+      padding-bottom: 130px;
+    }
+
+    .shelf-content {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .shelf-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .shelf-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .shelf-count { font-size: 14px; color: var(--on-surface-variant); margin-top: 2px; }
+
+    .shelf-coins-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--secondary-container);
+      color: var(--on-secondary-container);
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .shelf-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .shelf-item:active { transform: scale(0.98); }
+
+    .shelf-emoji-box {
+      width: 60px; height: 60px;
+      border-radius: 16px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 2px 8px rgba(45,106,79,0.08);
+      flex-shrink: 0;
+    }
+
+    .shelf-item-info { flex: 1; min-width: 0; }
+    .shelf-item-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .shelf-item-qty {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+    }
+    .shelf-item-badge {
+      margin-top: 6px;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fff;
+    }
+    .badge-safe { background: var(--expiry-safe); }
+    .badge-warning { background: var(--expiry-warning); }
+    .badge-critical { background: var(--expiry-critical); }
+
+    .expiry-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-safe { background: var(--expiry-safe); box-shadow: 0 0 8px rgba(45,106,79,0.5); }
+    .dot-warning { background: var(--expiry-warning); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+    .dot-critical { background: var(--expiry-critical); box-shadow: 0 0 8px rgba(220,38,38,0.5); }
+
+    .shelf-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .shelf-empty-emoji { font-size: 56px; }
+    .shelf-empty-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--primary); }
+    .shelf-empty-sub { font-size: 14px; color: var(--on-surface-variant); }
+
+    .eco-card-dark {
+      border-radius: 24px;
+      padding: 24px;
+      background: var(--primary);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .eco-card-dark .bg-icon {
+      position: absolute;
+      right: -20px; bottom: -20px;
+      font-size: 130px;
+      opacity: 0.15;
+      transform: rotate(45deg) scale(1.2);
       pointer-events: none;
+    }
+
+    .eco-progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .eco-progress-fill {
+      height: 100%;
+      width: 65%;
+      background: var(--secondary-container);
+      border-radius: 50px;
+    }
+
+    .shelf-bottom-cta {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 390px;
+      z-index: 50;
+    }
+
+    /* ══════════════════════════════
+       SCREEN: DETAIL
+    ══════════════════════════════ */
+    #screen-detail {
+      padding-top: 64px;
+      padding-bottom: 90px;
+    }
+
+    .detail-content {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .detail-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .detail-emoji-wrap {
+      font-size: 80px;
+      filter: drop-shadow(0 0 16px rgba(45,106,79,0.2));
+    }
+    .detail-product-name {
+      font-family: var(--font-fredoka);
+      font-size: 32px;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    .detail-info-card {
+      width: 100%;
+      border-radius: 24px;
+      padding: 6px 0;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row-label { font-size: 13px; font-weight: 700; color: var(--on-surface-variant); }
+    .detail-row-value { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--on-surface); }
+
+    .detail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    /* ══════════════════════════════
+       SCREEN: PROFILE
+    ══════════════════════════════ */
+    #screen-profile {
+      padding-bottom: 90px;
+    }
+
+    .profile-hero {
+      background: linear-gradient(135deg, #1a5c3a 0%, #2d6a4f 100%);
+      padding: 56px 20px 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-radius: 0 0 40px 40px;
+      box-shadow: 0 8px 32px rgba(26,92,58,0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .profile-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 10px; left: -60px;
+      width: 220px; height: 220px;
+      background: rgba(177,240,206,0.04);
+      border-radius: 50%;
+    }
+
+    .profile-hero-actions {
+      position: absolute;
+      top: 16px; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 2;
+    }
+    .profile-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.15s;
+    }
+    .profile-action-btn.save-btn {
+      width: auto;
+      padding: 0 20px;
+      border-radius: 50px;
+      background: #fff;
+      color: var(--primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .profile-action-btn:active { transform: scale(0.93); }
+
+    .profile-avatar-wrap {
+      position: relative;
+      margin-bottom: 14px;
+      z-index: 2;
+    }
+    .profile-avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.3);
+      background: rgba(229,242,223,0.2);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .profile-avatar:active { transform: scale(0.95); }
+    .profile-avatar-badge {
+      position: absolute;
+      bottom: 4px; right: 4px;
+      width: 32px; height: 32px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .profile-hero-name {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      z-index: 2;
+    }
+    .profile-hero-email {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 2px;
+      z-index: 2;
+    }
+    .profile-coins-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: linear-gradient(90deg, #ffd700, #ffa500);
+      border-radius: 50px;
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(255,165,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      z-index: 2;
+    }
+
+    .profile-body {
+      padding: 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: -20px;
+    }
+
+    .notif-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-radius: 24px;
+    }
+    .notif-left { display: flex; align-items: center; gap: 14px; }
+    .notif-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: rgba(15,82,56,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+
+    /* Toggle switch */
+    .toggle-label { position: relative; display: inline-block; width: 52px; height: 30px; cursor: pointer; }
+    .toggle-label input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--surface-container-highest);
+      border-radius: 50px;
+      transition: background 0.25s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      left: 4px; top: 4px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-label input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-label input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    .profile-form-card {
+      border-radius: 24px;
+      padding: 24px;
+    }
+    .profile-section-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 18px;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px;
+      border: 2px solid rgba(186,26,26,0.2);
+      color: var(--error);
+      background: none;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    .btn-logout:hover { background: rgba(186,26,26,0.05); }
+    .btn-logout:active { transform: scale(0.97); }
+
+    .app-version {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      opacity: 0.5;
+      margin-top: 8px;
+    }
+
+    /* ══════════════════════════════
+       SCANNER MODAL
+    ══════════════════════════════ */
+    .scanner-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .scanner-modal.open { display: flex; }
+
+    .scanner-inner {
+      width: 100%;
+      max-width: 430px;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 20px 20px env(safe-area-inset-bottom, 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .scanner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .scanner-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .scanner-close {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--surface-container);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--on-surface-variant);
+    }
+    #scanner-container { width: 100%; }
+    .scanner-hint, .scanner-status {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+    }
+
+    /* ── Scrollable screens ── */
+    .screen-scroll { overflow-y: auto; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: auto;
+      padding: 10px 16px 20px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(15,82,56,0.4);
+      font-weight: 600;
     }
   </style>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-  <script>
-    const LOGO_PATH = "img/image.png";
-  </script>
+  <script>const LOGO_PATH = "img/image.png";</script>
 </head>
 
 <script>
@@ -299,383 +1452,787 @@
 </script>
 
 <body>
-  <div id="splash">
-    <img src="img/image.png" alt="Aura Foods">
-    <div id="splash-spinner"></div>
-    <div id="splash-label">Caricamento…</div>
+
+<!-- ── Splash ── -->
+<div id="splash">
+  <img src="img/image.png" alt="Aura Foods">
+  <div id="splash-spinner"></div>
+  <div id="splash-label">Caricamento…</div>
+</div>
+
+<div class="app-shell">
+
+  <!-- ═══════════ AUTH ═══════════ -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-logo-wrap">
+      <img id="auth-logo" src="" alt="Aura Foods" width="120" height="120">
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
+      </div>
+      <!-- Login -->
+      <div id="auth-login-form" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="nome@esempio.it" id="login-email" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••" id="login-pass" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">
+          <span class="material-symbols-outlined">login</span>Entra 🥑
+        </button>
+        <div style="text-align:center;margin-top:12px;">
+          <a href="#" style="font-size:12px;font-weight:700;color:var(--primary);">Password dimenticata?</a>
+        </div>
+      </div>
+      <!-- Register -->
+      <div id="auth-register-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="nome@esempio.it" id="reg-email" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="Min. 8 caratteri" id="reg-pass" autocomplete="new-password">
+        </div>
+        <button class="btn-primary" onclick="doRegister()">
+          <span class="material-symbols-outlined">eco</span>Crea account 🌿
+        </button>
+      </div>
+    </div>
+    <div class="auth-footer">©Copyright 2025-26 Sigma Gooners & Co</div>
   </div>
-  <div class="app-shell">
 
-    <!-- ═══════════════ AUTH ═══════════════ -->
-    <div id="screen-auth" class="screen active">
-      <div class="auth-logo-container">
-        <img id="auth-logo" src="" alt="Aura Foods Logo" width="130" height="130">
+  <!-- ═══════════ HOME ═══════════ -->
+  <div id="screen-home" class="screen screen-scroll">
+    <div class="top-bar">
+      <div class="coin-pill" id="home-coins-pill">
+        🪙 <span id="home-coins">0</span>
       </div>
-      <div class="card">
-        <div class="auth-tabs">
-          <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
-          <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
-        </div>
-        <div id="auth-login-form">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" placeholder="la tua@email.com" id="login-email" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" placeholder="••••••••" id="login-pass"
-              autocomplete="current-password">
-          </div>
-          <button class="btn" onclick="doLogin()">Entra 🥑</button>
-        </div>
-        <div id="auth-register-form" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input type="text" class="form-input" placeholder="Il tuo nome" id="reg-name" autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" placeholder="la tua@email.com" id="reg-email" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" placeholder="••••••••" id="reg-pass" autocomplete="new-password">
-          </div>
-          <button class="btn" onclick="doRegister()">Crea account 🌿</button>
-        </div>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+      <span class="top-bar-title">Aura Foods</span>
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--surface-container-high);
+                  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;
+                  border:2px solid rgba(45,106,79,0.15);"
+           id="home-avatar-btn" onclick="goTo('screen-profile')">🧑</div>
     </div>
-
-    <!-- ═══════════════ HOME ═══════════════ -->
-    <div id="screen-home" class="screen">
-      <div class="home-bg-orbs">
-        <div class="orb orb1"></div>
-        <div class="orb orb2"></div>
-        <div class="orb orb3"></div>
+    <div class="home-content">
+      <div>
+        <div class="home-greeting-sub" id="home-greeting-time">Bentornato 🌿</div>
+        <div class="home-greeting-name" id="home-greeting-name">Ciao!</div>
       </div>
-      <div class="home-content">
-        <div class="home-topbar">
-          <div class="home-coins-pill">🪙 <span id="home-coins">0</span></div>
-          <img id="home-logo" src="" alt="Aura Foods Logo" width="36" height="36"
-            style="position:absolute;left:50%;transform:translateX(-50%);border-radius:10px;object-fit:cover;pointer-events:none;">
-          <div class="home-avatar-btn" id="home-avatar-btn" onclick="goTo('screen-profile')">🧑</div>
+
+      <!-- Expiring banner -->
+      <div class="expiring-banner" id="home-expiring-strip" style="display:none" onclick="goTo('screen-shelf')">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--expiry-warning);font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">warning</span>
+          <span style="font-size:14px;font-weight:700;" id="home-expiring-items">Prodotti in scadenza ⚠️</span>
         </div>
-        <div class="home-greeting">
-          <div class="home-greeting-sub" id="home-greeting-time">Bentornato 🌿</div>
-          <div class="home-greeting-name" id="home-greeting-name">Ciao!</div>
-        </div>
-        <div class="home-actions-grid">
-          <div class="home-action-card home-action-primary" onclick="goTo('screen-shelf')">
-            <div class="hac-icon">📦</div>
-            <div class="hac-text">
-              <div class="hac-label">La tua Shelf</div>
-              <div class="hac-desc" id="home-shelf-desc">Caricamento…</div>
+        <span class="material-symbols-outlined" style="color:var(--on-surface-variant);">chevron_right</span>
+      </div>
+
+      <!-- Action grid -->
+      <div class="home-grid">
+        <div class="home-card-full glass-card" onclick="goTo('screen-shelf')">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;color:var(--primary);margin-bottom:6px;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">inventory_2</span>
+              <span style="font-family:var(--font-display);font-size:18px;font-weight:700;">La tua Shelf 📦</span>
             </div>
-            <div class="hac-arrow">›</div>
+            <div style="font-size:14px;color:var(--on-surface-variant);" id="home-shelf-desc">Gestisci le scorte in tempo reale.</div>
           </div>
-          <div class="home-action-card" onclick="goTo('screen-add')">
-            <div class="hac-icon">＋</div>
-            <div class="hac-label">Aggiungi</div>
-            <div class="hac-desc">Scan o manuale</div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+            <span style="font-family:var(--font-display);font-size:40px;font-weight:800;color:var(--primary);line-height:1;" id="home-shelf-count">0</span>
+            <span style="font-size:12px;font-weight:700;color:var(--primary);opacity:0.6;">prodotti attivi</span>
           </div>
-          <div class="home-action-card" onclick="goTo('screen-profile')">
-            <div class="hac-icon">👤</div>
-            <div class="hac-label">Profilo</div>
-            <div class="hac-desc">Coins &amp; impost.</div>
-          </div>
+          <span class="card-bg-icon material-symbols-outlined">kitchen</span>
         </div>
-        <div class="home-expiring-strip" id="home-expiring-strip" style="display:none">
-          <div class="hes-label">⚠️ In scadenza presto</div>
-          <div class="hes-items" id="home-expiring-items"></div>
-        </div>
-        <div class="home-social-card">
-          <a class="social-link" href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener"
-            aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
-          <a class="social-link" href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank"
-            rel="noopener" aria-label="OnlyFans">
-            <svg viewBox="0 0 24 24" fill="#1a5c3a" width="20" height="20">
-              <path
-                d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
-            </svg>
-          </a>
-          <a class="social-link" href="https://www.instagram.com/peppe.nitti13/" target="_blank" rel="noopener"
-            aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-              <rect x="2" y="9" width="4" height="12" />
-              <circle cx="4" cy="4" r="2" />
-            </svg>
-          </a>
-          <a class="social-link" href="/installa.html" rel="noopener" aria-label="Installa l'app">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#1a5c3a" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" width="20" height="20">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </a>
-        </div>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
 
-    <!-- ═══════════════ ADD ═══════════════ -->
-    <div id="screen-add" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-add" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+        <div class="home-card-half glass-card" onclick="goTo('screen-add')">
+          <div class="home-card-icon">
+            <span class="material-symbols-outlined">add</span>
+          </div>
+          <div>
+            <div class="card-label">Aggiungi ＋</div>
+            <div class="card-sublabel">Nuovo prodotto</div>
+          </div>
         </div>
-        <div class="sh-title">Aggiungi 🥑</div>
-        <div class="sh-subtitle">Scansiona o inserisci manualmente</div>
+
+        <div class="home-card-half glass-card" onclick="goTo('screen-profile')">
+          <div class="home-card-icon" style="background:var(--secondary-container);color:var(--on-secondary-container);">
+            <span class="material-symbols-outlined">account_circle</span>
+          </div>
+          <div>
+            <div class="card-label">Profilo 👤</div>
+            <div class="card-sublabel">I tuoi dati</div>
+          </div>
+        </div>
       </div>
-      <div class="add-content">
-        <div class="scan-card" onclick="simulateScan()">
-          <div class="scan-frame">
-            <div class="sf-bl"></div>
-            <div class="sf-br"></div>
+
+      <!-- Social strip -->
+      <div class="social-strip">
+        <p style="position:absolute;font-size:10px;font-weight:700;color:var(--on-surface-variant);opacity:0.6;text-transform:uppercase;letter-spacing:0.08em;top:0;left:50%;transform:translateX(-50%);">Community</p>
+        <a href="https://www.instagram.com/nicolas.caporale/" target="_blank" rel="noopener" class="social-link-item" aria-label="Instagram">
+          <div class="social-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </div>
+          <span class="label">Instagram</span>
+        </a>
+        <a href="https://www.tiktok.com/@bombini.ai/video/7488827274926492930" target="_blank" rel="noopener" class="social-link-item" aria-label="TikTok">
+          <div class="social-icon-box">
+            <svg viewBox="0 0 24 24" fill="var(--primary)" width="18" height="18">
+              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+            </svg>
+          </div>
+          <span class="label">TikTok</span>
+        </a>
+        <a href="https://www.instagram.com/peppe.nitti13/" target="_blank" rel="noopener" class="social-link-item" aria-label="LinkedIn">
+          <div class="social-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+              <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+            </svg>
+          </div>
+          <span class="label">Linkedin</span>
+        </a>
+        <a href="/installa.html" rel="noopener" class="social-link-item" aria-label="Installa">
+          <div class="social-icon-box primary-box">
+            <span class="material-symbols-outlined" style="color:#fff;font-size:18px;">install_mobile</span>
+          </div>
+          <span class="label">Installa</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="goTo('screen-home')">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">home</span>
+        <span>Casa</span>
+      </button>
+      <button class="nav-item" onclick="goTo('screen-shelf')">
+        <span class="material-symbols-outlined">kitchen</span>
+        <span>Dispensa</span>
+      </button>
+      <button class="nav-item" onclick="goTo('screen-add')">
+        <span class="material-symbols-outlined">shopping_basket</span>
+        <span>Aggiungi</span>
+      </button>
+      <button class="nav-item" onclick="goTo('screen-profile')">
+        <span class="material-symbols-outlined">account_circle</span>
+        <span>Profilo</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ ADD ═══════════ -->
+  <div id="screen-add" class="screen screen-scroll">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-home')">
+        <span class="material-symbols-outlined">arrow_back</span>Home
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <button class="top-bar-btn" onclick="goTo('screen-shelf')">
+        <span class="material-symbols-outlined">kitchen</span>
+      </button>
+    </div>
+    <div class="add-content">
+      <div style="align-self:flex-start;margin-bottom:4px;">
+        <h1 style="font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--primary);">Aggiungi 🥑</h1>
+        <p style="font-size:14px;color:var(--on-surface-variant);">Scansiona o inserisci manualmente</p>
+      </div>
+
+      <!-- Scan card -->
+      <div class="scan-card-wrap">
+        <div class="scan-card-glow"></div>
+        <div class="scan-card glass-card" onclick="simulateScan()">
+          <div class="scan-frame-box">
+            <span class="scan-frame-emoji">🥑</span>
+            <div class="sf-corner sf-tl"></div>
+            <div class="sf-corner sf-tr"></div>
+            <div class="sf-corner sf-bl"></div>
+            <div class="sf-corner sf-br"></div>
             <div class="scan-line"></div>
+            <div class="scan-hint">Inquadra il codice a barre</div>
           </div>
-          <span style="font-family:'Fredoka One',cursive;color:var(--text-mid);font-size:14px;">Scan QR 📷</span>
+          <div class="scan-title">Scansiona Prodotto</div>
+          <div class="scan-subtitle">Usa l'AI per aggiungere cibo all'istante</div>
+          <button class="btn-primary" style="max-width:280px;" onclick="event.stopPropagation();simulateScan()">
+            <span class="material-symbols-outlined">photo_camera</span>Scatta e Riconosci
+          </button>
         </div>
-        <span class="add-or">oppure</span>
-        <button class="btn" style="max-width:240px" onclick="goTo('screen-manual')">Inserisci manualmente ✏️</button>
       </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
 
-    <!-- ═══════════════ MANUAL FORM ═══════════════ -->
-    <div id="screen-manual" class="screen">
-      <div class="back-header">
-        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-        <span class="back-title">Inserimento manuale</span>
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <span class="or-text">oppure</span>
+        <div class="or-line"></div>
       </div>
-      <div class="form-content">
-        <div class="card" style="margin-bottom:16px">
+
+      <button class="btn-outline" style="max-width:280px;" onclick="goTo('screen-manual')">
+        <span class="material-symbols-outlined">edit</span>Inserisci manualmente ✏️
+      </button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')">
+        <span class="material-symbols-outlined">home</span><span>Casa</span>
+      </button>
+      <button class="nav-item" onclick="goTo('screen-shelf')">
+        <span class="material-symbols-outlined">kitchen</span><span>Dispensa</span>
+      </button>
+      <button class="nav-item active">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">add_circle</span><span>Aggiungi</span>
+      </button>
+      <button class="nav-item" onclick="goTo('screen-profile')">
+        <span class="material-symbols-outlined">account_circle</span><span>Profilo</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ MANUAL FORM ═══════════ -->
+  <div id="screen-manual" class="screen screen-scroll form-screen">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-add')">
+        <span class="material-symbols-outlined">arrow_back</span>Aggiungi
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <div style="width:44px;"></div>
+    </div>
+    <div class="form-content">
+      <div class="form-header">
+        <h1>Nuovo Alimento</h1>
+        <p>Aggiungi i dettagli per monitorare la freschezza.</p>
+      </div>
+      <div class="form-card glass-card">
+        <div class="form-group">
+          <label class="form-label">Nome prodotto</label>
+          <input type="text" class="form-input" placeholder="es. Crackers, Fragole…" id="prod-name" autocomplete="off">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="form-group">
-            <label class="form-label">Nome prodotto:</label>
-            <input type="text" class="form-input" placeholder="es. Crackers, Fragole..." id="prod-name"
-              autocomplete="off">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Quantità:</label>
+            <label class="form-label">Quantità</label>
             <input type="text" class="form-input" placeholder="es. 3" id="prod-qty" inputmode="decimal">
           </div>
           <div class="form-group">
-            <label class="form-label">Tipo di scadenza:</label>
-            <div class="select-wrapper">
-              <select class="form-select" id="prod-type">
-                <option value="preferibilmente">Preferibilmente entro</option>
-                <option value="consumarsi">Da consumarsi entro</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="prod-date" maxlength="8"
-              inputmode="numeric">
+            <label class="form-label">Unità</label>
+            <select class="form-select" id="prod-unit">
+              <option value="">Pezzi</option>
+              <option value="g">Grammi (g)</option>
+              <option value="kg">Kg</option>
+              <option value="ml">Ml</option>
+              <option value="l">Litri (l)</option>
+              <option value="cf">Confezioni</option>
+            </select>
           </div>
         </div>
-        <button class="btn" onclick="addProduct()">Conferma ✓</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ SUCCESS ═══════════════ -->
-    <div id="screen-success" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-success" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">Shelf</button>
+        <div class="form-group">
+          <label class="form-label">Tipo di scadenza</label>
+          <select class="form-select" id="prod-type">
+            <option value="preferibilmente">Preferibilmente entro</option>
+            <option value="consumarsi">Da consumarsi entro</option>
+          </select>
         </div>
-        <div class="sh-title">Fatto! 🎉</div>
-        <div class="sh-subtitle">Prodotto aggiunto con successo</div>
-      </div>
-      <div class="success-content">
-        <div class="success-card">
-          <div class="success-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-              stroke-linejoin="round" width="38" height="38">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Data scadenza (GG / MM / AA)</label>
+          <div class="date-row">
+            <input type="text" class="date-pill" placeholder="GG" maxlength="2" inputmode="numeric" id="prod-date-d">
+            <input type="text" class="date-pill" placeholder="MM" maxlength="2" inputmode="numeric" id="prod-date-m">
+            <input type="text" class="date-pill" placeholder="AA" maxlength="2" inputmode="numeric" id="prod-date-y">
           </div>
-          <div class="success-text">Prodotto aggiunto<br>con successo! 🎉</div>
         </div>
-        <div class="coins-earned">🪙 +5 Aura Coins guadagnati!</div>
-        <button class="btn" style="max-width:260px" onclick="goTo('screen-shelf')">Vai alla Shelf 📦</button>
       </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+      <!-- Tip -->
+      <div class="tip-card">
+        <div class="tip-icon">
+          <span class="material-symbols-outlined">eco</span>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--secondary);">Aura Tip 💡</div>
+          <div style="font-size:12px;color:var(--on-surface-variant);margin-top:2px;">Inserendo la data corretta guadagnerai <strong>+5 Aura Coins</strong> al momento del consumo!</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addProduct()">
+        <span class="material-symbols-outlined">check_circle</span>Conferma ✓
+      </button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="material-symbols-outlined">home</span><span>Casa</span></button>
+      <button class="nav-item" onclick="goTo('screen-shelf')"><span class="material-symbols-outlined">kitchen</span><span>Dispensa</span></button>
+      <button class="nav-item active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">add_circle</span><span>Aggiungi</span></button>
+      <button class="nav-item" onclick="goTo('screen-profile')"><span class="material-symbols-outlined">account_circle</span><span>Profilo</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ SUCCESS ═══════════ -->
+  <div id="screen-success" class="screen">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-home')">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <div style="width:44px;"></div>
+    </div>
+    <div class="success-content">
+      <!-- Particles container -->
+      <div id="success-particles" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+      <div class="success-circle">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <div>
+        <div class="success-title">Prodotto aggiunto<br>con successo! 🎉</div>
+        <div class="success-subtitle" style="margin-top:8px;">Ottimo lavoro! Stai aiutando il pianeta riducendo lo spreco alimentare.</div>
+      </div>
+      <div class="coins-earned-pill">
+        <span style="font-size:22px;">🪙</span>
+        <span style="font-size:14px;font-weight:700;">+5 Aura Coins guadagnati!</span>
+      </div>
+      <button class="btn-primary" onclick="goTo('screen-shelf')" style="max-width:280px;">
+        <span class="material-symbols-outlined">kitchen</span>Vai alla Shelf 📦
+      </button>
+      <div class="eco-card glass-card" style="margin-top:8px;">
+        <div class="eco-icon">
+          <span class="material-symbols-outlined">eco</span>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--primary);">Impatto Ambientale 🌍</div>
+          <div style="font-size:12px;color:var(--on-surface-variant);margin-top:2px;">Hai salvato 0.4kg di CO₂ oggi. Continua così!</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer" style="margin-top:24px;">©Copyright 2025-26 Sigma Gooners & Co</div>
+  </div>
+
+  <!-- ═══════════ SHELF ═══════════ -->
+  <div id="screen-shelf" class="screen screen-scroll">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-home')">
+        <span class="material-symbols-outlined">arrow_back</span>Home
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <button class="top-bar-btn pill-btn" onclick="goTo('screen-add')">
+        <span class="material-symbols-outlined" style="font-size:18px;">add</span>Aggiungi
+      </button>
+    </div>
+    <div class="shelf-content">
+      <div class="shelf-header">
+        <div>
+          <div class="shelf-title">La tua Shelf 📦</div>
+          <div class="shelf-count" id="shelf-header-count">Caricamento…</div>
+        </div>
+        <div class="shelf-coins-badge">
+          <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">monetization_on</span>
+          <span id="shelf-coins-val">0</span> Coins
+        </div>
+      </div>
+      <div id="shelf-list"></div>
+      <!-- Eco dark card -->
+      <div class="eco-card-dark glass-card" style="background:var(--primary);">
+        <div style="position:relative;z-index:1;">
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">Salva il Pianeta 🌍</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-bottom:12px;">Hai evitato 2.4kg di sprechi questa settimana. Continua così!</div>
+          <div class="eco-progress-bar"><div class="eco-progress-fill"></div></div>
+        </div>
+        <span class="bg-icon material-symbols-outlined">eco</span>
+      </div>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <!-- Sticky CTA -->
+    <div class="shelf-bottom-cta">
+      <button class="btn-primary" onclick="goTo('screen-add')">
+        <span class="material-symbols-outlined">add_circle</span>Inserisci nuovo alimento ＋
+      </button>
     </div>
 
-    <!-- ═══════════════ SHELF ═══════════════ -->
-    <div id="screen-shelf" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-home')">‹ Home</button>
-          <img id="nav-logo-shelf" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-add')">＋ Aggiungi</button>
-        </div>
-        <div class="sh-title">La tua Shelf 📦</div>
-        <div class="sh-subtitle" id="shelf-header-count">Caricamento…</div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="material-symbols-outlined">home</span><span>Casa</span></button>
+      <button class="nav-item active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">kitchen</span><span>Dispensa</span></button>
+      <button class="nav-item" onclick="goTo('screen-add')"><span class="material-symbols-outlined">shopping_basket</span><span>Aggiungi</span></button>
+      <button class="nav-item" onclick="goTo('screen-profile')"><span class="material-symbols-outlined">account_circle</span><span>Profilo</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ DETAIL ═══════════ -->
+  <div id="screen-detail" class="screen screen-scroll">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-shelf')">
+        <span class="material-symbols-outlined">arrow_back</span>Shelf
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <button class="top-bar-btn" onclick="goTo('screen-add')">Aggiungi</button>
+    </div>
+    <div class="detail-content">
+      <div class="detail-hero">
+        <div class="detail-emoji-wrap" id="detail-emoji">🥑</div>
+        <div class="detail-product-name" id="detail-product-name">Prodotto</div>
       </div>
-      <div class="shelf-content">
-        <div id="shelf-list"></div>
-        <button class="btn" style="margin-top:4px" onclick="goTo('screen-add')">Inserisci nuovo alimento ＋</button>
+      <div class="detail-info-card glass-card" id="detail-info"></div>
+      <div class="detail-actions">
+        <button class="btn-outline" onclick="removeOne()">
+          <span class="material-symbols-outlined">remove</span>Rimuovi 1
+        </button>
+        <button class="btn-danger" onclick="removeAll()">
+          <span class="material-symbols-outlined">delete_forever</span>Rimuovi tutti
+        </button>
       </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+      <button onclick="goTo('screen-shelf')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--on-surface-variant);font-family:var(--font-body);font-size:14px;font-weight:700;padding:12px;">
+        <span class="material-symbols-outlined">undo</span>Torna indietro
+      </button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="material-symbols-outlined">home</span><span>Casa</span></button>
+      <button class="nav-item active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">kitchen</span><span>Dispensa</span></button>
+      <button class="nav-item" onclick="goTo('screen-add')"><span class="material-symbols-outlined">shopping_basket</span><span>Aggiungi</span></button>
+      <button class="nav-item" onclick="goTo('screen-profile')"><span class="material-symbols-outlined">account_circle</span><span>Profilo</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ PROFILE ═══════════ -->
+  <div id="screen-profile" class="screen screen-scroll">
+    <div class="profile-hero">
+      <div class="profile-hero-actions">
+        <button class="profile-action-btn" onclick="goTo('screen-home')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <button class="profile-action-btn save-btn" onclick="saveProfile()">Salva</button>
+      </div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="avatar-display" onclick="document.getElementById('avatar-input').click()">🧑‍🍳</div>
+        <div class="profile-avatar-badge">✏️</div>
+      </div>
+      <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+      <div class="profile-hero-name" id="profile-name-display">Utente</div>
+      <div class="profile-hero-email" id="profile-email-display">email@esempio.com</div>
+      <div class="profile-coins-pill">
+        🪙 <span id="coins-display">0</span> <span style="font-size:13px;font-weight:600;opacity:0.85;">Aura Coins</span>
+      </div>
     </div>
 
-    <!-- ═══════════════ DETAIL ═══════════════ -->
-    <div id="screen-detail" class="screen">
-      <div class="screen-header">
-        <div class="sh-nav">
-          <button class="sh-nav-btn" onclick="goTo('screen-shelf')">‹ Shelf</button>
-          <img id="nav-logo-detail" src="" alt="Logo" width="32" height="32" class="sh-nav-logo">
-          <button class="sh-nav-btn" onclick="goTo('screen-add')">Aggiungi</button>
-        </div>
-        <div class="sh-title" id="detail-product-name">Prodotto</div>
-      </div>
-      <div class="detail-content">
-        <div class="detail-card">
-          <div class="detail-emoji" id="detail-emoji">🥑</div>
-          <div class="detail-info" id="detail-info"></div>
-        </div>
-        <div class="detail-actions">
-          <button class="btn-outline btn-sm" onclick="removeOne()">Rimuovi 1</button>
-          <button class="btn-danger-outline btn-sm" onclick="removeAll()">Rimuovi tutti</button>
-        </div>
-        <button class="btn" onclick="goTo('screen-shelf')" style="max-width:260px">Torna indietro</button>
-      </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
-
-    <!-- ═══════════════ PROFILE ═══════════════ -->
-    <div id="screen-profile" class="screen">
-      <div class="profile-hero-header">
-        <button class="profile-back-btn" onclick="goTo('screen-home')">‹</button>
-        <button class="profile-save-btn" onclick="saveProfile()">Salva</button>
-        <div class="profile-avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          <div class="avatar-img" id="avatar-display">🧑</div>
-          <div class="avatar-edit-badge">✏️</div>
-        </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
-        <div class="profile-hero-name" id="profile-name-display">Utente</div>
-        <div class="profile-hero-email" id="profile-email-display">email@esempio.com</div>
-        <div class="profile-coins-pill">
-          🪙 <span id="coins-display">0</span>
-          <span class="profile-coins-label">Aura Coins</span>
-        </div>
-      </div>
-
-      <div class="profile-body">
-        <div class="profile-notif-card">
+    <div class="profile-body">
+      <!-- Notification card -->
+      <div class="notif-card glass-card">
+        <div class="notif-left">
+          <div class="notif-icon">
+            <span class="material-symbols-outlined">notifications_active</span>
+          </div>
           <div>
-            <div class="profile-notif-title">🔔 Notifiche scadenze</div>
-            <div class="profile-notif-sub" id="notif-status-label">Controllo stato...</div>
-          </div>
-          <button id="notif-toggle-btn" class="notif-toggle" onclick="toggleNotifications()">...</button>
-        </div>
-
-        <div class="profile-form-card">
-          <div class="profile-section-title">✏️ Modifica profilo</div>
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Nuova password</label>
-            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare"
-              autocomplete="new-password">
+            <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--on-surface);">Notifiche scadenze</div>
+            <div id="notif-status-label" style="font-size:12px;font-weight:600;color:var(--on-surface-variant);margin-top:2px;">Controllo stato…</div>
           </div>
         </div>
-
-        <button class="btn btn-logout" onclick="logout()">Logout 🚪</button>
+        <label class="toggle-label">
+          <input type="checkbox" id="notif-toggle-btn" onchange="toggleNotifications()">
+          <span class="toggle-slider"></span>
+        </label>
       </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+      <!-- Edit profile -->
+      <div class="profile-form-card glass-card">
+        <div class="profile-section-title">✏️ Modifica profilo</div>
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" id="edit-name" placeholder="Il tuo nome" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="edit-email" placeholder="la tua@email.com" autocomplete="email">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Nuova password</label>
+          <div style="position:relative;">
+            <input type="password" class="form-input" id="edit-pass" placeholder="Lascia vuoto per non cambiare" autocomplete="new-password" style="padding-right:48px;">
+            <button onclick="togglePassVisibility()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-variant);">
+              <span class="material-symbols-outlined" id="pass-eye-icon">visibility</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-logout" onclick="logout()">
+        Logout <span style="font-size:18px;">🚪</span>
+      </button>
+      <div class="app-version">Versione App 2.4.0 (Aura)</div>
     </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
 
-    <!-- ═══════════════ QR FORM ═══════════════ -->
-    <div id="screen-qr" class="screen">
-      <div class="back-header">
-        <button class="back-btn" onclick="goTo('screen-add')">‹</button>
-        <span class="back-title">Prodotto scansionato</span>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="material-symbols-outlined">home</span><span>Casa</span></button>
+      <button class="nav-item" onclick="goTo('screen-shelf')"><span class="material-symbols-outlined">kitchen</span><span>Dispensa</span></button>
+      <button class="nav-item" onclick="goTo('screen-add')"><span class="material-symbols-outlined">shopping_basket</span><span>Aggiungi</span></button>
+      <button class="nav-item active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">account_circle</span><span>Profilo</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ QR FORM ═══════════ -->
+  <div id="screen-qr" class="screen screen-scroll form-screen">
+    <div class="top-bar">
+      <button class="top-bar-btn" onclick="goTo('screen-add')">
+        <span class="material-symbols-outlined">arrow_back</span>Indietro
+      </button>
+      <span class="top-bar-title">Aura Foods</span>
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;">
+        <span class="material-symbols-outlined" style="color:#fff;font-size:20px;">qr_code_scanner</span>
       </div>
-      <div class="form-content">
-        <div id="qr-product-preview"
-          style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.6);border-radius:16px;padding:12px 14px;margin-bottom:12px;">
-          <div id="qr-preview-img"
-            style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">
-            🥑</div>
+    </div>
+    <div class="form-content">
+      <!-- Product preview -->
+      <div class="qr-preview glass-card">
+        <div class="qr-preview-emoji" id="qr-preview-img">🥑</div>
+        <div>
+          <div id="qr-product-name" style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--primary);"></div>
+          <div class="qr-found-badge">
+            <span class="material-symbols-outlined" style="font-size:12px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">check_circle</span>
+            Prodotto trovato ✅
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card glass-card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Quantità</label>
+            <input type="text" class="form-input" placeholder="1" id="qr-qty" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unità</label>
+            <select class="form-select" id="qr-unit">
+              <option value="">Pezzi</option>
+              <option value="g">Grammi (g)</option>
+              <option value="kg">Kg</option>
+              <option value="ml">Ml</option>
+              <option value="l">Litri (l)</option>
+              <option value="cf">Confezioni</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo di scadenza</label>
+          <select class="form-select" id="qr-type">
+            <option value="preferibilmente">Preferibilmente entro</option>
+            <option value="consumarsi">Da consumarsi entro</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Data scadenza (GG / MM / AA)</label>
+          <div class="date-row">
+            <input type="text" class="date-pill" placeholder="GG" maxlength="2" inputmode="numeric" id="qr-date-d">
+            <input type="text" class="date-pill" placeholder="MM" maxlength="2" inputmode="numeric" id="qr-date-m">
+            <input type="text" class="date-pill" placeholder="AA" maxlength="2" inputmode="numeric" id="qr-date-y">
+          </div>
+        </div>
+      </div>
+
+      <!-- Coins teaser -->
+      <div class="coins-teaser">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="coins-teaser-badge">🌟</div>
           <div>
-            <div id="qr-product-name" style="font-family:'Fredoka One',cursive;font-size:16px;color:#0d3320;"></div>
-            <div style="font-size:12px;font-weight:700;color:#2d8653;">Prodotto trovato ✅</div>
+            <div style="font-size:13px;font-weight:700;color:var(--on-surface);">Guadagnerai</div>
+            <div style="font-size:15px;font-weight:700;color:var(--primary);">+15 Aura Coins</div>
           </div>
         </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="form-group">
-            <label class="form-label">Quantità:</label>
-            <input type="text" class="form-input" placeholder="es. 3" id="qr-qty" inputmode="decimal">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tipo di scadenza:</label>
-            <div class="select-wrapper">
-              <select class="form-select" id="qr-type">
-                <option value="preferibilmente">Preferibilmente entro</option>
-                <option value="consumarsi">Da consumarsi entro</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Data scadenza (GG/MM/AA):</label>
-            <input type="text" class="form-input" placeholder="es. 25/12/25" id="qr-date" maxlength="8"
-              inputmode="numeric">
-          </div>
-        </div>
-        <button class="btn" onclick="addProductFromQR()">Conferma ✓</button>
+        <span class="material-symbols-outlined" style="color:var(--on-surface-variant);opacity:0.4;">info</span>
       </div>
-      <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
-    </div>
 
-    <!-- ═══════════════ SCANNER MODAL ═══════════════ -->
-    <div id="scanner-modal" class="scanner-modal">
-      <div class="scanner-inner">
-        <div class="scanner-header">
-          <span class="scanner-title">📷 Scannerizza</span>
-          <button class="scanner-close" onclick="closeScanner()">✕</button>
-        </div>
-        <div id="scanner-container"></div>
-        <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
-        <div class="scanner-status" id="scanner-status"></div>
+      <button class="btn-primary" onclick="addProductFromQR()">
+        <span class="material-symbols-outlined">check</span>Conferma ✓
+      </button>
+    </div>
+    <div class="footer">©Copyright 2025-26 Sigma Gooners & Co</div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="material-symbols-outlined">home</span><span>Casa</span></button>
+      <button class="nav-item" onclick="goTo('screen-shelf')"><span class="material-symbols-outlined">kitchen</span><span>Dispensa</span></button>
+      <button class="nav-item active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">add_circle</span><span>Aggiungi</span></button>
+      <button class="nav-item" onclick="goTo('screen-profile')"><span class="material-symbols-outlined">account_circle</span><span>Profilo</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ SCANNER MODAL ═══════════ -->
+  <div id="scanner-modal" class="scanner-modal">
+    <div class="scanner-inner">
+      <div class="scanner-header">
+        <span class="scanner-title">📷 Scannerizza</span>
+        <button class="scanner-close" onclick="closeScanner()">✕</button>
       </div>
+      <div id="scanner-container"></div>
+      <div class="scanner-hint" id="scanner-hint">Inquadra il codice a barre del prodotto</div>
+      <div class="scanner-status" id="scanner-status"></div>
     </div>
+  </div>
 
-  </div><!-- /app-shell -->
-  <div class="toast" id="toast"></div>
+</div><!-- /app-shell -->
 
-  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="css/style.css">
-  </noscript>
+<div class="toast" id="toast"></div>
 
-  <script defer src="js/config.js"></script>
-  <script defer src="js/notifications.js"></script>
-  <script defer src="js/app.js"></script>
+<!-- ── Override for prod-date compatibility with existing app.js ── -->
+<script>
+  // Bridge: when app.js reads #prod-date (old single field), build from pills
+  Object.defineProperty(document, '_prodDateShim', { value: true });
+  function getProdDate() {
+    const d = document.getElementById('prod-date-d')?.value || '';
+    const m = document.getElementById('prod-date-m')?.value || '';
+    const y = document.getElementById('prod-date-y')?.value || '';
+    return d && m && y ? `${d}/${m}/${y}` : '';
+  }
+  function getQrDate() {
+    const d = document.getElementById('qr-date-d')?.value || '';
+    const m = document.getElementById('qr-date-m')?.value || '';
+    const y = document.getElementById('qr-date-y')?.value || '';
+    return d && m && y ? `${d}/${m}/${y}` : '';
+  }
+
+  // Auto-advance date pills
+  ['prod','qr'].forEach(prefix => {
+    ['d','m'].forEach((part, idx) => {
+      const parts = ['d','m','y'];
+      document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById(`${prefix}-date-${part}`);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          if (el.value.length >= el.maxLength) {
+            const next = document.getElementById(`${prefix}-date-${parts[idx+1]}`);
+            if (next) next.focus();
+          }
+        });
+      });
+    });
+  });
+
+  // Password visibility toggle
+  function togglePassVisibility() {
+    const input = document.getElementById('edit-pass');
+    const icon = document.getElementById('pass-eye-icon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      icon.textContent = 'visibility';
+    }
+  }
+
+  // Auth tab switch
+  function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach((t,i) => {
+      t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register'));
+    });
+    document.getElementById('auth-login-form').classList.toggle('active', tab==='login');
+    document.getElementById('auth-register-form').classList.toggle('active', tab==='register');
+  }
+
+  // Shelf render override — new card style
+  function renderShelfItem(item) {
+    const daysLeft = getDaysLeft(item.expiry_date);
+    let badgeClass = 'badge-safe', dotClass = 'dot-safe', badgeText = `Scade tra ${daysLeft}gg`;
+    if (daysLeft < 0) { badgeClass = 'badge-critical'; dotClass = 'dot-critical'; badgeText = 'Scaduto'; }
+    else if (daysLeft === 0) { badgeClass = 'badge-critical'; dotClass = 'dot-critical'; badgeText = 'Scade oggi'; }
+    else if (daysLeft <= 3) { badgeClass = 'badge-warning'; dotClass = 'dot-warning'; badgeText = `Scade tra ${daysLeft}gg`; }
+
+    const unitLabel = item.unit ? ` ${item.unit}` : '';
+    const qty = item.qty !== undefined ? `${item.qty}${unitLabel}` : '';
+
+    return `
+      <div class="shelf-item glass-card" onclick="openDetail('${item.id}')">
+        <div class="shelf-emoji-box">${item.emoji || '🥑'}</div>
+        <div class="shelf-item-info">
+          <div class="shelf-item-name">${item.name}</div>
+          <div class="shelf-item-qty">${qty}</div>
+          <span class="shelf-item-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="expiry-dot ${dotClass}"></div>
+          <button onclick="event.stopPropagation();openDetail('${item.id}')" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // Detail info render override
+  function renderDetailInfo(item) {
+    const daysLeft = getDaysLeft(item.expiry_date);
+    let badgeClass = 'badge-safe', badgeText = `${daysLeft} giorni rimanenti`;
+    if (daysLeft < 0) { badgeClass = 'badge-critical'; badgeText = 'Scaduto'; }
+    else if (daysLeft === 0) { badgeClass = 'badge-critical'; badgeText = 'Scade oggi'; }
+    else if (daysLeft <= 3) { badgeClass = 'badge-warning'; }
+    const unitLabel = item.unit ? ` ${item.unit}` : '';
+    return `
+      <div class="detail-row">
+        <span class="detail-row-label">Nome</span>
+        <span class="detail-row-value">${item.name}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-row-label">Quantità</span>
+        <span class="detail-row-value">${item.qty || '–'}${unitLabel}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-row-label">Tipo scadenza</span>
+        <span class="detail-row-value">${item.expiry_type === 'consumarsi' ? 'Da consumarsi entro' : 'Preferibilmente entro'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-row-label">Data</span>
+        <div style="text-align:right;">
+          <span class="detail-row-value">${item.expiry_date}</span><br>
+          <span class="shelf-item-badge ${badgeClass}" style="display:inline-block;margin-top:4px;">${badgeText}</span>
+        </div>
+      </div>`;
+  }
+
+  // Success particles
+  function launchParticles() {
+    const container = document.getElementById('success-particles');
+    if (!container) return;
+    const colors = ['#b1f0ce','#99f7b3','#f59e0b','#2d6a4f','#95d4b3'];
+    for (let i = 0; i < 24; i++) {
+      const p = document.createElement('div');
+      const size = (Math.random() * 8 + 4) + 'px';
+      p.style.cssText = `width:${size};height:${size};position:absolute;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;top:50%;left:50%;`;
+      container.appendChild(p);
+      const dx = (Math.random()-0.5)*400, dy = (Math.random()-0.5)*400;
+      p.animate([
+        {transform:'translate(-50%,-50%) scale(0)',opacity:1},
+        {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1)`,opacity:0}
+      ],{duration:1000+Math.random()*1000,easing:'cubic-bezier(0,.9,.57,1)',fill:'forwards'});
+      setTimeout(()=>p.remove(),2200);
+    }
+  }
+
+  // Hook goTo to trigger particles on success
+  const _origGoTo = window.goTo;
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof goTo === 'function') {
+      const orig = goTo;
+      window.goTo = function(id) {
+        orig(id);
+        if (id === 'screen-success') setTimeout(launchParticles, 300);
+      };
+    }
+  });
+</script>
+
+<link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="css/style.css"></noscript>
+
+<script defer src="js/config.js"></script>
+<script defer src="js/notifications.js"></script>
+<script defer src="js/app.js"></script>
 
 </body>
-
 </html>
