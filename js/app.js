@@ -331,7 +331,8 @@ async function getAISafety(productName, imageUrl) {
         imageBase64 = null;
       }
     }
-
+    
+    showToast('URL: ' + AI_SAFETY_ENDPOINT.slice(0, 40));
     const res = await fetch(AI_SAFETY_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -346,7 +347,7 @@ async function getAISafety(productName, imageUrl) {
     return data;
 
   } catch (e) {
-    showToast('Errore: ' + e.message);
+    showToast('Errore: ' + e.message + '' +e.name);
     return null;
   }
 }
