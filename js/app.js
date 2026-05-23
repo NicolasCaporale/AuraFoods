@@ -335,6 +335,7 @@ async function getAISafety(productName, imageUrl) {
     showToast('URL: ' + AI_SAFETY_ENDPOINT.slice(0, 40));
     const res = await fetch(AI_SAFETY_ENDPOINT, {
       method: 'POST',
+      mode: 'cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productName, imageBase64 }),
     });
