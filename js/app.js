@@ -310,8 +310,8 @@ const AI_SAFETY_ENDPOINT = 'https://aura-foods-api.vercel.app/api/ai-safety';
 
 async function getAISafety(productName, imageUrl) {
   try {
-    showToast('Chiamata AI in corso... 🤖');
-    
+    showToast('Chiamata AI... 🤖');
+
     let imageBase64 = null;
     if (imageUrl) {
       try {
@@ -327,31 +327,35 @@ async function getAISafety(productName, imageUrl) {
         canvas.height = img.naturalHeight;
         canvas.getContext('2d').drawImage(img, 0, 0);
         imageBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      } catch (_) {
-        imageBase64 = null;
-      }
+      } catch (_) { imageBase64 = null; }
     }
-    
-    showToast('URL: ' + AI_SAFETY_ENDPOINT.slice(0, 40));
-    const res = await fetch(AI_SAFETY_ENDPOINT, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productName, imageBase64 }),
+
+    const result = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', AI_SAFETY_ENDPOINT, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 12000;
+      xhr.onload = () => {
+        showToast('XHR status: ' + xhr.status);
+        if (xhr.status === 200) {
+          resolve(JSON.parse(xhr.responseText));
+        } else {
+          resolve(null);
+        }
+      };
+      xhr.onerror = () => { showToast('XHR error'); reject(new Error('XHR failed')); };
+      xhr.ontimeout = () => { showToast('XHR timeout'); reject(new Error('XHR timeout')); };
+      xhr.send(JSON.stringify({ productName, imageBase64 }));
     });
 
-    showToast('Risposta: ' + res.status);
-
-    if (!res.ok) return null;
-    const data = await res.json();
-    showToast('Data: ' + JSON.stringify(data).slice(0, 50));
-    return data;
+    return result;
 
   } catch (e) {
-    showToast('Errore: ' + e.message + '' +e.name);
+    showToast('Errore: ' + e.message);
     return null;
   }
 }
+
 
 
 /* ── HOME RENDER ── */
