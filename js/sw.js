@@ -2,7 +2,7 @@
    AURA FOODS — Service Worker
    ══════════════════════════════════════════ */
 
-const CACHE_NAME = 'aura-foods-v2';
+const CACHE_NAME = 'aura-foods-v5';
 
 const ASSETS = [
   '/',
@@ -53,6 +53,7 @@ self.addEventListener('fetch', event => {
   if (event.request.url.includes('supabase.co')) {
     return;
   }
+  if (event.request.url.includes('vercel.app')) return;
 
   event.respondWith(
     fetch(event.request)
