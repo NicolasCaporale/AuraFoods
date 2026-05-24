@@ -336,7 +336,6 @@ async function getAISafety(productName, imageUrl) {
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.timeout = 12000;
       xhr.onload = () => {
-        showToast('XHR status: ' + xhr.status);
         if (xhr.status === 200) {
           resolve(JSON.parse(xhr.responseText));
         } else {
