@@ -800,8 +800,6 @@ function _startScanner() {
   document.getElementById('scanner-container').innerHTML = '';
   html5QrCode = new Html5Qrcode('scanner-container');
 
-  // Su mobile serve un delay reale — rAF non basta perché il layout
-  // del modal non è ancora committed quando il frame viene eseguito
   setTimeout(() => {
     Html5Qrcode.getCameras().then(cameras => {
       if (!cameras || cameras.length === 0) {
@@ -813,29 +811,22 @@ function _startScanner() {
       html5QrCode.start(
         { facingMode: 'environment' },
         {
-          fps: 15, // era 10, più frame = più tentativi
-          qrbox: { 
-            width: Math.min(containerW - 20, 320),  // più largo
-            height: 220                              // più alto, accetta barcode di qualsiasi dimensione
-          },
+          fps: 15,
+          qrbox: { width: Math.min(containerW - 20, 320), height: 220 },
           aspectRatio: 1.7,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true },
           formatsToSupport: [
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-          ],
-          experimentalFeatures: {
-            useBarCodeDetectorIfSupported: true  // usa API nativa del browser se disponibile, molto più veloce
-          },
-          rememberLastUsedCamera: true,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+            Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,  Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+          ]
         },
         onBarcodeDetected,
         () => {}
-      ).catch(err => {
+      ).then(() => {
+        // forza autofocus continuo dopo lo start
+        _forceContinuousAutofocus();
+      }).catch(err => {
         console.error(err);
         setStatus('Errore avvio fotocamera ❌', 'error');
       });
@@ -843,7 +834,24 @@ function _startScanner() {
       console.error(err);
       setStatus('Permesso fotocamera negato ❌', 'error');
     });
-  }, 300); // 300ms è sufficiente su praticamente tutti i device mobile
+  }, 300);
+}
+
+function _forceContinuousAutofocus() {
+  try {
+    const video = document.querySelector('#scanner-container video');
+    if (!video) return;
+    const stream = video.srcObject;
+    if (!stream) return;
+    const track = stream.getVideoTracks()[0];
+    if (!track) return;
+    const capabilities = track.getCapabilities();
+    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+      track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+    }
+  } catch (e) {
+    console.warn('Autofocus non supportato:', e);
+  }
 }
 
 function closeScanner() {
