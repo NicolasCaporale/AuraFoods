@@ -841,17 +841,46 @@ function _forceContinuousAutofocus() {
   try {
     const video = document.querySelector('#scanner-container video');
     if (!video) return;
-    const stream = video.srcObject;
-    if (!stream) return;
-    const track = stream.getVideoTracks()[0];
+    const track = video.srcObject?.getVideoTracks()[0];
     if (!track) return;
     const capabilities = track.getCapabilities();
-    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+
+    // autofocus continuo
+    if (capabilities.focusMode?.includes('continuous')) {
       track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
     }
-  } catch (e) {
-    console.warn('Autofocus non supportato:', e);
-  }
+
+    // mostra slider zoom se supportato
+    if (capabilities.zoom) {
+      const { min, max } = capabilities.zoom;
+      _showZoomSlider(track, min, max);
+    }
+  } catch (e) {}
+}
+
+function _showZoomSlider(track, min, max) {
+  const existing = document.getElementById('scanner-zoom-wrap');
+  if (existing) existing.remove();
+
+  const wrap = document.createElement('div');
+  wrap.id = 'scanner-zoom-wrap';
+  wrap.style.cssText = 'padding:10px 16px 0;display:flex;align-items:center;gap:10px;';
+  wrap.innerHTML = `
+    <span style="font-size:13px;">🔍</span>
+    <input type="range" id="scanner-zoom" min="${min}" max="${max}" 
+      step="${(max - min) / 20}" value="${min}"
+      style="flex:1;accent-color:#2d6a4f;">
+    <span style="font-size:13px;">🔎</span>`;
+  
+  const inner = document.querySelector('.scanner-inner');
+  const hint  = document.getElementById('scanner-hint');
+  if (inner && hint) inner.insertBefore(wrap, hint);
+
+  document.getElementById('scanner-zoom').addEventListener('input', e => {
+    try {
+      track.applyConstraints({ advanced: [{ zoom: parseFloat(e.target.value) }] });
+    } catch(_) {}
+  });
 }
 
 function closeScanner() {
