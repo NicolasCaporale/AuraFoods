@@ -813,14 +813,25 @@ function _startScanner() {
       html5QrCode.start(
         { facingMode: 'environment' },
         {
-          fps: 10,          // abbassa a 10 su mobile — meno stress sulla CPU
-          qrbox: { width: Math.min(containerW - 40, 260), height: 150 },
+          fps: 15, // era 10, più frame = più tentativi
+          qrbox: { 
+            width: Math.min(containerW - 20, 320),  // più largo
+            height: 220                              // più alto, accetta barcode di qualsiasi dimensione
+          },
           aspectRatio: 1.7,
           formatsToSupport: [
-            Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,  Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-          ]
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+          ],
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true  // usa API nativa del browser se disponibile, molto più veloce
+          },
+          rememberLastUsedCamera: true,
+          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
         },
         onBarcodeDetected,
         () => {}
