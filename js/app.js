@@ -36,7 +36,14 @@ function hideSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return;
   splash.classList.add('hide');
-  setTimeout(() => splash.remove(), 400);
+  setTimeout(() => {
+    splash.remove();
+    // Rimuove readonly dagli input auth dopo la transizione
+    ['login-email', 'login-pass', 'reg-name', 'reg-email', 'reg-pass'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.removeAttribute('readonly');
+    });
+  }, 400);
 }
 
 /* ── NAVIGATION ── */
