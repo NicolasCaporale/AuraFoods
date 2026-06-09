@@ -11,6 +11,7 @@ const ASSETS = [
   '/css/style.css',
   '/js/app.js',
   '/js/config.js',
+  '/verifica-alimenti.html',
   '/js/notifications.js',
   '/img/image.png',
   'https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap',
