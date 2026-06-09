@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <script>
-  if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+<script>
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                    || window.navigator.standalone === true;
+  if (isMobile && isStandalone) {
     window.location.replace('/app.html');
   }
 </script>
